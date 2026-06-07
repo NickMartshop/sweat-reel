@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search, Plus, Flame } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
-import { greeting, mockWorkouts, weeklyPlan, getMondayIndex } from "@/lib/fitvault-data";
+import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
+import { ToastHost } from "@/components/fitvault/Toast";
+import { greeting, weeklyPlan, getMondayIndex } from "@/lib/fitvault-data";
+import { useWorkouts } from "@/lib/workouts-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,26 +29,35 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
 }
 
 function HomePage() {
+  const workouts = useWorkouts();
   const [query, setQuery] = useState("");
-  const today = new Date();
-  const todayIdx = getMondayIndex(today);
+  const [addOpen, setAddOpen] = useState(false);
+  const [greet, setGreet] = useState("Welcome 👋");
+  const [dateLabel, setDateLabel] = useState("");
+
+  useEffect(() => {
+    setGreet(greeting());
+    setDateLabel(
+      new Date().toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+      }),
+    );
+  }, []);
+
+  const todayIdx = getMondayIndex(new Date());
   const todayPlan = weeklyPlan[todayIdx] ?? [];
   const todayWorkouts = todayPlan
-    .map((id) => mockWorkouts.find((w) => w.id === id))
-    .filter(Boolean) as typeof mockWorkouts;
-
-  const dateLabel = today.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
+    .map((id) => workouts.find((w) => w.id === id))
+    .filter(Boolean) as typeof workouts;
 
   const filtered = useMemo(
     () =>
-      mockWorkouts.filter((w) =>
+      workouts.filter((w) =>
         w.title.toLowerCase().includes(query.toLowerCase()),
       ),
-    [query],
+    [query, workouts],
   );
 
   const plannedThisWeek = Object.values(weeklyPlan).flat().length;
@@ -55,7 +67,7 @@ function HomePage() {
       {/* Header */}
       <header className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">{greeting()}</h1>
+          <h1 className="text-xl font-bold text-white">{greet}</h1>
           <p className="text-[13px] text-text-secondary mt-0.5">Ready to crush it today?</p>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[50px] bg-card border border-border">
@@ -66,7 +78,7 @@ function HomePage() {
 
       {/* Stat cards */}
       <div className="flex gap-2 mt-4">
-        <StatCard label="Saved" value={mockWorkouts.length} sub="workouts" />
+        <StatCard label="Saved" value={workouts.length} sub="workouts" />
         <StatCard label="This Week" value={plannedThisWeek} sub="planned" />
         <StatCard label="Done" value={0} sub="completed" />
       </div>
@@ -127,12 +139,12 @@ function HomePage() {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-white">My Library</h2>
           <span className="text-[11px] font-semibold text-white bg-primary px-2 py-0.5 rounded-[50px]">
-            {mockWorkouts.length}
+            {workouts.length}
           </span>
         </div>
 
         {filtered.length === 0 ? (
-          <EmptyLibrary />
+          <EmptyLibrary onAdd={() => setAddOpen(true)} />
         ) : (
           <div className="mt-3 grid grid-cols-2 gap-3">
             {filtered.map((w) => (
@@ -145,6 +157,7 @@ function HomePage() {
       {/* FAB */}
       <button
         aria-label="Add workout"
+        onClick={() => setAddOpen(true)}
         className="press-scale fixed right-4 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center z-30"
         style={{
           bottom: "calc(72px + env(safe-area-inset-bottom))",
@@ -153,11 +166,14 @@ function HomePage() {
       >
         <Plus size={26} strokeWidth={2.5} />
       </button>
+
+      <AddWorkoutSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <ToastHost />
     </AppShell>
   );
 }
 
-function EmptyLibrary() {
+function EmptyLibrary({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="mt-10 flex flex-col items-center text-center">
       {/* CSS dumbbell */}
@@ -172,7 +188,10 @@ function EmptyLibrary() {
       <p className="mt-1 text-[14px] text-text-secondary">
         Save workouts from YouTube, Instagram & TikTok
       </p>
-      <button className="press-scale mt-5 w-full h-[52px] rounded-xl bg-primary text-white font-semibold">
+      <button
+        onClick={onAdd}
+        className="press-scale mt-5 w-full h-[52px] rounded-xl bg-primary text-white font-semibold"
+      >
         Add First Workout
       </button>
     </div>
