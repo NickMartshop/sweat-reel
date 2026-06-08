@@ -33,6 +33,7 @@ function HomePage() {
   const workouts = useWorkouts();
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
+  const [detail, setDetail] = useState<Workout | null>(null);
   const [greet, setGreet] = useState("Welcome 👋");
   const [dateLabel, setDateLabel] = useState("");
 
