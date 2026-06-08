@@ -4,8 +4,9 @@ import { Search, Plus, Flame } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
+import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { ToastHost } from "@/components/fitvault/Toast";
-import { greeting, weeklyPlan, getMondayIndex } from "@/lib/fitvault-data";
+import { greeting, weeklyPlan, getMondayIndex, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts } from "@/lib/workouts-store";
 
 export const Route = createFileRoute("/")({
@@ -32,6 +33,7 @@ function HomePage() {
   const workouts = useWorkouts();
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
+  const [detail, setDetail] = useState<Workout | null>(null);
   const [greet, setGreet] = useState("Welcome 👋");
   const [dateLabel, setDateLabel] = useState("");
 
@@ -115,7 +117,8 @@ function HomePage() {
             {todayWorkouts.map((w) => (
               <li
                 key={w.id}
-                className="press-scale flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
+                onClick={() => setDetail(w)}
+                className="press-scale cursor-pointer flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
               >
                 <img
                   src={w.thumbnail_url}
@@ -148,7 +151,7 @@ function HomePage() {
         ) : (
           <div className="mt-3 grid grid-cols-2 gap-3">
             {filtered.map((w) => (
-              <WorkoutCard key={w.id} workout={w} />
+              <WorkoutCard key={w.id} workout={w} onClick={() => setDetail(w)} />
             ))}
           </div>
         )}
@@ -168,6 +171,7 @@ function HomePage() {
       </button>
 
       <AddWorkoutSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <WorkoutDetailSheet workout={detail} onClose={() => setDetail(null)} />
       <ToastHost />
     </AppShell>
   );

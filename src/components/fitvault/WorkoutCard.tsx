@@ -1,9 +1,20 @@
 import { MoreVertical } from "lucide-react";
 import { muscleColors, difficultyColors, type Workout } from "@/lib/fitvault-data";
 
-export function WorkoutCard({ workout, onMenu }: { workout: Workout; onMenu?: () => void }) {
+export function WorkoutCard({
+  workout,
+  onMenu,
+  onClick,
+}: {
+  workout: Workout;
+  onMenu?: () => void;
+  onClick?: () => void;
+}) {
   return (
-    <article className="press-scale rounded-2xl overflow-hidden bg-card border border-border">
+    <article
+      onClick={onClick}
+      className="press-scale rounded-2xl overflow-hidden bg-card border border-border cursor-pointer"
+    >
       <div className="relative aspect-video bg-[#252535]">
         <img
           src={workout.thumbnail_url}

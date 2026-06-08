@@ -148,6 +148,11 @@ export function AddWorkoutSheet({
         thumbUrl && !thumbBroken
           ? thumbUrl
           : `https://picsum.photos/seed/${Date.now()}/400/225`,
+      source_url: url.trim() || undefined,
+      platform: platform ?? null,
+      exercises: exercises
+        .filter((e) => e.name.trim())
+        .map((e) => ({ id: String(e.id), name: e.name.trim(), sets: e.sets, reps: e.reps })),
     };
     setSavedAnim(true);
     setTimeout(() => {
