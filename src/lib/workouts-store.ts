@@ -18,6 +18,10 @@ export const workoutsStore = {
     workouts = [w, ...workouts];
     emit();
   },
+  remove: (id: string) => {
+    workouts = workouts.filter((w) => w.id !== id);
+    emit();
+  },
 };
 
 export function useWorkouts() {
