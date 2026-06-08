@@ -4,8 +4,9 @@ import { Search, Plus, Flame } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
+import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { ToastHost } from "@/components/fitvault/Toast";
-import { greeting, weeklyPlan, getMondayIndex } from "@/lib/fitvault-data";
+import { greeting, weeklyPlan, getMondayIndex, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts } from "@/lib/workouts-store";
 
 export const Route = createFileRoute("/")({
