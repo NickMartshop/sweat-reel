@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { authStore } from "@/lib/auth-store";
-import { pushToast } from "./Toast";
+import { toast } from "./Toast";
 
 type Mode = "signup" | "signin";
 
