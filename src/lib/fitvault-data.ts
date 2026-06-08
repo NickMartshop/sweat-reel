@@ -1,6 +1,15 @@
 export type MuscleGroup = "Chest" | "Back" | "Legs" | "Arms" | "Core" | "Full Body" | "Cardio";
 export type Difficulty = "Easy" | "Medium" | "Hard";
 
+export interface Exercise {
+  id: string;
+  name: string;
+  sets: number;
+  reps: number;
+}
+
+export type Platform = "YouTube" | "Instagram" | "TikTok" | null;
+
 export interface Workout {
   id: string;
   title: string;
@@ -8,6 +17,18 @@ export interface Workout {
   difficulty: Difficulty;
   duration_mins: number;
   thumbnail_url: string;
+  source_url?: string;
+  platform?: Platform;
+  exercises?: Exercise[];
+}
+
+export function detectPlatform(url: string): Platform {
+  if (!url) return null;
+  const u = url.toLowerCase();
+  if (u.includes("youtube.com") || u.includes("youtu.be")) return "YouTube";
+  if (u.includes("instagram.com")) return "Instagram";
+  if (u.includes("tiktok.com")) return "TikTok";
+  return null;
 }
 
 export const muscleColors: Record<MuscleGroup, string> = {
