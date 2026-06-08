@@ -117,7 +117,8 @@ function HomePage() {
             {todayWorkouts.map((w) => (
               <li
                 key={w.id}
-                className="press-scale flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
+                onClick={() => setDetail(w)}
+                className="press-scale cursor-pointer flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
               >
                 <img
                   src={w.thumbnail_url}
