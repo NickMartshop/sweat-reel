@@ -34,7 +34,7 @@ export function AuthScreen() {
       name: mode === "signup" ? name.trim() : email.split("@")[0],
       email: email.trim(),
     });
-    pushToast(mode === "signup" ? "Welcome to FitVault! 💪" : "Welcome back!", "success");
+    toast.show(mode === "signup" ? "Welcome to FitVault! 💪" : "Welcome back!", "success");
   };
 
   const fieldCls =
