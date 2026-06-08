@@ -151,7 +151,7 @@ function HomePage() {
         ) : (
           <div className="mt-3 grid grid-cols-2 gap-3">
             {filtered.map((w) => (
-              <WorkoutCard key={w.id} workout={w} />
+              <WorkoutCard key={w.id} workout={w} onClick={() => setDetail(w)} />
             ))}
           </div>
         )}
