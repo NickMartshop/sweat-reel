@@ -171,6 +171,7 @@ function HomePage() {
       </button>
 
       <AddWorkoutSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <WorkoutDetailSheet workout={detail} onClose={() => setDetail(null)} />
       <ToastHost />
     </AppShell>
   );
