@@ -62,7 +62,9 @@ export const plansStore = {
   get: () => state,
   subscribe: (l: () => void) => {
     listeners.add(l);
-    return () => listeners.delete(l);
+    return () => {
+      listeners.delete(l);
+    };
   },
   reload: load,
   add: async (dayOfWeek: number, workoutId: string) => {

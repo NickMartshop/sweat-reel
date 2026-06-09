@@ -64,7 +64,9 @@ export const workoutsStore = {
   get: () => state,
   subscribe: (l: () => void) => {
     listeners.add(l);
-    return () => listeners.delete(l);
+    return () => {
+      listeners.delete(l);
+    };
   },
   reload: load,
   add: async (w: NewWorkoutInput): Promise<Workout> => {

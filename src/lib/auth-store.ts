@@ -51,7 +51,9 @@ export const authStore = {
   get: () => state,
   subscribe: (l: () => void) => {
     listeners.add(l);
-    return () => listeners.delete(l);
+    return () => {
+      listeners.delete(l);
+    };
   },
   completeOnboarding: () => {
     try {
