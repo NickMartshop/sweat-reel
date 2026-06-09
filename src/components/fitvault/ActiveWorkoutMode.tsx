@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Minus, Plus } from "lucide-react";
 import type { Workout } from "@/lib/fitvault-data";
 import { toast } from "./Toast";
+import { profileStore } from "@/lib/profile-store";
 
 function fmt(s: number) {
   const h = Math.floor(s / 3600);
@@ -435,11 +436,20 @@ function CompletionScreen({
 
         <div className="mt-10 w-full">
           <button
-            onClick={() => {
+            onClick={async () => {
               if (logged) return;
               setLogged(true);
-              toast.success("Workout logged ✓");
-              setTimeout(onClose, 600);
+              try {
+                await profileStore.logCompleted(
+                  workout.id,
+                  Math.max(1, Math.round(elapsed / 60)),
+                );
+                toast.success("Workout logged ✓");
+                setTimeout(onClose, 600);
+              } catch {
+                setLogged(false);
+                toast.error("Couldn't log. Try again.");
+              }
             }}
             disabled={logged}
             className="w-full h-[52px] rounded-xl bg-primary text-white text-[15px] font-semibold press-scale disabled:opacity-60"
