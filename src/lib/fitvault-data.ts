@@ -1,4 +1,11 @@
-export type MuscleGroup = "Chest" | "Back" | "Legs" | "Arms" | "Core" | "Full Body" | "Cardio";
+export type MuscleGroup =
+  | "Chest"
+  | "Back"
+  | "Legs"
+  | "Arms"
+  | "Core"
+  | "Full Body"
+  | "Cardio";
 export type Difficulty = "Easy" | "Medium" | "Hard";
 
 export interface Exercise {
@@ -47,51 +54,6 @@ export const difficultyColors: Record<Difficulty, string> = {
   Hard: "#EF476F",
 };
 
-export const mockWorkouts: Workout[] = [
-  { id: "1", title: "Full Body HIIT 20 Min", muscle_group: "Full Body", difficulty: "Hard", duration_mins: 20, thumbnail_url: "https://picsum.photos/seed/hiit/400/225", platform: "YouTube", source_url: "https://youtube.com/watch?v=ml6cT4AZdqI", exercises: [
-    { id: "1a", name: "Jumping Jacks", sets: 3, reps: 30 },
-    { id: "1b", name: "Burpees", sets: 3, reps: 12 },
-    { id: "1c", name: "Mountain Climbers", sets: 3, reps: 20 },
-    { id: "1d", name: "Push-ups", sets: 3, reps: 15 },
-  ] },
-  { id: "2", title: "Chest & Triceps Workout", muscle_group: "Chest", difficulty: "Medium", duration_mins: 45, thumbnail_url: "https://picsum.photos/seed/chest/400/225", platform: "YouTube", source_url: "https://youtube.com/watch?v=example", exercises: [
-    { id: "2a", name: "Bench Press", sets: 4, reps: 10 },
-    { id: "2b", name: "Incline Dumbbell Press", sets: 3, reps: 12 },
-    { id: "2c", name: "Tricep Dips", sets: 3, reps: 15 },
-    { id: "2d", name: "Cable Flyes", sets: 3, reps: 12 },
-  ] },
-  { id: "3", title: "Leg Day Destroyer", muscle_group: "Legs", difficulty: "Hard", duration_mins: 60, thumbnail_url: "https://picsum.photos/seed/legs/400/225", platform: "Instagram", source_url: "https://instagram.com/reel/example", exercises: [
-    { id: "3a", name: "Back Squats", sets: 5, reps: 8 },
-    { id: "3b", name: "Romanian Deadlift", sets: 4, reps: 10 },
-    { id: "3c", name: "Walking Lunges", sets: 3, reps: 20 },
-    { id: "3d", name: "Leg Press", sets: 4, reps: 12 },
-  ] },
-  { id: "4", title: "Morning Yoga Flow", muscle_group: "Full Body", difficulty: "Easy", duration_mins: 30, thumbnail_url: "https://picsum.photos/seed/yoga/400/225" },
-  { id: "5", title: "Back & Biceps Pump", muscle_group: "Back", difficulty: "Medium", duration_mins: 40, thumbnail_url: "https://picsum.photos/seed/back/400/225", platform: "YouTube", source_url: "https://youtube.com/watch?v=example2", exercises: [
-    { id: "5a", name: "Pull-ups", sets: 4, reps: 8 },
-    { id: "5b", name: "Bent-over Rows", sets: 4, reps: 10 },
-    { id: "5c", name: "Barbell Curls", sets: 3, reps: 12 },
-  ] },
-  { id: "6", title: "Core Crusher 15", muscle_group: "Core", difficulty: "Medium", duration_mins: 15, thumbnail_url: "https://picsum.photos/seed/core/400/225", platform: "TikTok", source_url: "https://tiktok.com/@example/video/1", exercises: [
-    { id: "6a", name: "Plank (sec)", sets: 3, reps: 45 },
-    { id: "6b", name: "Russian Twists", sets: 3, reps: 30 },
-    { id: "6c", name: "Bicycle Crunches", sets: 3, reps: 20 },
-  ] },
-  { id: "7", title: "Arm Builder Superset", muscle_group: "Arms", difficulty: "Medium", duration_mins: 35, thumbnail_url: "https://picsum.photos/seed/arms/400/225" },
-  { id: "8", title: "Cardio Burner Sprint", muscle_group: "Cardio", difficulty: "Hard", duration_mins: 25, thumbnail_url: "https://picsum.photos/seed/cardio/400/225" },
-];
-
-// Weekly plan: index 0 = Mon ... 6 = Sun
-export const weeklyPlan: Record<number, string[]> = {
-  0: ["2", "6"],
-  1: [],
-  2: ["3"],
-  3: ["4"],
-  4: ["1"],
-  5: [],
-  6: ["8"],
-};
-
 export function greeting(): string {
   const h = new Date().getHours();
   if (h < 12) return "Good Morning 💪";
@@ -100,9 +62,52 @@ export function greeting(): string {
 }
 
 export const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-export const DAYS_FULL = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+export const DAYS_FULL = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 export function getMondayIndex(d = new Date()): number {
   // 0 = Monday ... 6 = Sunday
   return (d.getDay() + 6) % 7;
+}
+
+export function getCurrentMonday(d = new Date()): string {
+  const idx = getMondayIndex(d);
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - idx);
+  // YYYY-MM-DD
+  const y = monday.getFullYear();
+  const m = String(monday.getMonth() + 1).padStart(2, "0");
+  const day = String(monday.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+export function todayDateString(d = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+// Map a DB row -> Workout
+export function rowToWorkout(row: any): Workout {
+  return {
+    id: row.id,
+    title: row.title,
+    muscle_group: (row.muscle_group ?? "Full Body") as MuscleGroup,
+    difficulty: (row.difficulty ?? "Medium") as Difficulty,
+    duration_mins: row.duration_mins ?? 0,
+    thumbnail_url:
+      row.thumbnail_url ||
+      `https://picsum.photos/seed/${row.id}/400/225`,
+    source_url: row.url ?? undefined,
+    platform: (row.platform ?? null) as Platform,
+    exercises: Array.isArray(row.exercises) ? row.exercises : [],
+  };
 }
