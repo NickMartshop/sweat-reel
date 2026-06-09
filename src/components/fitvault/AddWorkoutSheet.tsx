@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Trash2, ClipboardPaste, Sparkles, Minus, Plus, Play, Check } from "lucide-react";
-import { muscleColors, type Difficulty, type MuscleGroup, type Workout } from "@/lib/fitvault-data";
+import { muscleColors, type Difficulty, type MuscleGroup } from "@/lib/fitvault-data";
 import { workoutsStore } from "@/lib/workouts-store";
 import { toast } from "./Toast";
 
@@ -136,31 +136,43 @@ export function AddWorkoutSheet({
     }, 1400);
   }
 
-  function save() {
+  async function save() {
     if (!canSave) return;
-    const w: Workout = {
-      id: `u-${Date.now()}`,
-      title: title.trim() || "Untitled Workout",
-      muscle_group: (muscle ?? "Full Body") as MuscleGroup,
-      difficulty: (difficulty ?? "Medium") as Difficulty,
-      duration_mins: duration,
-      thumbnail_url:
-        thumbUrl && !thumbBroken
-          ? thumbUrl
-          : `https://picsum.photos/seed/${Date.now()}/400/225`,
-      source_url: url.trim() || undefined,
-      platform: platform ?? null,
-      exercises: exercises
-        .filter((e) => e.name.trim())
-        .map((e) => ({ id: String(e.id), name: e.name.trim(), sets: e.sets, reps: e.reps })),
-    };
     setSavedAnim(true);
-    setTimeout(() => {
-      workoutsStore.add(w);
-      toast.success("Workout saved! 💪");
-      reset();
-      onClose();
-    }, 700);
+    try {
+      await workoutsStore.add({
+        title: title.trim() || "Untitled Workout",
+        url: url.trim() || null,
+        thumbnail_url:
+          thumbUrl && !thumbBroken
+            ? thumbUrl
+            : `https://picsum.photos/seed/${Date.now()}/400/225`,
+        muscle_group: (muscle ?? "Full Body") as MuscleGroup,
+        difficulty: (difficulty ?? "Medium") as Difficulty,
+        duration_mins: duration,
+        platform: platform ?? null,
+        exercises: exercises
+          .filter((e) => e.name.trim())
+          .map((e) => ({
+            id: String(e.id),
+            name: e.name.trim(),
+            sets: e.sets,
+            reps: e.reps,
+          })),
+      });
+      toast.success("Saved to your library! 💪");
+      setTimeout(() => {
+        reset();
+        onClose();
+      }, 400);
+    } catch (err: any) {
+      setSavedAnim(false);
+      toast.error(
+        err?.message?.includes("network") || err?.message?.includes("fetch")
+          ? "Connection error. Check your internet."
+          : "Couldn't save. Try again.",
+      );
+    }
   }
 
   if (!mounted) return null;
