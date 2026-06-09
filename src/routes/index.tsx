@@ -6,20 +6,35 @@ import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { ToastHost } from "@/components/fitvault/Toast";
-import { greeting, weeklyPlan, getMondayIndex, type Workout } from "@/lib/fitvault-data";
+import { greeting, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts } from "@/lib/workouts-store";
+import { usePlans } from "@/lib/plans-store";
+import { useProfile } from "@/lib/profile-store";
+import { getMondayIndex } from "@/lib/fitvault-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "FitVault — Home" },
-      { name: "description", content: "Your workouts, organized. Today's plan, library and quick stats." },
+      {
+        name: "description",
+        content:
+          "Your workouts, organized. Today's plan, library and quick stats.",
+      },
     ],
   }),
   component: HomePage,
 });
 
-function StatCard({ label, value, sub }: { label: string; value: string | number; sub: string }) {
+function StatCard({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string | number;
+  sub: string;
+}) {
   return (
     <div className="flex-1 bg-card border border-border rounded-2xl p-3">
       <p className="text-[11px] text-text-secondary font-medium">{label}</p>
@@ -29,8 +44,23 @@ function StatCard({ label, value, sub }: { label: string; value: string | number
   );
 }
 
+function SkeletonCard() {
+  return (
+    <div className="rounded-2xl overflow-hidden bg-card border border-border animate-pulse">
+      <div className="aspect-video bg-[#1c1c2c]" />
+      <div className="p-2.5 space-y-2">
+        <div className="h-3 w-3/4 bg-[#252535] rounded" />
+        <div className="h-2.5 w-1/2 bg-[#1c1c2c] rounded" />
+      </div>
+    </div>
+  );
+}
+
 function HomePage() {
-  const workouts = useWorkouts();
+  const { workouts, loading } = useWorkouts();
+  const { entries: planEntries } = usePlans();
+  const { profile, weeklyCompletedCount } = useProfile();
+
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [detail, setDetail] = useState<Workout | null>(null);
@@ -49,10 +79,9 @@ function HomePage() {
   }, []);
 
   const todayIdx = getMondayIndex(new Date());
-  const todayPlan = weeklyPlan[todayIdx] ?? [];
-  const todayWorkouts = todayPlan
-    .map((id) => workouts.find((w) => w.id === id))
-    .filter(Boolean) as typeof workouts;
+  const todayWorkouts = planEntries
+    .filter((e) => e.day_of_week === todayIdx)
+    .map((e) => e.workout);
 
   const filtered = useMemo(
     () =>
@@ -62,30 +91,32 @@ function HomePage() {
     [query, workouts],
   );
 
-  const plannedThisWeek = Object.values(weeklyPlan).flat().length;
+  const plannedThisWeek = planEntries.length;
+  const streak = profile?.streak_count ?? 0;
 
   return (
     <AppShell>
-      {/* Header */}
       <header className="flex items-start justify-between">
         <div>
           <h1 className="text-xl font-bold text-white">{greet}</h1>
-          <p className="text-[13px] text-text-secondary mt-0.5">Ready to crush it today?</p>
+          <p className="text-[13px] text-text-secondary mt-0.5">
+            Ready to crush it today?
+          </p>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[50px] bg-card border border-border">
           <Flame size={14} className="text-action" />
-          <span className="text-[13px] font-semibold text-white">0 days</span>
+          <span className="text-[13px] font-semibold text-white">
+            {streak} {streak === 1 ? "day" : "days"}
+          </span>
         </div>
       </header>
 
-      {/* Stat cards */}
       <div className="flex gap-2 mt-4">
         <StatCard label="Saved" value={workouts.length} sub="workouts" />
         <StatCard label="This Week" value={plannedThisWeek} sub="planned" />
-        <StatCard label="Done" value={0} sub="completed" />
+        <StatCard label="Done" value={weeklyCompletedCount} sub="completed" />
       </div>
 
-      {/* Search */}
       <div className="mt-4 relative">
         <Search
           size={18}
@@ -99,7 +130,6 @@ function HomePage() {
         />
       </div>
 
-      {/* Today's Plan */}
       <section className="mt-5">
         <div className="flex items-end justify-between">
           <h2 className="text-base font-semibold text-white">Today's Plan</h2>
@@ -109,8 +139,12 @@ function HomePage() {
         {todayWorkouts.length === 0 ? (
           <button className="press-scale w-full mt-3 rounded-2xl border-[1.5px] border-dashed border-border p-5 flex flex-col items-center text-center">
             <span className="text-3xl">📅</span>
-            <p className="mt-2 text-[14px] text-white font-medium">No workout planned today</p>
-            <p className="mt-1 text-[13px] text-primary font-semibold">Tap to plan your week →</p>
+            <p className="mt-2 text-[14px] text-white font-medium">
+              No workout planned today
+            </p>
+            <p className="mt-1 text-[13px] text-primary font-semibold">
+              Tap to plan your week →
+            </p>
           </button>
         ) : (
           <ul className="mt-3 space-y-2">
@@ -126,7 +160,9 @@ function HomePage() {
                   className="w-[60px] h-[60px] rounded-xl object-cover"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-semibold text-white truncate">{w.title}</p>
+                  <p className="text-[14px] font-semibold text-white truncate">
+                    {w.title}
+                  </p>
                   <p className="text-[12px] text-text-secondary mt-0.5">
                     {w.muscle_group} · {w.duration_mins} min
                   </p>
@@ -137,7 +173,6 @@ function HomePage() {
         )}
       </section>
 
-      {/* My Library */}
       <section className="mt-6">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-white">My Library</h2>
@@ -146,18 +181,27 @@ function HomePage() {
           </span>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <EmptyLibrary onAdd={() => setAddOpen(true)} />
         ) : (
           <div className="mt-3 grid grid-cols-2 gap-3">
             {filtered.map((w) => (
-              <WorkoutCard key={w.id} workout={w} onClick={() => setDetail(w)} />
+              <WorkoutCard
+                key={w.id}
+                workout={w}
+                onClick={() => setDetail(w)}
+              />
             ))}
           </div>
         )}
       </section>
 
-      {/* FAB */}
       <button
         aria-label="Add workout"
         onClick={() => setAddOpen(true)}
@@ -180,7 +224,6 @@ function HomePage() {
 function EmptyLibrary({ onAdd }: { onAdd: () => void }) {
   return (
     <div className="mt-10 flex flex-col items-center text-center">
-      {/* CSS dumbbell */}
       <div className="flex items-center gap-1.5">
         <div className="w-3 h-9 rounded-md bg-[#252535]" />
         <div className="w-2 h-5 rounded-sm bg-[#252535]" />
@@ -188,7 +231,9 @@ function EmptyLibrary({ onAdd }: { onAdd: () => void }) {
         <div className="w-2 h-5 rounded-sm bg-[#252535]" />
         <div className="w-3 h-9 rounded-md bg-[#252535]" />
       </div>
-      <h3 className="mt-5 text-[18px] font-semibold text-white">Your library is empty</h3>
+      <h3 className="mt-5 text-[18px] font-semibold text-white">
+        Your library is empty
+      </h3>
       <p className="mt-1 text-[14px] text-text-secondary">
         Save workouts from YouTube, Instagram & TikTok
       </p>

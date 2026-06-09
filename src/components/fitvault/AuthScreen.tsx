@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
-import { authStore } from "@/lib/auth-store";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "./Toast";
 
 type Mode = "signup" | "signin";
@@ -10,7 +10,20 @@ function isEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
+function friendlyAuthError(msg: string | undefined): string {
+  if (!msg) return "Something went wrong. Try again.";
+  const m = msg.toLowerCase();
+  if (m.includes("invalid login")) return "Wrong email or password";
+  if (m.includes("already registered") || m.includes("already exists"))
+    return "An account with this email already exists";
+  if (m.includes("password")) return "Password doesn't meet requirements";
+  if (m.includes("network") || m.includes("fetch"))
+    return "Connection error. Check your internet.";
+  return "Something went wrong. Try again.";
+}
+
 export function AuthScreen() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("signup");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -19,22 +32,47 @@ export function AuthScreen() {
   const [showPw, setShowPw] = useState(false);
   const [showConf, setShowConf] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs: Record<string, string> = {};
-    if (mode === "signup" && name.trim().length < 2) errs.name = "Please enter your name";
+    if (mode === "signup" && name.trim().length < 2)
+      errs.name = "Please enter your name";
     if (!isEmail(email)) errs.email = "Invalid email";
     if (password.length < 6) errs.password = "Password must be at least 6 characters";
-    if (mode === "signup" && password !== confirm) errs.confirm = "Passwords don't match";
+    if (mode === "signup" && password !== confirm)
+      errs.confirm = "Passwords don't match";
     setErrors(errs);
     if (Object.keys(errs).length) return;
 
-    authStore.signIn({
-      name: mode === "signup" ? name.trim() : email.split("@")[0],
-      email: email.trim(),
-    });
-    toast.show(mode === "signup" ? "Welcome to FitVault! 💪" : "Welcome back!", "success");
+    setSubmitting(true);
+    try {
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { name: name.trim() },
+          },
+        });
+        if (error) throw error;
+        toast.show("Welcome to FitVault! 💪", "success");
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+        if (error) throw error;
+        toast.show("Welcome back!", "success");
+      }
+      navigate({ to: "/" });
+    } catch (err: any) {
+      toast.show(friendlyAuthError(err?.message), "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const fieldCls =
@@ -46,22 +84,23 @@ export function AuthScreen() {
         className="w-full max-w-[430px] px-6 py-10 flex flex-col"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 40px)" }}
       >
-        {/* Logo */}
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
             <span className="text-white text-2xl font-bold">FV</span>
           </div>
           <h1 className="mt-3 text-[28px] font-bold text-white">FitVault</h1>
-          <p className="text-[14px] text-text-secondary mt-1">Your workouts. Organized.</p>
+          <p className="text-[14px] text-text-secondary mt-1">
+            Your workouts. Organized.
+          </p>
         </div>
 
-        {/* Toggle */}
         <div className="mt-8 grid grid-cols-2 bg-card rounded-[50px] p-1 h-11">
           {(["signup", "signin"] as const).map((m) => {
             const active = mode === m;
             return (
               <button
                 key={m}
+                type="button"
                 onClick={() => {
                   setMode(m);
                   setErrors({});
@@ -87,7 +126,9 @@ export function AuthScreen() {
                 placeholder="Your Name"
                 className={fieldCls}
               />
-              {errors.name && <p className="text-[12px] text-error mt-1 px-1">{errors.name}</p>}
+              {errors.name && (
+                <p className="text-[12px] text-error mt-1 px-1">{errors.name}</p>
+              )}
             </div>
           )}
           <div>
@@ -99,7 +140,9 @@ export function AuthScreen() {
               autoComplete="email"
               className={fieldCls}
             />
-            {errors.email && <p className="text-[12px] text-error mt-1 px-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-[12px] text-error mt-1 px-1">{errors.email}</p>
+            )}
           </div>
           <div>
             <div className="relative">
@@ -155,10 +198,15 @@ export function AuthScreen() {
 
           <button
             type="submit"
-            className="press-scale w-full rounded-xl bg-primary text-white font-semibold text-[16px] mt-5"
+            disabled={submitting}
+            className="press-scale w-full rounded-xl bg-primary text-white font-semibold text-[16px] mt-5 disabled:opacity-60"
             style={{ height: 56 }}
           >
-            {mode === "signup" ? "Create Account" : "Sign In"}
+            {submitting
+              ? "Please wait…"
+              : mode === "signup"
+                ? "Create Account"
+                : "Sign In"}
           </button>
 
           {mode === "signup" && (

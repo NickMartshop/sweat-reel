@@ -1,13 +1,28 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Bell, Moon, Globe, Lock, Star, Share2, ChevronRight, LogOut } from "lucide-react";
+import {
+  Bell,
+  Moon,
+  Globe,
+  Lock,
+  Star,
+  Share2,
+  ChevronRight,
+  LogOut,
+} from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
+import { ToastHost, toast } from "@/components/fitvault/Toast";
+import { useProfile } from "@/lib/profile-store";
+import { authStore } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
       { title: "FitVault — Profile" },
-      { name: "description", content: "Your FitVault account, preferences and support." },
+      {
+        name: "description",
+        content: "Your FitVault account, preferences and support.",
+      },
     ],
   }),
   component: ProfilePage,
@@ -45,7 +60,15 @@ function Row({
   );
 }
 
-function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange?: (v: boolean) => void; disabled?: boolean }) {
+function Toggle({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange?: (v: boolean) => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       role="switch"
@@ -65,6 +88,18 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange?: 
 
 function ProfilePage() {
   const [notif, setNotif] = useState(true);
+  const { profile } = useProfile();
+  const navigate = useNavigate();
+
+  const name = profile?.name || "Athlete";
+  const email = profile?.email || "";
+  const initial = name.charAt(0).toUpperCase();
+  const joined = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      })
+    : "—";
 
   const handleShare = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -80,20 +115,30 @@ function ProfilePage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await authStore.signOut();
+      toast.show("Signed out", "info");
+      navigate({ to: "/auth" });
+    } catch {
+      toast.show("Couldn't sign out. Try again.", "error");
+    }
+  };
+
   return (
     <AppShell>
       <div className="flex flex-col items-center pt-2">
         <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-2xl font-bold text-white">
-          R
+          {initial}
         </div>
-        <h1 className="mt-3 text-xl font-bold text-white">Rahul</h1>
-        <p className="text-[14px] text-text-secondary">rahul@fitvault.app</p>
+        <h1 className="mt-3 text-xl font-bold text-white">{name}</h1>
+        <p className="text-[14px] text-text-secondary">{email}</p>
       </div>
 
       <div className="flex gap-2 mt-5">
-        <StatCard label="Joined" value="Jun 2026" />
-        <StatCard label="Workouts" value="0" />
-        <StatCard label="Streak" value="0" />
+        <StatCard label="Joined" value={joined} />
+        <StatCard label="Workouts" value={String(profile?.total_workouts ?? 0)} />
+        <StatCard label="Streak" value={String(profile?.streak_count ?? 0)} />
       </div>
 
       <section className="mt-6">
@@ -134,11 +179,13 @@ function ProfilePage() {
           Support
         </h2>
         <div className="mt-2 rounded-2xl overflow-hidden border border-border flex flex-col gap-[2px] bg-border">
-          <Row
-            icon={<Lock size={18} />}
-            label="Privacy Policy"
-            right={<ChevronRight size={16} className="text-text-secondary" />}
-          />
+          <Link to="/privacy" className="block">
+            <Row
+              icon={<Lock size={18} />}
+              label="Privacy Policy"
+              right={<ChevronRight size={16} className="text-text-secondary" />}
+            />
+          </Link>
           <Row
             icon={<Star size={18} />}
             label="Rate FitVault"
@@ -154,7 +201,8 @@ function ProfilePage() {
       </section>
 
       <button
-        className="press-scale mt-6 w-full h-12 rounded-xl border border-error text-error font-semibold flex items-center justify-center gap-2"
+        onClick={handleLogout}
+        className="press-scale mt-6 w-full h-12 rounded-xl border font-semibold flex items-center justify-center gap-2"
         style={{ color: "#EF476F", borderColor: "#EF476F" }}
       >
         <LogOut size={18} />
@@ -164,6 +212,7 @@ function ProfilePage() {
       <p className="text-center text-[11px] text-text-secondary mt-6">
         FitVault v1.0 · Your workouts. Organized.
       </p>
+      <ToastHost />
     </AppShell>
   );
 }
