@@ -286,11 +286,15 @@ export function WorkoutDetailSheet({
                     Cancel
                   </button>
                   <button
-                    onClick={() => {
-                      workoutsStore.remove(workout.id);
-                      setConfirmDelete(false);
-                      toast.success("Workout deleted");
-                      onClose();
+                    onClick={async () => {
+                      try {
+                        await workoutsStore.remove(workout.id);
+                        setConfirmDelete(false);
+                        toast.success("Workout deleted");
+                        onClose();
+                      } catch {
+                        toast.error("Couldn't delete. Try again.");
+                      }
                     }}
                     className="flex-1 h-10 rounded-xl bg-[#EF476F] text-white text-[14px] font-semibold press-scale"
                   >
