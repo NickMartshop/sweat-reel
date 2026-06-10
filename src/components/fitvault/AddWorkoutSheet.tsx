@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Trash2, ClipboardPaste, Sparkles, Minus, Plus, Play, Check } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { muscleColors, type Difficulty, type MuscleGroup } from "@/lib/fitvault-data";
 import { workoutsStore } from "@/lib/workouts-store";
+import { extractExercises } from "@/lib/ai-extract.functions";
 import { toast } from "./Toast";
 
 const MUSCLE_GROUPS: { key: MuscleGroup; emoji: string }[] = [
@@ -25,8 +27,9 @@ function detectPlatform(url: string): Platform {
 }
 
 function extractYouTubeId(url: string): string | null {
-  const m =
-    url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
+  const m = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  );
   return m ? m[1] : null;
 }
 
@@ -56,15 +59,31 @@ export function AddWorkoutSheet({
 
   const platform = detectPlatform(url);
   const ytId = platform === "YouTube" ? extractYouTubeId(url) : null;
-  const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
+  const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : null;
   const [thumbBroken, setThumbBroken] = useState(false);
+  const titleTouched = useRef(false);
+  const runExtract = useServerFn(extractExercises);
 
   useEffect(() => {
     setThumbBroken(false);
-    if (platform === "YouTube" && ytId && !title) {
-      setTitle("YouTube Workout");
+    if (!url.trim()) return;
+    if (platform === "YouTube" && ytId) {
+      // Try to fetch real video title via noembed (CORS-friendly oEmbed proxy)
+      let cancelled = false;
+      fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}&format=json`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d?.title && !titleTouched.current) setTitle(d.title);
+        })
+        .catch(() => {
+          if (!titleTouched.current && !title) setTitle("YouTube Workout");
+        });
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [url, platform, ytId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // animate open/close
   useEffect(() => {
@@ -123,17 +142,33 @@ export function AddWorkoutSheet({
     ]);
   }
 
-  function aiExtract() {
+  async function aiExtract() {
+    const subject = title.trim() || url.trim();
+    if (!subject) {
+      toast.error("Please enter a workout title first");
+      return;
+    }
     setAiLoading(true);
-    setTimeout(() => {
-      setExercises([
-        { id: exId.current++, name: "Push-ups", sets: 3, reps: 12 },
-        { id: exId.current++, name: "Squats", sets: 4, reps: 15 },
-        { id: exId.current++, name: "Plank (sec)", sets: 3, reps: 30 },
+    const minDelay = new Promise((r) => setTimeout(r, 1600));
+    try {
+      const [{ exercises: ex }] = await Promise.all([
+        runExtract({ data: { title: subject } }),
+        minDelay,
       ]);
-      setAiLoading(false);
+      setExercises(
+        ex.map((e) => ({
+          id: exId.current++,
+          name: e.note ? `${e.name} (${e.note})` : e.name,
+          sets: e.sets,
+          reps: e.reps,
+        })),
+      );
       toast.info("Exercises extracted ✨");
-    }, 1400);
+    } catch {
+      toast.error("AI couldn't extract exercises. Add them manually.");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   async function save() {
