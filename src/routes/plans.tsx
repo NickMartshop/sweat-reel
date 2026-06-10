@@ -133,16 +133,32 @@ function PlansPage() {
         </div>
 
         {loading ? (
-          <div className="mt-6 rounded-2xl bg-card border border-border p-8 text-center">
-            <p className="text-text-secondary text-[13px]">Loading…</p>
+          <div className="mt-4 space-y-2">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-2 bg-card border border-border rounded-2xl animate-pulse"
+              >
+                <div className="w-[60px] h-[60px] rounded-xl bg-[#1c1c2c]" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-2/3 bg-[#252535] rounded" />
+                  <div className="h-2.5 w-1/3 bg-[#1c1c2c] rounded" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : dayEntries.length === 0 ? (
           <div className="mt-6 rounded-2xl bg-card border border-border p-8 text-center">
-            <p className="text-4xl">😴</p>
-            <p className="mt-2 text-white font-semibold">Rest Day</p>
-            <p className="text-[13px] text-text-secondary mt-1">
-              Recovery is part of the work.
+            <p className="text-4xl">📅</p>
+            <p className="mt-2 text-white font-semibold">
+              Nothing planned for {DAYS_FULL[selected]}
             </p>
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="press-scale mt-4 inline-flex items-center gap-1 px-4 h-10 rounded-xl bg-primary text-white text-[13px] font-semibold"
+            >
+              Add a workout +
+            </button>
           </div>
         ) : (
           <ul className="mt-4 space-y-2">
