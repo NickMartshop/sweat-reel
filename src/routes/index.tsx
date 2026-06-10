@@ -1,16 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Flame } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search, Plus, Flame, X, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { ToastHost } from "@/components/fitvault/Toast";
 import { greeting, type Workout } from "@/lib/fitvault-data";
-import { useWorkouts } from "@/lib/workouts-store";
+import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
 import { usePlans } from "@/lib/plans-store";
 import { useProfile } from "@/lib/profile-store";
 import { getMondayIndex } from "@/lib/fitvault-data";
+
+function haptic(p: number | number[] = 50) {
+  try {
+    navigator.vibrate?.(p);
+  } catch {}
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -126,8 +132,17 @@ function HomePage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search your workouts..."
-          className="w-full h-11 pl-10 pr-3 rounded-xl bg-card border border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary"
+          className="w-full h-11 pl-10 pr-10 rounded-xl bg-card border border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary"
         />
+        {query && (
+          <button
+            aria-label="Clear search"
+            onClick={() => setQuery("")}
+            className="press-scale absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#252535] text-white flex items-center justify-center"
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
 
       <section className="mt-5">
