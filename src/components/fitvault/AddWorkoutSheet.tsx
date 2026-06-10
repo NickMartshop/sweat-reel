@@ -298,7 +298,7 @@ export function AddWorkoutSheet({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Play size={20} className="text-text-secondary" />
+                    <span className="text-2xl">📱</span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -311,13 +311,21 @@ export function AddWorkoutSheet({
                 </div>
               </div>
             )}
+            {(platform === "Instagram" || platform === "TikTok") && (
+              <p className="mt-2 text-[11px] text-text-secondary leading-snug">
+                Instagram/TikTok previews unavailable — we'll use a placeholder thumbnail.
+              </p>
+            )}
 
             {/* Details */}
             <SectionLabel className="mt-6">Details</SectionLabel>
 
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                titleTouched.current = true;
+                setTitle(e.target.value);
+              }}
               placeholder="Title"
               className="mt-2 w-full h-14 rounded-xl bg-card border-[1.5px] border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary focus:[box-shadow:0_0_0_3px_rgba(67,97,238,0.2)] px-4 transition-all"
             />
