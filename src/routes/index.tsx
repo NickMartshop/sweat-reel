@@ -139,6 +139,24 @@ function HomePage() {
 
   return (
     <AppShell>
+      {(pull > 0 || refreshing) && (
+        <div
+          className="fixed left-0 right-0 top-0 z-40 flex justify-center pointer-events-none"
+          style={{
+            transform: `translateY(${Math.min(pull, 80)}px)`,
+            opacity: Math.min(1, pull / 60 + (refreshing ? 1 : 0)),
+            transition: refreshing ? "transform 200ms" : "none",
+          }}
+        >
+          <div className="mt-2 w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center">
+            <Loader2
+              size={18}
+              className={refreshing ? "text-primary animate-spin" : "text-primary"}
+              style={{ transform: refreshing ? undefined : `rotate(${pull * 3}deg)` }}
+            />
+          </div>
+        </div>
+      )}
       <header className="flex items-start justify-between">
         <div>
           <h1 className="text-xl font-bold text-white">{greet}</h1>
