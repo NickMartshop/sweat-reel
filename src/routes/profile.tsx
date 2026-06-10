@@ -210,7 +210,7 @@ function ProfilePage() {
       </button>
 
       <p className="text-center text-[11px] text-text-secondary mt-6">
-        FitVault v1.0 · Your workouts. Organized.
+        FitVault v1.0.0 · Your workouts. Organized.
       </p>
       <ToastHost />
     </AppShell>
