@@ -399,6 +399,17 @@ function CompletionScreen({
   onClose: () => void;
 }) {
   const [logged, setLogged] = useState(false);
+  useEffect(() => {
+    try {
+      navigator.vibrate?.([100, 50, 100]);
+    } catch {}
+  }, []);
+
+  const shareUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(
+    `Just completed "${workout.title}" on FitVault! 💪🔥 Check it out: ${shareUrl}`,
+  )}`;
+
   return (
     <div
       className="fixed inset-0 z-[60] flex justify-center overflow-hidden"
@@ -445,7 +456,6 @@ function CompletionScreen({
                   Math.max(1, Math.round(elapsed / 60)),
                 );
                 toast.success("Workout logged ✓");
-                setTimeout(onClose, 600);
               } catch {
                 setLogged(false);
                 toast.error("Couldn't log. Try again.");
@@ -456,6 +466,14 @@ function CompletionScreen({
           >
             {logged ? "Logged ✓" : "Log This Workout ✓"}
           </button>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 w-full h-[52px] rounded-xl bg-[#25D366] text-white text-[15px] font-semibold press-scale flex items-center justify-center gap-2"
+          >
+            Share on WhatsApp
+          </a>
           <button
             onClick={onClose}
             className="mt-2 w-full h-[52px] rounded-xl border border-border text-white text-[15px] font-semibold press-scale"
