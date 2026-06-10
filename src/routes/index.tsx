@@ -202,6 +202,10 @@ function HomePage() {
               <SkeletonCard key={i} />
             ))}
           </div>
+        ) : filtered.length === 0 && query ? (
+          <div className="mt-8 text-center text-text-secondary text-[14px]">
+            No workouts match "{query}"
+          </div>
         ) : filtered.length === 0 ? (
           <EmptyLibrary onAdd={() => setAddOpen(true)} />
         ) : (
@@ -219,7 +223,10 @@ function HomePage() {
 
       <button
         aria-label="Add workout"
-        onClick={() => setAddOpen(true)}
+        onClick={() => {
+          haptic(50);
+          setAddOpen(true);
+        }}
         className="press-scale fixed right-4 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center z-30"
         style={{
           bottom: "calc(72px + env(safe-area-inset-bottom))",
