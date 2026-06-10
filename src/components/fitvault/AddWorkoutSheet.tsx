@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Trash2, ClipboardPaste, Sparkles, Minus, Plus, Play, Check } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { muscleColors, type Difficulty, type MuscleGroup } from "@/lib/fitvault-data";
 import { workoutsStore } from "@/lib/workouts-store";
+import { extractExercises } from "@/lib/ai-extract.functions";
 import { toast } from "./Toast";
 
 const MUSCLE_GROUPS: { key: MuscleGroup; emoji: string }[] = [
@@ -25,8 +27,9 @@ function detectPlatform(url: string): Platform {
 }
 
 function extractYouTubeId(url: string): string | null {
-  const m =
-    url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([A-Za-z0-9_-]{11})/);
+  const m = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  );
   return m ? m[1] : null;
 }
 
@@ -56,15 +59,31 @@ export function AddWorkoutSheet({
 
   const platform = detectPlatform(url);
   const ytId = platform === "YouTube" ? extractYouTubeId(url) : null;
-  const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null;
+  const thumbUrl = ytId ? `https://img.youtube.com/vi/${ytId}/maxresdefault.jpg` : null;
   const [thumbBroken, setThumbBroken] = useState(false);
+  const titleTouched = useRef(false);
+  const runExtract = useServerFn(extractExercises);
 
   useEffect(() => {
     setThumbBroken(false);
-    if (platform === "YouTube" && ytId && !title) {
-      setTitle("YouTube Workout");
+    if (!url.trim()) return;
+    if (platform === "YouTube" && ytId) {
+      // Try to fetch real video title via noembed (CORS-friendly oEmbed proxy)
+      let cancelled = false;
+      fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}&format=json`)
+        .then((r) => r.json())
+        .then((d) => {
+          if (cancelled) return;
+          if (d?.title && !titleTouched.current) setTitle(d.title);
+        })
+        .catch(() => {
+          if (!titleTouched.current && !title) setTitle("YouTube Workout");
+        });
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [url]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [url, platform, ytId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // animate open/close
   useEffect(() => {
@@ -123,17 +142,33 @@ export function AddWorkoutSheet({
     ]);
   }
 
-  function aiExtract() {
+  async function aiExtract() {
+    const subject = title.trim() || url.trim();
+    if (!subject) {
+      toast.error("Please enter a workout title first");
+      return;
+    }
     setAiLoading(true);
-    setTimeout(() => {
-      setExercises([
-        { id: exId.current++, name: "Push-ups", sets: 3, reps: 12 },
-        { id: exId.current++, name: "Squats", sets: 4, reps: 15 },
-        { id: exId.current++, name: "Plank (sec)", sets: 3, reps: 30 },
+    const minDelay = new Promise((r) => setTimeout(r, 1600));
+    try {
+      const [{ exercises: ex }] = await Promise.all([
+        runExtract({ data: { title: subject } }),
+        minDelay,
       ]);
-      setAiLoading(false);
+      setExercises(
+        ex.map((e) => ({
+          id: exId.current++,
+          name: e.note ? `${e.name} (${e.note})` : e.name,
+          sets: e.sets,
+          reps: e.reps,
+        })),
+      );
       toast.info("Exercises extracted ✨");
-    }, 1400);
+    } catch {
+      toast.error("AI couldn't extract exercises. Add them manually.");
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   async function save() {
@@ -263,7 +298,7 @@ export function AddWorkoutSheet({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Play size={20} className="text-text-secondary" />
+                    <span className="text-2xl">📱</span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -276,13 +311,21 @@ export function AddWorkoutSheet({
                 </div>
               </div>
             )}
+            {(platform === "Instagram" || platform === "TikTok") && (
+              <p className="mt-2 text-[11px] text-text-secondary leading-snug">
+                Instagram/TikTok previews unavailable — we'll use a placeholder thumbnail.
+              </p>
+            )}
 
             {/* Details */}
             <SectionLabel className="mt-6">Details</SectionLabel>
 
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                titleTouched.current = true;
+                setTitle(e.target.value);
+              }}
               placeholder="Title"
               className="mt-2 w-full h-14 rounded-xl bg-card border-[1.5px] border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary focus:[box-shadow:0_0_0_3px_rgba(67,97,238,0.2)] px-4 transition-all"
             />
@@ -397,6 +440,15 @@ export function AddWorkoutSheet({
                 )}
               </button>
             </div>
+
+            {aiLoading && (
+              <div className="mt-2 p-3 rounded-xl bg-card border border-border flex items-center gap-2 animate-fade-in">
+                <span className="text-lg animate-pulse">✨</span>
+                <span className="text-[13px] text-white">
+                  AI is analyzing your workout...
+                </span>
+              </div>
+            )}
 
             <ul className="mt-2 space-y-2">
               {exercises.map((ex, idx) => (

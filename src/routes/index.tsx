@@ -1,16 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { Search, Plus, Flame } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search, Plus, Flame, X, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { ToastHost } from "@/components/fitvault/Toast";
 import { greeting, type Workout } from "@/lib/fitvault-data";
-import { useWorkouts } from "@/lib/workouts-store";
+import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
 import { usePlans } from "@/lib/plans-store";
 import { useProfile } from "@/lib/profile-store";
 import { getMondayIndex } from "@/lib/fitvault-data";
+
+function haptic(p: number | number[] = 50) {
+  try {
+    navigator.vibrate?.(p);
+  } catch {}
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -78,6 +84,43 @@ function HomePage() {
     );
   }, []);
 
+  // Pull-to-refresh
+  const startY = useRef<number | null>(null);
+  const [pull, setPull] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  useEffect(() => {
+    function onStart(e: TouchEvent) {
+      if (window.scrollY <= 0) startY.current = e.touches[0].clientY;
+      else startY.current = null;
+    }
+    function onMove(e: TouchEvent) {
+      if (startY.current == null || refreshing) return;
+      const dy = e.touches[0].clientY - startY.current;
+      if (dy > 0) setPull(Math.min(120, dy));
+    }
+    async function onEnd() {
+      if (startY.current == null) return;
+      startY.current = null;
+      if (pull >= 60) {
+        setRefreshing(true);
+        haptic(30);
+        try {
+          await workoutsStore.reload();
+        } catch {}
+        setRefreshing(false);
+      }
+      setPull(0);
+    }
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", onEnd);
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+    };
+  }, [pull, refreshing]);
+
   const todayIdx = getMondayIndex(new Date());
   const todayWorkouts = planEntries
     .filter((e) => e.day_of_week === todayIdx)
@@ -96,6 +139,24 @@ function HomePage() {
 
   return (
     <AppShell>
+      {(pull > 0 || refreshing) && (
+        <div
+          className="fixed left-0 right-0 top-0 z-40 flex justify-center pointer-events-none"
+          style={{
+            transform: `translateY(${Math.min(pull, 80)}px)`,
+            opacity: Math.min(1, pull / 60 + (refreshing ? 1 : 0)),
+            transition: refreshing ? "transform 200ms" : "none",
+          }}
+        >
+          <div className="mt-2 w-9 h-9 rounded-full bg-card border border-border flex items-center justify-center">
+            <Loader2
+              size={18}
+              className={refreshing ? "text-primary animate-spin" : "text-primary"}
+              style={{ transform: refreshing ? undefined : `rotate(${pull * 3}deg)` }}
+            />
+          </div>
+        </div>
+      )}
       <header className="flex items-start justify-between">
         <div>
           <h1 className="text-xl font-bold text-white">{greet}</h1>
@@ -126,8 +187,17 @@ function HomePage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search your workouts..."
-          className="w-full h-11 pl-10 pr-3 rounded-xl bg-card border border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary"
+          className="w-full h-11 pl-10 pr-10 rounded-xl bg-card border border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary"
         />
+        {query && (
+          <button
+            aria-label="Clear search"
+            onClick={() => setQuery("")}
+            className="press-scale absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-[#252535] text-white flex items-center justify-center"
+          >
+            <X size={14} />
+          </button>
+        )}
       </div>
 
       <section className="mt-5">
@@ -187,6 +257,10 @@ function HomePage() {
               <SkeletonCard key={i} />
             ))}
           </div>
+        ) : filtered.length === 0 && query ? (
+          <div className="mt-8 text-center text-text-secondary text-[14px]">
+            No workouts match "{query}"
+          </div>
         ) : filtered.length === 0 ? (
           <EmptyLibrary onAdd={() => setAddOpen(true)} />
         ) : (
@@ -204,7 +278,10 @@ function HomePage() {
 
       <button
         aria-label="Add workout"
-        onClick={() => setAddOpen(true)}
+        onClick={() => {
+          haptic(50);
+          setAddOpen(true);
+        }}
         className="press-scale fixed right-4 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center z-30"
         style={{
           bottom: "calc(72px + env(safe-area-inset-bottom))",
