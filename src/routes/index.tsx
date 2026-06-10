@@ -84,6 +84,43 @@ function HomePage() {
     );
   }, []);
 
+  // Pull-to-refresh
+  const startY = useRef<number | null>(null);
+  const [pull, setPull] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  useEffect(() => {
+    function onStart(e: TouchEvent) {
+      if (window.scrollY <= 0) startY.current = e.touches[0].clientY;
+      else startY.current = null;
+    }
+    function onMove(e: TouchEvent) {
+      if (startY.current == null || refreshing) return;
+      const dy = e.touches[0].clientY - startY.current;
+      if (dy > 0) setPull(Math.min(120, dy));
+    }
+    async function onEnd() {
+      if (startY.current == null) return;
+      startY.current = null;
+      if (pull >= 60) {
+        setRefreshing(true);
+        haptic(30);
+        try {
+          await workoutsStore.reload();
+        } catch {}
+        setRefreshing(false);
+      }
+      setPull(0);
+    }
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", onEnd);
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+    };
+  }, [pull, refreshing]);
+
   const todayIdx = getMondayIndex(new Date());
   const todayWorkouts = planEntries
     .filter((e) => e.day_of_week === todayIdx)
