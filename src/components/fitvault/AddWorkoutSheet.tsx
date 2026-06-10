@@ -441,6 +441,15 @@ export function AddWorkoutSheet({
               </button>
             </div>
 
+            {aiLoading && (
+              <div className="mt-2 p-3 rounded-xl bg-card border border-border flex items-center gap-2 animate-fade-in">
+                <span className="text-lg animate-pulse">✨</span>
+                <span className="text-[13px] text-white">
+                  AI is analyzing your workout...
+                </span>
+              </div>
+            )}
+
             <ul className="mt-2 space-y-2">
               {exercises.map((ex, idx) => (
                 <li
