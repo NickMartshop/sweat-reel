@@ -78,7 +78,9 @@ function Toggle({
     <button
       role="switch"
       aria-checked={checked}
+      aria-label={checked ? "Disable setting" : "Enable setting"}
       disabled={disabled}
+
       onClick={() => onChange?.(!checked)}
       className="w-11 h-6 rounded-full relative transition-colors disabled:opacity-60"
       style={{ background: checked ? "#06D6A0" : "#252535" }}
