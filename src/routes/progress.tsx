@@ -73,6 +73,8 @@ function ProgressPage() {
   return (
     <AppShell>
       <header className="text-center pt-2">
+        <h1 className="sr-only">My Progress</h1>
+
         <p className="text-5xl">🔥</p>
         <div className="relative inline-block mt-2">
           <div
