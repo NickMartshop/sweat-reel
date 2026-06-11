@@ -164,7 +164,7 @@ function HomePage() {
       )}
       <header className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">{greet}</h1>
+          <h1 className="text-xl font-bold text-white">{greet} — Your Workout Dashboard</h1>
           <p className="text-[13px] text-text-secondary mt-0.5">
             Ready to crush it today?
           </p>
