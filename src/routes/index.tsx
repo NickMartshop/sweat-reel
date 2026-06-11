@@ -25,10 +25,15 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Your workouts, organized. Today's plan, library and quick stats.",
+          "Your workout dashboard — today's plan, saved library and quick stats, organized in one place on SweatReel.",
       },
+      { property: "og:title", content: "SweatReel Dashboard — Today's Workouts" },
+      { property: "og:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
+      { name: "twitter:title", content: "SweatReel Dashboard — Today's Workouts" },
+      { name: "twitter:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
     ],
   }),
+
   component: HomePage,
 });
 
@@ -159,7 +164,7 @@ function HomePage() {
       )}
       <header className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white">{greet}</h1>
+          <h1 className="text-xl font-bold text-white">{greet} — Your Workout Dashboard</h1>
           <p className="text-[13px] text-text-secondary mt-0.5">
             Ready to crush it today?
           </p>

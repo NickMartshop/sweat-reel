@@ -1,0 +1,10 @@
+# SweatReel
+
+> SweatReel helps you save, organize and plan workouts from anywhere — your personal video workout library, weekly plans, and progress tracking.
+
+SweatReel is a mobile-first web app for fitness enthusiasts who collect workouts from YouTube, Instagram and TikTok. Save any workout link, auto-extract exercises with AI, plan your week, and track your streak.
+
+## Pages
+
+- [Home](/): Sign in or sign up to access your dashboard, library and weekly plan.
+- [Privacy Policy](/privacy): How SweatReel handles user data, storage, and third-party services.
