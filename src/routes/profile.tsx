@@ -21,10 +21,15 @@ export const Route = createFileRoute("/profile")({
       { title: "SweatReel — Profile" },
       {
         name: "description",
-        content: "Your SweatReel account, preferences and support.",
+        content: "Manage your SweatReel account, set your preferences, and access support for your fitness journey.",
       },
+      { property: "og:title", content: "My Profile — SweatReel" },
+      { property: "og:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
+      { name: "twitter:title", content: "My Profile — SweatReel" },
+      { name: "twitter:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
     ],
   }),
+
   component: ProfilePage,
 });
 
