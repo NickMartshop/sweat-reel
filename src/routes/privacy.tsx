@@ -5,9 +5,14 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — SweatReel" },
-      { name: "description", content: "How SweatReel handles your data." },
+      { name: "description", content: "Learn how SweatReel handles your data and keeps your workout information secure and private." },
+      { property: "og:title", content: "Privacy Policy — SweatReel" },
+      { property: "og:description", content: "How SweatReel collects, stores and protects your account and workout data." },
+      { name: "twitter:title", content: "Privacy Policy — SweatReel" },
+      { name: "twitter:description", content: "How SweatReel collects, stores and protects your account and workout data." },
     ],
   }),
+
   component: PrivacyPage,
 });
 
