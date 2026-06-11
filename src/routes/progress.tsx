@@ -11,10 +11,15 @@ export const Route = createFileRoute("/progress")({
       {
         name: "description",
         content:
-          "Track your workout streak, weekly activity and monthly heatmap.",
+          "Track your workout streak, weekly activity and monthly heatmap so you can see your fitness progress on SweatReel.",
       },
+      { property: "og:title", content: "My Progress — SweatReel" },
+      { property: "og:description", content: "Visualize your streak, weekly workouts and monthly heatmap to keep momentum going." },
+      { name: "twitter:title", content: "My Progress — SweatReel" },
+      { name: "twitter:description", content: "Visualize your streak, weekly workouts and monthly heatmap to keep momentum going." },
     ],
   }),
+
   component: ProgressPage,
 });
 
