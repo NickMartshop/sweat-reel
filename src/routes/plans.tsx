@@ -15,7 +15,7 @@ import { useWorkouts } from "@/lib/workouts-store";
 export const Route = createFileRoute("/plans")({
   head: () => ({
     meta: [
-      { title: "FitVault — Plans" },
+      { title: "SweatReel — Plans" },
       {
         name: "description",
         content: "Build and review your weekly workout routine.",

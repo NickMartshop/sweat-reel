@@ -1,6 +1,6 @@
 {
-  "name": "FitVault",
-  "short_name": "FitVault",
+  "name": "SweatReel",
+  "short_name": "SweatReel",
   "description": "Save and organize your workout videos. Build your fitness library.",
   "start_url": "/",
   "display": "standalone",

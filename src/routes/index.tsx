@@ -21,7 +21,7 @@ function haptic(p: number | number[] = 50) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "FitVault — Home" },
+      { title: "SweatReel — Home" },
       {
         name: "description",
         content:

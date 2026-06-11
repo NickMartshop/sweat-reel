@@ -58,7 +58,7 @@ export function AuthScreen() {
           },
         });
         if (error) throw error;
-        toast.show("Welcome to FitVault! 💪", "success");
+        toast.show("Welcome to SweatReel! 💪", "success");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
@@ -88,7 +88,7 @@ export function AuthScreen() {
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
             <span className="text-white text-2xl font-bold">FV</span>
           </div>
-          <h1 className="mt-3 text-[28px] font-bold text-white">FitVault</h1>
+          <h1 className="mt-3 text-[28px] font-bold text-white">SweatReel</h1>
           <p className="text-[14px] text-text-secondary mt-1">
             Your workouts. Organized.
           </p>

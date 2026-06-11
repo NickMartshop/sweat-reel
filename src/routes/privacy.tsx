@@ -4,8 +4,8 @@ import { ArrowLeft } from "lucide-react";
 export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
-      { title: "Privacy Policy — FitVault" },
-      { name: "description", content: "How FitVault handles your data." },
+      { title: "Privacy Policy — SweatReel" },
+      { name: "description", content: "How SweatReel handles your data." },
     ],
   }),
   component: PrivacyPage,
@@ -32,7 +32,7 @@ function PrivacyPage() {
 
         <div className="mt-6 space-y-5 text-[14px] leading-[1.65] text-white/90">
           <p>
-            FitVault is built to help you save and organize your workouts. We collect
+            SweatReel is built to help you save and organize your workouts. We collect
             only the information needed to run the app: your email address (for
             account creation and sign-in) and the workouts you choose to save.
           </p>
