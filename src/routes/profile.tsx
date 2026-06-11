@@ -18,10 +18,10 @@ import { authStore } from "@/lib/auth-store";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
-      { title: "FitVault — Profile" },
+      { title: "SweatReel — Profile" },
       {
         name: "description",
-        content: "Your FitVault account, preferences and support.",
+        content: "Your SweatReel account, preferences and support.",
       },
     ],
   }),
@@ -105,7 +105,7 @@ function ProfilePage() {
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: "FitVault",
+          title: "SweatReel",
           text: "Your workouts. Organized.",
           url: window.location.origin,
         });
@@ -188,7 +188,7 @@ function ProfilePage() {
           </Link>
           <Row
             icon={<Star size={18} />}
-            label="Rate FitVault"
+            label="Rate SweatReel"
             right={<ChevronRight size={16} className="text-text-secondary" />}
           />
           <Row
@@ -210,7 +210,7 @@ function ProfilePage() {
       </button>
 
       <p className="text-center text-[11px] text-text-secondary mt-6">
-        FitVault v1.0.0 · Your workouts. Organized.
+        SweatReel v1.0.0 · Your workouts. Organized.
       </p>
       <ToastHost />
     </AppShell>

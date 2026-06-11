@@ -7,7 +7,7 @@ import { useProfile } from "@/lib/profile-store";
 export const Route = createFileRoute("/progress")({
   head: () => ({
     meta: [
-      { title: "FitVault — Progress" },
+      { title: "SweatReel — Progress" },
       {
         name: "description",
         content:

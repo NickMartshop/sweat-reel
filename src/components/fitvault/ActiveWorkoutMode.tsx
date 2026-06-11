@@ -407,7 +407,7 @@ function CompletionScreen({
 
   const shareUrl = typeof window !== "undefined" ? window.location.origin : "";
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(
-    `Just completed "${workout.title}" on FitVault! 💪🔥 Check it out: ${shareUrl}`,
+    `Just completed "${workout.title}" on SweatReel! 💪🔥 Check it out: ${shareUrl}`,
   )}`;
 
   return (

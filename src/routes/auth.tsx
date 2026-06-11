@@ -7,7 +7,7 @@ import { authStore, useAuth } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
-    meta: [{ title: "FitVault — Sign in" }],
+    meta: [{ title: "SweatReel — Sign in" }],
   }),
   component: AuthPage,
 });
