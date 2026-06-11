@@ -38,6 +38,18 @@ export function WorkoutDetailSheet({
   }, [workout]);
 
   if (!mounted || !workout) return null;
+  const safeHttpUrl = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    try {
+      const p = new URL(url);
+      return p.protocol === "http:" || p.protocol === "https:" ? p.toString() : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const shareUrl = safeHttpUrl(workout.source_url);
+
 
   const exercises = workout.exercises ?? [];
   const hasExercises = exercises.length > 0;
@@ -48,18 +60,17 @@ export function WorkoutDetailSheet({
       if (navigator.share) {
         await navigator.share({
           title: workout.title,
-          url: workout.source_url ?? window.location.href,
+          url: shareUrl ?? window.location.href,
         });
       } else {
-        await navigator.clipboard.writeText(
-          workout.source_url ?? workout.title,
-        );
+        await navigator.clipboard.writeText(shareUrl ?? workout.title);
         toast.success("Copied to clipboard");
       }
     } catch {
       /* cancelled */
     }
   };
+
 
   return (
     <div className="fixed inset-0 z-40">
@@ -145,12 +156,13 @@ export function WorkoutDetailSheet({
               <button
                 aria-label="Play"
                 onClick={() => {
-                  if (workout.source_url) {
-                    window.open(workout.source_url, "_blank");
+                  if (shareUrl) {
+                    window.open(shareUrl, "_blank", "noopener,noreferrer");
                   } else {
-                    toast.info("No video source");
+                    toast.info(workout.source_url ? "Invalid video link" : "No video source");
                   }
                 }}
+
                 className="press-scale absolute inset-0 m-auto w-16 h-16 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center"
               >
                 <Play size={28} className="text-primary fill-primary ml-1" />
