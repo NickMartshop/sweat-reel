@@ -38,6 +38,18 @@ export function WorkoutDetailSheet({
   }, [workout]);
 
   if (!mounted || !workout) return null;
+  const safeHttpUrl = (url: string | null | undefined): string | null => {
+    if (!url) return null;
+    try {
+      const p = new URL(url);
+      return p.protocol === "http:" || p.protocol === "https:" ? p.toString() : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const shareUrl = safeHttpUrl(workout.source_url);
+
 
   const exercises = workout.exercises ?? [];
   const hasExercises = exercises.length > 0;
