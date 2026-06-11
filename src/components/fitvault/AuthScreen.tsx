@@ -86,7 +86,7 @@ export function AuthScreen() {
       >
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">FV</span>
+            <span className="text-white text-2xl font-bold">SR</span>
           </div>
           <h1 className="mt-3 text-[28px] font-bold text-white">SweatReel</h1>
           <p className="text-[14px] text-text-secondary mt-1">
