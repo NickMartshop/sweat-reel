@@ -60,18 +60,17 @@ export function WorkoutDetailSheet({
       if (navigator.share) {
         await navigator.share({
           title: workout.title,
-          url: workout.source_url ?? window.location.href,
+          url: shareUrl ?? window.location.href,
         });
       } else {
-        await navigator.clipboard.writeText(
-          workout.source_url ?? workout.title,
-        );
+        await navigator.clipboard.writeText(shareUrl ?? workout.title);
         toast.success("Copied to clipboard");
       }
     } catch {
       /* cancelled */
     }
   };
+
 
   return (
     <div className="fixed inset-0 z-40">
