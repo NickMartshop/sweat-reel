@@ -13,6 +13,8 @@ const ExerciseSchema = z.object({
 });
 
 export const extractExercises = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+
   .inputValidator((input: unknown) =>
     z
       .object({ title: z.string().min(1).max(300) })
