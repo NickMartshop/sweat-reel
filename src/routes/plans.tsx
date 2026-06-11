@@ -18,10 +18,15 @@ export const Route = createFileRoute("/plans")({
       { title: "SweatReel — Plans" },
       {
         name: "description",
-        content: "Build and review your weekly workout routine.",
+        content: "Build and review your weekly workout routine to stay on track with your fitness goals on SweatReel.",
       },
+      { property: "og:title", content: "My Workout Plans — SweatReel" },
+      { property: "og:description", content: "Plan your week, schedule workouts by day, and keep your training organized." },
+      { name: "twitter:title", content: "My Workout Plans — SweatReel" },
+      { name: "twitter:description", content: "Plan your week, schedule workouts by day, and keep your training organized." },
     ],
   }),
+
   component: PlansPage,
 });
 
