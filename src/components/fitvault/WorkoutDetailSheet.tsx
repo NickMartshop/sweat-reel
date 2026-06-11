@@ -251,8 +251,8 @@ export function WorkoutDetailSheet({
 
           {/* Bottom bar */}
           <div
-            className="absolute left-0 right-0 bottom-0 px-4 pt-3 bg-card border-t border-border"
-            style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom))" }}
+            className="absolute left-0 right-0 px-4 pt-3 bg-card border-t border-border"
+            style={{ bottom: "calc(64px + env(safe-area-inset-bottom))", paddingBottom: 12 }}
           >
             <button
               onClick={() => setActive(true)}
