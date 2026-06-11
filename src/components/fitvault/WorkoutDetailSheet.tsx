@@ -156,12 +156,13 @@ export function WorkoutDetailSheet({
               <button
                 aria-label="Play"
                 onClick={() => {
-                  if (workout.source_url) {
-                    window.open(workout.source_url, "_blank");
+                  if (shareUrl) {
+                    window.open(shareUrl, "_blank", "noopener,noreferrer");
                   } else {
-                    toast.info("No video source");
+                    toast.info(workout.source_url ? "Invalid video link" : "No video source");
                   }
                 }}
+
                 className="press-scale absolute inset-0 m-auto w-16 h-16 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center"
               >
                 <Play size={28} className="text-primary fill-primary ml-1" />
