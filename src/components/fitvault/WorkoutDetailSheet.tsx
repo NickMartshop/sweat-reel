@@ -133,7 +133,7 @@ export function WorkoutDetailSheet({
           </header>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto pb-28">
+          <div className="flex-1 overflow-y-auto" style={{ paddingBottom: 140 }}>
             {/* Video section */}
             <div className="relative w-full aspect-video bg-[#252535]">
               <img
