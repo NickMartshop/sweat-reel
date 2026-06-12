@@ -92,6 +92,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "SweatReel helps you save, organize and plan your workouts from anywhere — your library, your week, your progress." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
+      { name: "google-site-verification", content: "Lq64VLNxL6soFbEzwSJzb1J1soGiEfZ1Gxq3uwI4E9E" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
