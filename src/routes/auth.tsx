@@ -7,7 +7,28 @@ import { authStore, useAuth } from "@/lib/auth-store";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
-    meta: [{ title: "SweatReel — Sign in" }],
+    meta: [
+      { title: "Sign in to SweatReel" },
+      {
+        name: "description",
+        content:
+          "Sign in to SweatReel to access your workout library, plan your weekly routine, and track your fitness progress.",
+      },
+      { property: "og:title", content: "Sign in to SweatReel" },
+      {
+        property: "og:description",
+        content:
+          "Access your saved workouts, weekly plan and progress tracking. Sign in or create your SweatReel account.",
+      },
+      { property: "og:url", content: "https://sweat-reel.lovable.app/auth" },
+      { name: "twitter:title", content: "Sign in to SweatReel" },
+      {
+        name: "twitter:description",
+        content:
+          "Access your saved workouts, weekly plan and progress tracking. Sign in or create your SweatReel account.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/auth" }],
   }),
   component: AuthPage,
 });

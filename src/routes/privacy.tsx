@@ -8,9 +8,11 @@ export const Route = createFileRoute("/privacy")({
       { name: "description", content: "Learn how SweatReel handles your data and keeps your workout information secure and private." },
       { property: "og:title", content: "Privacy Policy — SweatReel" },
       { property: "og:description", content: "How SweatReel collects, stores and protects your account and workout data." },
+      { property: "og:url", content: "https://sweat-reel.lovable.app/privacy" },
       { name: "twitter:title", content: "Privacy Policy — SweatReel" },
       { name: "twitter:description", content: "How SweatReel collects, stores and protects your account and workout data." },
     ],
+    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/privacy" }],
   }),
 
   component: PrivacyPage,

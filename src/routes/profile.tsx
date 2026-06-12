@@ -25,9 +25,11 @@ export const Route = createFileRoute("/profile")({
       },
       { property: "og:title", content: "My Profile — SweatReel" },
       { property: "og:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
+      { property: "og:url", content: "https://sweat-reel.lovable.app/profile" },
       { name: "twitter:title", content: "My Profile — SweatReel" },
       { name: "twitter:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
     ],
+    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/profile" }],
   }),
 
   component: ProfilePage,
