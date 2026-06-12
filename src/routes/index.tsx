@@ -21,17 +21,19 @@ function haptic(p: number | number[] = 50) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SweatReel — Home" },
+      { title: "SweatReel — Your Workout Dashboard & Planner" },
       {
         name: "description",
         content:
           "Your workout dashboard — today's plan, saved library and quick stats, organized in one place on SweatReel.",
       },
-      { property: "og:title", content: "SweatReel Dashboard — Today's Workouts" },
+      { property: "og:title", content: "SweatReel — Your Workout Dashboard & Planner" },
       { property: "og:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
-      { name: "twitter:title", content: "SweatReel Dashboard — Today's Workouts" },
+      { property: "og:url", content: "https://sweat-reel.lovable.app/" },
+      { name: "twitter:title", content: "SweatReel — Your Workout Dashboard & Planner" },
       { name: "twitter:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
     ],
+    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/" }],
   }),
 
   component: HomePage,

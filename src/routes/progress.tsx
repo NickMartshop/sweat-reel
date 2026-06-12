@@ -15,9 +15,11 @@ export const Route = createFileRoute("/progress")({
       },
       { property: "og:title", content: "My Progress — SweatReel" },
       { property: "og:description", content: "Visualize your streak, weekly workouts and monthly heatmap to keep momentum going." },
+      { property: "og:url", content: "https://sweat-reel.lovable.app/progress" },
       { name: "twitter:title", content: "My Progress — SweatReel" },
       { name: "twitter:description", content: "Visualize your streak, weekly workouts and monthly heatmap to keep momentum going." },
     ],
+    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/progress" }],
   }),
 
   component: ProgressPage,

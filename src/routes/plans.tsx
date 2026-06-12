@@ -22,9 +22,11 @@ export const Route = createFileRoute("/plans")({
       },
       { property: "og:title", content: "My Workout Plans — SweatReel" },
       { property: "og:description", content: "Plan your week, schedule workouts by day, and keep your training organized." },
+      { property: "og:url", content: "https://sweat-reel.lovable.app/plans" },
       { name: "twitter:title", content: "My Workout Plans — SweatReel" },
       { name: "twitter:description", content: "Plan your week, schedule workouts by day, and keep your training organized." },
     ],
+    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/plans" }],
   }),
 
   component: PlansPage,
