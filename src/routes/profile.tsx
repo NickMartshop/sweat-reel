@@ -9,6 +9,8 @@ import {
   Share2,
   ChevronRight,
   LogOut,
+  FileText,
+  Mail,
 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { ToastHost, toast } from "@/components/fitvault/Toast";
@@ -188,10 +190,24 @@ function ProfilePage() {
           Support
         </h2>
         <div className="mt-2 rounded-2xl overflow-hidden border border-border flex flex-col gap-[2px] bg-border">
+          <a href="mailto:hello@sweatreel.app">
+            <Row
+              icon={<Mail size={18} />}
+              label="Contact Support"
+              right={<ChevronRight size={16} className="text-text-secondary" />}
+            />
+          </a>
           <Link to="/privacy" className="block">
             <Row
               icon={<Lock size={18} />}
               label="Privacy Policy"
+              right={<ChevronRight size={16} className="text-text-secondary" />}
+            />
+          </Link>
+          <Link to="/terms" className="block">
+            <Row
+              icon={<FileText size={18} />}
+              label="Terms of Service"
               right={<ChevronRight size={16} className="text-text-secondary" />}
             />
           </Link>

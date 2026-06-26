@@ -83,13 +83,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "SweatReel" },
       { title: "SweatReel — Your workouts. Organized." },
-      { name: "description", content: "SweatReel helps you save, organize and plan your workouts from anywhere — your library, your week, your progress." },
-      { property: "og:title", content: "SweatReel — Your workouts. Organized." },
-      { property: "og:description", content: "SweatReel helps you save, organize and plan your workouts from anywhere — your library, your week, your progress." },
+      { name: "description", content: "Save workout reels from YouTube, Instagram & TikTok. Build your personal fitness library, plan your week, and track your streak. Free fitness app for India." },
+      { name: "keywords", content: "workout app India, save workout reels, fitness planner, gym workout tracker, YouTube workout save" },
+      { name: "robots", content: "index, follow" },
+      { property: "og:title", content: "SweatReel — Save & Organize Your Workout Reels" },
+      { property: "og:description", content: "Save workouts from YouTube, Instagram & TikTok. Plan your week. Track your streak. Free." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "SweatReel — Your workouts. Organized." },
-      { name: "twitter:description", content: "SweatReel helps you save, organize and plan your workouts from anywhere — your library, your week, your progress." },
+      { name: "twitter:description", content: "Save workouts from YouTube, Instagram & TikTok. Plan your week. Track your streak. Free." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
       { name: "google-site-verification", content: "Lq64VLNxL6soFbEzwSJzb1J1soGiEfZ1Gxq3uwI4E9E" },
@@ -110,7 +112,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <HeadContent />
       </head>

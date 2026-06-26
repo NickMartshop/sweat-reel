@@ -3,6 +3,7 @@ import { BottomNav } from "./BottomNav";
 import { Onboarding } from "./Onboarding";
 import { AuthScreen } from "./AuthScreen";
 import { ToastHost } from "./Toast";
+import { PWAInstallBanner } from "./PWAInstallBanner";
 import { authStore, useAuth } from "@/lib/auth-store";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -41,6 +42,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <main className="pb-24 px-4 pt-4">{children}</main>
         <BottomNav />
+        <PWAInstallBanner />
       </div>
     </div>
   );
