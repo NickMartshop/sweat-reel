@@ -5,7 +5,13 @@ import { AuthScreen } from "./AuthScreen";
 import { ToastHost } from "./Toast";
 import { authStore, useAuth } from "@/lib/auth-store";
 
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({
+  children,
+  bottomPadding = 96,
+}: {
+  children: ReactNode;
+  bottomPadding?: number;
+}) {
   const auth = useAuth();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -39,7 +45,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         className="relative w-full max-w-[430px] min-h-screen bg-background"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <main className="pb-24 px-4 pt-4">{children}</main>
+        <main className="px-4 pt-4" style={{ paddingBottom: `${bottomPadding}px` }}>
+          {children}
+        </main>
         <BottomNav />
       </div>
     </div>

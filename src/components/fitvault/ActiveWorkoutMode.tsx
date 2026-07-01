@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { X, Minus, Plus } from "lucide-react";
 import type { Workout } from "@/lib/fitvault-data";
 import { toast } from "./Toast";
-import { profileStore } from "@/lib/profile-store";
+import { profileStore, useProfile } from "@/lib/profile-store";
+import { getWorkoutShareUrl } from "@/lib/share-utils";
 
 function fmt(s: number) {
   const h = Math.floor(s / 3600);
@@ -399,16 +400,15 @@ function CompletionScreen({
   onClose: () => void;
 }) {
   const [logged, setLogged] = useState(false);
+  const { profile } = useProfile();
   useEffect(() => {
     try {
       navigator.vibrate?.([100, 50, 100]);
     } catch {}
   }, []);
 
-  const shareUrl = typeof window !== "undefined" ? window.location.origin : "";
-  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(
-    `Just completed "${workout.title}" on SweatReel! 💪🔥 Check it out: ${shareUrl}`,
-  )}`;
+  const streakCount = (profile?.streak_count ?? 0) + (logged ? 1 : 0);
+  const whatsappHref = getWorkoutShareUrl(workout.title, streakCount);
 
   return (
     <div
@@ -442,7 +442,9 @@ function CompletionScreen({
         </div>
 
         <div className="mt-8 px-5 py-3 rounded-2xl bg-card border border-border">
-          <p className="text-[20px] font-bold text-action">🔥 1 day streak!</p>
+          <p className="text-[20px] font-bold text-action">
+            🔥 {streakCount} day streak!
+          </p>
         </div>
 
         <div className="mt-10 w-full">
@@ -470,7 +472,7 @@ function CompletionScreen({
             href={whatsappHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 w-full h-[52px] rounded-xl bg-[#25D366] text-white text-[15px] font-semibold press-scale flex items-center justify-center gap-2"
+            className="mt-3 w-full h-[52px] rounded-xl bg-[#25D366] text-white text-[15px] font-semibold press-scale flex items-center justify-center gap-2"
           >
             Share on WhatsApp
           </a>
