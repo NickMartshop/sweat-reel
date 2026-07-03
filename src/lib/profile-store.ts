@@ -11,7 +11,7 @@ export interface Profile {
   best_streak: number;
   last_workout_date: string | null;
   total_workouts: number;
-  is_pro: boolean;
+  is_pro?: boolean;
   created_at: string;
 }
 
