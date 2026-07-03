@@ -472,6 +472,7 @@ export function AddWorkoutSheet({
                       )
                     }
                     placeholder="Exercise"
+                    aria-label={`Exercise ${idx + 1} name`}
                     className="min-w-0 flex-1 bg-transparent text-[13px] text-white placeholder:text-text-secondary outline-none"
                   />
                   <span className="text-text-secondary text-[12px]">×</span>
