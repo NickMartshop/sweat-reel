@@ -6,8 +6,6 @@ import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { ToastHost } from "@/components/fitvault/Toast";
-import { ReferralBanner } from "@/components/fitvault/ReferralBanner";
-import { AffiliateBanner } from "@/components/fitvault/AffiliateBanner";
 import { greeting, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
 import { usePlans } from "@/lib/plans-store";
@@ -145,10 +143,9 @@ function HomePage() {
 
   const plannedThisWeek = planEntries.length;
   const streak = profile?.streak_count ?? 0;
-  const isPro = profile?.is_pro ?? false;
 
   return (
-    <AppShell bottomPadding={isPro ? 96 : 148}>
+    <AppShell>
       {(pull > 0 || refreshing) && (
         <div
           className="fixed left-0 right-0 top-0 z-40 flex justify-center pointer-events-none"
@@ -197,7 +194,6 @@ function HomePage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search your workouts..."
-          aria-label="Search your workouts"
           className="w-full h-11 pl-10 pr-10 rounded-xl bg-card border border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary"
         />
         {query && (
@@ -210,8 +206,6 @@ function HomePage() {
           </button>
         )}
       </div>
-
-      <ReferralBanner />
 
       <section className="mt-5">
         <div className="flex items-end justify-between">
@@ -289,21 +283,15 @@ function HomePage() {
         )}
       </section>
 
-      <div className="h-14" />
-
-      <AffiliateBanner isPro={isPro} />
-
       <button
         aria-label="Add workout"
         onClick={() => {
           haptic(50);
           setAddOpen(true);
         }}
-        className="press-scale fixed right-4 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center z-40"
+        className="press-scale fixed right-4 w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center z-30"
         style={{
-          bottom: isPro
-            ? "calc(72px + env(safe-area-inset-bottom))"
-            : "calc(124px + env(safe-area-inset-bottom))",
+          bottom: "calc(72px + env(safe-area-inset-bottom))",
           boxShadow: "0 4px 20px rgba(67,97,238,0.5)",
         }}
       >

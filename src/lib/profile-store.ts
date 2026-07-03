@@ -11,7 +11,6 @@ export interface Profile {
   best_streak: number;
   last_workout_date: string | null;
   total_workouts: number;
-  is_pro?: boolean;
   created_at: string;
 }
 
@@ -50,7 +49,7 @@ async function load() {
     ]);
     state = {
       loading: false,
-      profile: prof ? { ...(prof as any), is_pro: (prof as any).is_pro ?? false } as Profile : null,
+      profile: (prof as Profile) ?? null,
       weeklyCompletedCount: count ?? 0,
     };
   } catch {

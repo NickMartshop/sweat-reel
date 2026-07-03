@@ -263,7 +263,6 @@ export function AddWorkoutSheet({
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Paste YouTube, Instagram or TikTok URL"
-                aria-label="Workout source URL"
                 className="w-full h-14 rounded-xl bg-card border-[1.5px] border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary focus:[box-shadow:0_0_0_3px_rgba(67,97,238,0.2)] pl-4 pr-12 transition-all"
               />
               <button
@@ -328,7 +327,6 @@ export function AddWorkoutSheet({
                 setTitle(e.target.value);
               }}
               placeholder="Title"
-              aria-label="Workout title"
               className="mt-2 w-full h-14 rounded-xl bg-card border-[1.5px] border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary focus:[box-shadow:0_0_0_3px_rgba(67,97,238,0.2)] px-4 transition-all"
             />
 
@@ -407,7 +405,6 @@ export function AddWorkoutSheet({
                   onChange={(e) =>
                     setDuration(Math.max(0, Number(e.target.value) || 0))
                   }
-                  aria-label="Duration in minutes"
                   className="flex-1 min-w-0 bg-transparent text-center text-white text-[14px] font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button
@@ -472,7 +469,6 @@ export function AddWorkoutSheet({
                       )
                     }
                     placeholder="Exercise"
-                    aria-label={`Exercise ${idx + 1} name`}
                     className="min-w-0 flex-1 bg-transparent text-[13px] text-white placeholder:text-text-secondary outline-none"
                   />
                   <span className="text-text-secondary text-[12px]">×</span>
@@ -486,7 +482,6 @@ export function AddWorkoutSheet({
                         ),
                       )
                     }
-                    aria-label={`Exercise ${idx + 1} sets`}
                     className="w-9 bg-[#252535] rounded text-center text-[12px] text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-[11px] text-text-secondary">sets</span>
@@ -500,7 +495,6 @@ export function AddWorkoutSheet({
                         ),
                       )
                     }
-                    aria-label={`Exercise ${idx + 1} reps`}
                     className="w-9 bg-[#252535] rounded text-center text-[12px] text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-[11px] text-text-secondary">reps</span>

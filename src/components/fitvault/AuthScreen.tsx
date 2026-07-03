@@ -124,7 +124,6 @@ export function AuthScreen() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your Name"
-                aria-label="Your name"
                 className={fieldCls}
               />
               {errors.name && (
@@ -137,7 +136,6 @@ export function AuthScreen() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
-              aria-label="Email address"
               type="email"
               autoComplete="email"
               className={fieldCls}
@@ -152,7 +150,6 @@ export function AuthScreen() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={mode === "signup" ? "Create password" : "Password"}
-                aria-label={mode === "signup" ? "Create password" : "Password"}
                 type={showPw ? "text" : "password"}
                 className={fieldCls + " pr-12"}
               />
@@ -176,7 +173,6 @@ export function AuthScreen() {
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder="Confirm password"
-                  aria-label="Confirm password"
                   type={showConf ? "text" : "password"}
                   className={fieldCls + " pr-12"}
                 />

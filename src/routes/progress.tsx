@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Share2 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { DAYS, getMondayIndex } from "@/lib/fitvault-data";
 import { usePlans } from "@/lib/plans-store";
 import { useProfile } from "@/lib/profile-store";
-import { getStreakShareUrl } from "@/lib/share-utils";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
@@ -80,7 +78,7 @@ function ProgressPage() {
         <h1 className="sr-only">My Progress</h1>
 
         <p className="text-5xl">🔥</p>
-        <div className="relative inline-flex items-center gap-3 mt-2">
+        <div className="relative inline-block mt-2">
           <div
             className="absolute inset-0 rounded-full -z-0"
             style={{
@@ -91,17 +89,6 @@ function ProgressPage() {
           <p className="relative text-[60px] font-bold text-white leading-none">
             {streak}
           </p>
-          {streak > 0 && (
-            <a
-              href={getStreakShareUrl(streak)}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Share streak"
-              className="press-scale relative w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-text-secondary hover:text-primary transition-colors"
-            >
-              <Share2 size={18} />
-            </a>
-          )}
         </div>
         <p className="text-text-secondary mt-2">day streak</p>
         <p className="text-[12px] text-text-secondary mt-1">Best: {best} days</p>
