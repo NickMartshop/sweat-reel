@@ -500,6 +500,7 @@ export function AddWorkoutSheet({
                         ),
                       )
                     }
+                    aria-label={`Exercise ${idx + 1} reps`}
                     className="w-9 bg-[#252535] rounded text-center text-[12px] text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-[11px] text-text-secondary">reps</span>
