@@ -52,7 +52,6 @@ export type Database = {
           created_at: string
           email: string
           id: string
-          is_pro: boolean
           last_workout_date: string | null
           name: string
           streak_count: number
@@ -64,7 +63,6 @@ export type Database = {
           created_at?: string
           email?: string
           id: string
-          is_pro?: boolean
           last_workout_date?: string | null
           name?: string
           streak_count?: number
@@ -76,7 +74,6 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-          is_pro?: boolean
           last_workout_date?: string | null
           name?: string
           streak_count?: number
