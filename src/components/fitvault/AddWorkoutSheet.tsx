@@ -263,6 +263,7 @@ export function AddWorkoutSheet({
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="Paste YouTube, Instagram or TikTok URL"
+                aria-label="Workout source URL"
                 className="w-full h-14 rounded-xl bg-card border-[1.5px] border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary focus:[box-shadow:0_0_0_3px_rgba(67,97,238,0.2)] pl-4 pr-12 transition-all"
               />
               <button
