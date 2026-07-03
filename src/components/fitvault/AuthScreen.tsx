@@ -176,6 +176,7 @@ export function AuthScreen() {
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder="Confirm password"
+                  aria-label="Confirm password"
                   type={showConf ? "text" : "password"}
                   className={fieldCls + " pr-12"}
                 />
