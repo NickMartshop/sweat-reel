@@ -152,6 +152,7 @@ export function AuthScreen() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={mode === "signup" ? "Create password" : "Password"}
+                aria-label={mode === "signup" ? "Create password" : "Password"}
                 type={showPw ? "text" : "password"}
                 className={fieldCls + " pr-12"}
               />
