@@ -137,6 +137,7 @@ export function AuthScreen() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email address"
+              aria-label="Email address"
               type="email"
               autoComplete="email"
               className={fieldCls}
