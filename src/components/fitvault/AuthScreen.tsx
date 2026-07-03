@@ -124,6 +124,7 @@ export function AuthScreen() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your Name"
+                aria-label="Your name"
                 className={fieldCls}
               />
               {errors.name && (
