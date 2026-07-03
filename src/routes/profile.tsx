@@ -140,7 +140,7 @@ function ProfilePage() {
         <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-2xl font-bold text-white">
           {initial}
         </div>
-        <h1 className="mt-3 text-xl font-bold text-white">{name}</h1>
+        <h1 className="mt-3 text-xl font-bold text-white">{name}&apos;s Profile</h1>
         <p className="text-[14px] text-text-secondary">{email}</p>
       </div>
 
