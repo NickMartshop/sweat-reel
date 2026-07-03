@@ -197,6 +197,7 @@ function HomePage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search your workouts..."
+          aria-label="Search your workouts"
           className="w-full h-11 pl-10 pr-10 rounded-xl bg-card border border-border text-[14px] text-white placeholder:text-text-secondary outline-none focus:border-primary"
         />
         {query && (
