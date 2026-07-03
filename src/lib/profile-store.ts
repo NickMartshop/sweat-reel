@@ -50,7 +50,7 @@ async function load() {
     ]);
     state = {
       loading: false,
-      profile: prof ? { ...prof, is_pro: prof.is_pro ?? false } : null,
+      profile: prof ? { ...(prof as any), is_pro: (prof as any).is_pro ?? false } as Profile : null,
       weeklyCompletedCount: count ?? 0,
     };
   } catch {
