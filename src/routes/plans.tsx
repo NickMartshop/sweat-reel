@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X, Share2, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { ToastHost, toast } from "@/components/fitvault/Toast";
 import {
@@ -11,6 +11,8 @@ import {
 } from "@/lib/fitvault-data";
 import { usePlans, plansStore } from "@/lib/plans-store";
 import { useWorkouts } from "@/lib/workouts-store";
+import { useProfile } from "@/lib/profile-store";
+import { renderWeekCard, shareCanvas } from "@/lib/share-card";
 
 export const Route = createFileRoute("/plans")({
   head: () => ({
