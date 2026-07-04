@@ -39,8 +39,10 @@ function PlansPage() {
   const todayIdx = getMondayIndex(today);
   const [selected, setSelected] = useState(todayIdx);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const { entries, loading } = usePlans();
   const { workouts } = useWorkouts();
+  const { profile } = useProfile();
 
   const monday = new Date(today);
   monday.setDate(today.getDate() - todayIdx);
@@ -78,14 +80,64 @@ function PlansPage() {
     }
   }
 
+  async function handleShareWeek() {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const days = Array.from({ length: 7 }, (_, i) => {
+        const entry = entries.find((e) => e.day_of_week === i);
+        return {
+          dayIndex: i,
+          title: entry?.workout.title ?? null,
+          muscle: entry?.workout.muscle_group ?? null,
+        };
+      });
+      const [canvas] = await Promise.all([
+        Promise.resolve(
+          renderWeekCard({
+            name: profile?.name || "My",
+            streak: profile?.streak_count ?? 0,
+            days,
+          }),
+        ),
+        new Promise((r) => setTimeout(r, 1000)),
+      ]);
+      await shareCanvas(canvas, "SweatReel-MyWeek.png");
+    } catch {
+      toast.show("Couldn't create card. Try again.", "error");
+    } finally {
+      setSharing(false);
+    }
+  }
+
   return (
     <AppShell>
-      <header>
-        <h1 className="text-xl font-bold text-white">My Week</h1>
-        <p className="text-[13px] text-text-secondary mt-0.5">
-          Build your weekly routine
-        </p>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-white">My Week</h1>
+          <p className="text-[13px] text-text-secondary mt-0.5">
+            Build your weekly routine
+          </p>
+        </div>
+        <button
+          onClick={handleShareWeek}
+          disabled={sharing}
+          className="press-scale h-9 px-3 rounded-xl bg-primary text-white text-[12px] font-semibold flex items-center gap-1.5 disabled:opacity-70"
+        >
+          {sharing ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              Creating your card... ✨
+            </>
+          ) : (
+            <>
+              <Share2 size={14} />
+              Share My Week
+            </>
+          )}
+        </button>
       </header>
+
 
       <div className="mt-4 grid grid-cols-7 gap-1.5">
         {DAYS.map((d, i) => {
