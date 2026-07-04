@@ -9,11 +9,18 @@ import {
   Share2,
   ChevronRight,
   LogOut,
+  Users,
+  Copy,
 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { ToastHost, toast } from "@/components/fitvault/Toast";
-import { useProfile } from "@/lib/profile-store";
+import { useProfile, profileStore } from "@/lib/profile-store";
 import { authStore } from "@/lib/auth-store";
+import {
+  disableReminders,
+  enableReminders,
+  setReminderTime,
+} from "@/lib/reminders";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
