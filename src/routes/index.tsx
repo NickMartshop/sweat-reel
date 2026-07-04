@@ -5,6 +5,7 @@ import { AppShell } from "@/components/fitvault/AppShell";
 import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
+import { TodayWorkoutCard } from "@/components/fitvault/TodayWorkoutCard";
 import { ToastHost } from "@/components/fitvault/Toast";
 import { greeting, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
