@@ -225,29 +225,11 @@ function HomePage() {
             </p>
           </button>
         ) : (
-          <ul className="mt-3 space-y-2">
+          <div className="space-y-3">
             {todayWorkouts.map((w) => (
-              <li
-                key={w.id}
-                onClick={() => setDetail(w)}
-                className="press-scale cursor-pointer flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
-              >
-                <img
-                  src={w.thumbnail_url}
-                  alt=""
-                  className="w-[60px] h-[60px] rounded-xl object-cover"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-semibold text-white truncate">
-                    {w.title}
-                  </p>
-                  <p className="text-[12px] text-text-secondary mt-0.5">
-                    {w.muscle_group} · {w.duration_mins} min
-                  </p>
-                </div>
-              </li>
+              <TodayWorkoutCard key={w.id} workout={w} />
             ))}
-          </ul>
+          </div>
         )}
       </section>
 
