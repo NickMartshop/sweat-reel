@@ -55,6 +55,7 @@ function ProgressPage() {
   const todayIdx = getMondayIndex(today);
   const { entries } = usePlans();
   const { profile, weeklyCompletedCount } = useProfile();
+  const [sharing, setSharing] = useState(false);
 
   const weekCounts = DAYS.map(
     (_, i) => entries.filter((e) => e.day_of_week === i).length,
@@ -77,6 +78,22 @@ function ProgressPage() {
     cells.push({ day: d, count: 0 });
   }
 
+  async function handleShareStreak() {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const [canvas] = await Promise.all([
+        Promise.resolve(renderStreakCard({ streak })),
+        new Promise((r) => setTimeout(r, 1000)),
+      ]);
+      await shareCanvas(canvas, "SweatReel-Streak.png");
+    } catch {
+      toast.show("Couldn't create card. Try again.", "error");
+    } finally {
+      setSharing(false);
+    }
+  }
+
   return (
     <AppShell>
       <header className="text-center pt-2">
@@ -97,7 +114,26 @@ function ProgressPage() {
         </div>
         <p className="text-text-secondary mt-2">day streak</p>
         <p className="text-[12px] text-text-secondary mt-1">Best: {best} days</p>
+        <button
+          onClick={handleShareStreak}
+          disabled={sharing}
+          className="press-scale mt-3 inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-white text-[12px] font-semibold disabled:opacity-70"
+          style={{ background: "#FF6B35" }}
+        >
+          {sharing ? (
+            <>
+              <Loader2 size={14} className="animate-spin" />
+              Creating your card... ✨
+            </>
+          ) : (
+            <>
+              <Share2 size={14} />
+              Share Streak 🔥
+            </>
+          )}
+        </button>
       </header>
+
 
       <section className="mt-8">
         <h2 className="text-base font-semibold text-white">This Week (planned)</h2>
