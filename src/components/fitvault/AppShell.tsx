@@ -3,14 +3,72 @@ import { BottomNav } from "./BottomNav";
 import { Onboarding } from "./Onboarding";
 import { AuthScreen } from "./AuthScreen";
 import { ToastHost } from "./Toast";
+import { ReminderPrompt } from "./ReminderPrompt";
+import { AchievementToastHost } from "./AchievementToast";
 import { authStore, useAuth } from "@/lib/auth-store";
+import { useProfile, profileStore } from "@/lib/profile-store";
+import { startReminderLoop } from "@/lib/reminders";
+import { checkAchievements } from "@/lib/achievements";
+
+const REF_KEY = "sweatreel_ref";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const auth = useAuth();
+  const { profile } = useProfile();
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => setMounted(true), []);
 
-  // Pre-mount / pre-hydration: render dark background to avoid flash
+  // Capture ?ref=xxx into sessionStorage so we can attach it after signup.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref) {
+      try {
+        sessionStorage.setItem(REF_KEY, ref);
+      } catch {}
+    }
+  }, []);
+
+  // Once the user is signed in, persist any stashed referral.
+  useEffect(() => {
+    if (!auth.user) return;
+    let ref: string | null = null;
+    try {
+      ref = sessionStorage.getItem(REF_KEY);
+    } catch {}
+    if (ref) {
+      profileStore.setReferredBy(ref).finally(() => {
+        try {
+          sessionStorage.removeItem(REF_KEY);
+        } catch {}
+      });
+    }
+  }, [auth.user]);
+
+  // Start reminder loop with live config from the profile.
+  useEffect(() => {
+    startReminderLoop(() => ({
+      enabled: !!profile?.notifications_enabled,
+      time: profile?.reminder_time ?? null,
+    }));
+  }, [profile?.notifications_enabled, profile?.reminder_time]);
+
+  // Evaluate achievements when profile/plans/workouts change.
+  useEffect(() => {
+    if (!auth.user) return;
+    const t = setTimeout(() => {
+      checkAchievements().catch(() => {});
+    }, 800);
+    return () => clearTimeout(t);
+  }, [
+    auth.user,
+    profile?.total_workouts,
+    profile?.streak_count,
+    profile?.best_streak,
+  ]);
+
   if (!mounted || !auth.hydrated) {
     return <div className="min-h-screen w-full bg-background" />;
   }
@@ -41,6 +99,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <main className="pb-24 px-4 pt-4">{children}</main>
         <BottomNav />
+        <ReminderPrompt />
+        <AchievementToastHost />
       </div>
     </div>
   );

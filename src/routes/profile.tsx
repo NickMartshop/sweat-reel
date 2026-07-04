@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+
 import {
   Bell,
   Moon,
@@ -9,11 +9,18 @@ import {
   Share2,
   ChevronRight,
   LogOut,
+  Users,
+  Copy,
 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { ToastHost, toast } from "@/components/fitvault/Toast";
-import { useProfile } from "@/lib/profile-store";
+import { useProfile, profileStore } from "@/lib/profile-store";
 import { authStore } from "@/lib/auth-store";
+import {
+  disableReminders,
+  enableReminders,
+  setReminderTime,
+} from "@/lib/reminders";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -95,10 +102,25 @@ function Toggle({
   );
 }
 
+const TIME_OPTIONS: string[] = (() => {
+  const arr: string[] = [];
+  for (let h = 6; h <= 22; h++) arr.push(`${String(h).padStart(2, "0")}:00`);
+  return arr;
+})();
+
+function formatTime(t: string) {
+  const [h] = t.split(":").map(Number);
+  const suffix = h < 12 ? "AM" : "PM";
+  const hh = h % 12 || 12;
+  return `${hh}:00 ${suffix}`;
+}
+
 function ProfilePage() {
-  const [notif, setNotif] = useState(true);
   const { profile } = useProfile();
   const navigate = useNavigate();
+
+  const notifEnabled = !!profile?.notifications_enabled;
+  const reminderTime = profile?.reminder_time || "08:00";
 
   const name = profile?.name || "Athlete";
   const email = profile?.email || "";
@@ -109,6 +131,14 @@ function ProfilePage() {
         year: "numeric",
       })
     : "—";
+
+  const refId = profile?.id ? profile.id.slice(0, 8) : "";
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "https://sweat-reel.lovable.app";
+  const referralUrl = refId ? `${origin}?ref=${refId}` : origin;
+  const waHref = `https://wa.me/?text=${encodeURIComponent(
+    `I've been organizing my workouts with SweatReel and it's 🔥 Try it free: ${referralUrl}`,
+  )}`;
 
   const handleShare = async () => {
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -134,6 +164,33 @@ function ProfilePage() {
     }
   };
 
+  const handleNotifToggle = async (v: boolean) => {
+    if (v) {
+      const ok = await enableReminders(reminderTime);
+      if (ok) toast.success("Reminders enabled 🔔");
+      else toast.show("Permission denied", "error");
+    } else {
+      await disableReminders();
+      await profileStore.updateNotifications(false);
+      toast.show("Reminders off", "info");
+    }
+    await profileStore.reload();
+  };
+
+  const handleTimeChange = async (t: string) => {
+    await setReminderTime(t);
+    await profileStore.updateNotifications(true, t);
+  };
+
+  const handleCopyReferral = async () => {
+    try {
+      await navigator.clipboard.writeText(referralUrl);
+      toast.success("Link copied 📋");
+    } catch {
+      toast.show("Couldn't copy", "error");
+    }
+  };
+
   return (
     <AppShell>
       <div className="flex flex-col items-center pt-2">
@@ -152,14 +209,72 @@ function ProfilePage() {
 
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold text-text-secondary uppercase tracking-wider px-1">
+          Refer a Friend
+        </h2>
+        <div className="mt-2 rounded-2xl bg-card border border-border p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+              <Users size={18} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[14px] font-semibold text-white">
+                Invite friends, grow together 💪
+              </p>
+              <p className="text-[11px] text-text-secondary truncate">
+                {referralUrl}
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={handleCopyReferral}
+              className="press-scale flex-1 h-10 rounded-xl bg-[#252535] text-white text-[13px] font-semibold flex items-center justify-center gap-1.5"
+            >
+              <Copy size={14} /> Copy Link
+            </button>
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="press-scale flex-1 h-10 rounded-xl text-white text-[13px] font-semibold flex items-center justify-center gap-1.5"
+              style={{ background: "#25D366" }}
+            >
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="text-[12px] font-semibold text-text-secondary uppercase tracking-wider px-1">
           Preferences
         </h2>
         <div className="mt-2 rounded-2xl overflow-hidden border border-border flex flex-col gap-[2px] bg-border">
           <Row
             icon={<Bell size={18} />}
             label="Notifications"
-            right={<Toggle checked={notif} onChange={setNotif} />}
+            right={
+              <Toggle checked={notifEnabled} onChange={handleNotifToggle} />
+            }
           />
+          {notifEnabled && (
+            <div className="flex items-center gap-3 px-4 py-3 bg-card">
+              <span className="text-text-secondary text-[14px] flex-1">
+                Reminder time
+              </span>
+              <select
+                value={reminderTime}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                className="bg-[#252535] text-white text-[13px] rounded-lg px-2 py-1.5 border border-border outline-none"
+              >
+                {TIME_OPTIONS.map((t) => (
+                  <option key={t} value={t}>
+                    {formatTime(t)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <Row
             icon={<Moon size={18} />}
             label="Dark Mode"

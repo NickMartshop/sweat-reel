@@ -20,7 +20,7 @@ export const extractExercises = createServerFn({ method: "POST" })
       .object({ title: z.string().min(1).max(300) })
       .parse(input),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("AI not configured");
     const gateway = createLovableAiGatewayProvider(key);
@@ -38,5 +38,22 @@ export const extractExercises = createServerFn({ method: "POST" })
     const json = match ? match[0] : cleaned;
     const parsed = JSON.parse(json);
     const arr = z.array(ExerciseSchema).min(1).max(10).parse(parsed);
+
+    // Increment usage counter for achievements
+    try {
+      const { data: prof } = await context.supabase
+        .from("profiles")
+        .select("ai_extractions_count")
+        .eq("id", context.userId)
+        .maybeSingle();
+      const cur = (prof as any)?.ai_extractions_count ?? 0;
+      await context.supabase
+        .from("profiles")
+        .update({ ai_extractions_count: cur + 1 } as any)
+        .eq("id", context.userId);
+    } catch {
+      /* non-fatal */
+    }
+
     return { exercises: arr };
   });
