@@ -12,6 +12,11 @@ export interface Profile {
   last_workout_date: string | null;
   total_workouts: number;
   created_at: string;
+  notifications_enabled?: boolean;
+  reminder_time?: string | null;
+  ai_extractions_count?: number;
+  unlocked_achievements?: string[];
+  referred_by?: string | null;
 }
 
 interface ProfileState {
