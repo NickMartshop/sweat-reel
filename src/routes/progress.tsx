@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Share2, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
+import { AchievementsGrid } from "@/components/fitvault/AchievementsGrid";
+import { toast } from "@/components/fitvault/Toast";
 import { DAYS, getMondayIndex } from "@/lib/fitvault-data";
 import { usePlans } from "@/lib/plans-store";
 import { useProfile } from "@/lib/profile-store";
+import { renderStreakCard, shareCanvas } from "@/lib/share-card";
 
 export const Route = createFileRoute("/progress")({
   head: () => ({
