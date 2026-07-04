@@ -138,6 +138,34 @@ export const profileStore = {
     await load();
     return newStreak;
   },
+  updateNotifications: async (enabled: boolean, time?: string) => {
+    const user = authStore.get().user;
+    if (!user) return;
+    const patch: any = { notifications_enabled: enabled };
+    if (time) patch.reminder_time = time;
+    await supabase.from("profiles").update(patch).eq("id", user.id);
+    if (state.profile) {
+      state = {
+        ...state,
+        profile: {
+          ...state.profile,
+          notifications_enabled: enabled,
+          reminder_time: time ?? state.profile.reminder_time,
+        },
+      };
+      emit();
+    }
+  },
+  setReferredBy: async (ref: string) => {
+    const user = authStore.get().user;
+    if (!user) return;
+    if (state.profile?.referred_by) return;
+    if (ref === user.id.slice(0, 8)) return;
+    await supabase
+      .from("profiles")
+      .update({ referred_by: ref } as any)
+      .eq("id", user.id);
+  },
 };
 
 export function useProfile() {
