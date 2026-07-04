@@ -48,36 +48,51 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ai_extractions_count: number
           best_streak: number
           created_at: string
           email: string
           id: string
           last_workout_date: string | null
           name: string
+          notifications_enabled: boolean
+          referred_by: string | null
+          reminder_time: string | null
           streak_count: number
           total_workouts: number
+          unlocked_achievements: Json
           updated_at: string
         }
         Insert: {
+          ai_extractions_count?: number
           best_streak?: number
           created_at?: string
           email?: string
           id: string
           last_workout_date?: string | null
           name?: string
+          notifications_enabled?: boolean
+          referred_by?: string | null
+          reminder_time?: string | null
           streak_count?: number
           total_workouts?: number
+          unlocked_achievements?: Json
           updated_at?: string
         }
         Update: {
+          ai_extractions_count?: number
           best_streak?: number
           created_at?: string
           email?: string
           id?: string
           last_workout_date?: string | null
           name?: string
+          notifications_enabled?: boolean
+          referred_by?: string | null
+          reminder_time?: string | null
           streak_count?: number
           total_workouts?: number
+          unlocked_achievements?: Json
           updated_at?: string
         }
         Relationships: []
