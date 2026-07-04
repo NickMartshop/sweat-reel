@@ -199,6 +199,10 @@ function ProgressPage() {
         </div>
       </section>
 
+      <AchievementsGrid />
+
+
+
       <section className="mt-6 grid grid-cols-2 gap-3">
         <StatCard label="Total Workouts" value={total} sub="all time" />
         <StatCard label="This Week" value={weeklyCompletedCount} sub="completed" />
