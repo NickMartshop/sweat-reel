@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { authStore } from "./auth-store";
 import { getCurrentMonday, todayDateString } from "./fitvault-data";
 
+export type FitnessGoal = "build" | "lose" | "flex" | "general";
+
 export interface Profile {
   id: string;
   name: string;
@@ -17,6 +19,10 @@ export interface Profile {
   ai_extractions_count?: number;
   unlocked_achievements?: string[];
   referred_by?: string | null;
+  fitness_goal?: FitnessGoal | null;
+  default_difficulty?: "Easy" | "Medium" | "Hard";
+  rest_timer_seconds?: number;
+  auto_advance_rest?: boolean;
 }
 
 interface ProfileState {
@@ -80,16 +86,10 @@ export const profileStore = {
     };
   },
   reload: load,
-  /**
-   * Log a completed workout. Updates streak, totals, and inserts a row.
-   * Returns the new streak count.
-   */
   logCompleted: async (workoutId: string | null, durationMins: number) => {
     const user = authStore.get().user;
     if (!user) throw new Error("Not signed in");
     const today = todayDateString();
-
-    // Insert completed row
     const { error: insErr } = await supabase.from("completed_workouts").insert({
       user_id: user.id,
       workout_id: workoutId,
@@ -97,7 +97,6 @@ export const profileStore = {
     });
     if (insErr) throw insErr;
 
-    // Read current profile
     const { data: prof } = await supabase
       .from("profiles")
       .select("streak_count, best_streak, last_workout_date, total_workouts")
@@ -116,7 +115,7 @@ export const profileStore = {
       const diff = Math.round(
         (todayDate.getTime() - lastDate.getTime()) / 86400000,
       );
-      if (diff === 0) newStreak = streak; // same day, no change
+      if (diff === 0) newStreak = streak;
       else if (diff === 1) newStreak = streak + 1;
       else newStreak = 1;
     }
@@ -165,6 +164,48 @@ export const profileStore = {
       .from("profiles")
       .update({ referred_by: ref } as any)
       .eq("id", user.id);
+  },
+  setFitnessGoal: async (goal: FitnessGoal) => {
+    const user = authStore.get().user;
+    if (!user) return;
+    await supabase
+      .from("profiles")
+      .update({ fitness_goal: goal } as any)
+      .eq("id", user.id);
+    if (state.profile) {
+      state = {
+        ...state,
+        profile: { ...state.profile, fitness_goal: goal },
+      };
+      emit();
+    }
+  },
+  updatePreferences: async (patch: {
+    default_difficulty?: "Easy" | "Medium" | "Hard";
+    rest_timer_seconds?: number;
+    auto_advance_rest?: boolean;
+  }) => {
+    const user = authStore.get().user;
+    if (!user) return;
+    await supabase.from("profiles").update(patch as any).eq("id", user.id);
+    if (state.profile) {
+      state = { ...state, profile: { ...state.profile, ...patch } };
+      emit();
+    }
+  },
+  // Delete all rows owned by the current user via RLS. auth.users cannot be
+  // removed from the client without a service role; support finishes the job.
+  purgeOwnedData: async () => {
+    const user = authStore.get().user;
+    if (!user) return;
+    const uid = user.id;
+    await Promise.all([
+      supabase.from("completed_workouts").delete().eq("user_id", uid),
+      supabase.from("weekly_plans").delete().eq("user_id", uid),
+      supabase.from("body_stats").delete().eq("user_id", uid),
+      supabase.from("workouts").delete().eq("user_id", uid),
+    ]);
+    await supabase.from("profiles").delete().eq("id", uid);
   },
 };
 

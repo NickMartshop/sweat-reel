@@ -3,11 +3,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { authStore } from "./auth-store";
 import { getCurrentMonday, rowToWorkout, type Workout } from "./fitvault-data";
 
-export interface PlanEntry {
-  id: string;
-  day_of_week: number;
-  workout: Workout;
-}
+export type RestType = "active" | "full" | "ice" | "cardio";
+
+export type PlanEntry =
+  | {
+      kind: "workout";
+      id: string;
+      day_of_week: number;
+      workout: Workout;
+    }
+  | {
+      kind: "rest";
+      id: string;
+      day_of_week: number;
+      rest_type: RestType;
+    };
 
 interface PlansState {
   loading: boolean;
@@ -32,17 +42,26 @@ async function load() {
     const monday = getCurrentMonday();
     const { data, error } = await supabase
       .from("weekly_plans")
-      .select("id, day_of_week, workouts(*)")
+      .select("id, day_of_week, rest_type, workouts(*)")
       .eq("user_id", user.id)
       .eq("week_start_date", monday);
     if (error) throw error;
-    const entries: PlanEntry[] = (data ?? [])
-      .filter((r: any) => r.workouts)
-      .map((r: any) => ({
+    const entries: PlanEntry[] = (data ?? []).map((r: any): PlanEntry => {
+      if (r.workouts) {
+        return {
+          kind: "workout",
+          id: r.id,
+          day_of_week: r.day_of_week,
+          workout: rowToWorkout(r.workouts),
+        };
+      }
+      return {
+        kind: "rest",
         id: r.id,
         day_of_week: r.day_of_week,
-        workout: rowToWorkout(r.workouts),
-      }));
+        rest_type: (r.rest_type as RestType) ?? "full",
+      };
+    });
     state = { loading: false, entries, error: null };
   } catch (e: any) {
     state = { loading: false, entries: [], error: e.message ?? "Error" };
@@ -77,6 +96,20 @@ export const plansStore = {
       day_of_week: dayOfWeek,
       week_start_date: monday,
     });
+    if (error) throw error;
+    await load();
+  },
+  addRest: async (dayOfWeek: number, restType: RestType) => {
+    const user = authStore.get().user;
+    if (!user) throw new Error("Not signed in");
+    const monday = getCurrentMonday();
+    const { error } = await supabase.from("weekly_plans").insert({
+      user_id: user.id,
+      workout_id: null as any,
+      rest_type: restType,
+      day_of_week: dayOfWeek,
+      week_start_date: monday,
+    } as any);
     if (error) throw error;
     await load();
   },

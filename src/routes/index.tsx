@@ -12,6 +12,22 @@ import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
 import { usePlans } from "@/lib/plans-store";
 import { useProfile } from "@/lib/profile-store";
 import { getMondayIndex } from "@/lib/fitvault-data";
+import type { FitnessGoal } from "@/lib/profile-store";
+
+function goalSubText(goal?: FitnessGoal | null): string {
+  switch (goal) {
+    case "build":
+      return "Ready to get stronger today?";
+    case "lose":
+      return "Burn it up today! 🔥";
+    case "flex":
+      return "Time to flow and recover 🧘";
+    case "general":
+      return "Let's move and feel good 💪";
+    default:
+      return "Ready to crush it today?";
+  }
+}
 
 function haptic(p: number | number[] = 50) {
   try {
@@ -131,8 +147,9 @@ function HomePage() {
 
   const todayIdx = getMondayIndex(new Date());
   const todayWorkouts = planEntries
-    .filter((e) => e.day_of_week === todayIdx)
-    .map((e) => e.workout);
+    .filter((e) => e.day_of_week === todayIdx && e.kind === "workout")
+    .map((e) => (e.kind === "workout" ? e.workout : null))
+    .filter((w): w is NonNullable<typeof w> => !!w);
 
   const filtered = useMemo(
     () =>
@@ -169,7 +186,7 @@ function HomePage() {
         <div>
           <h1 className="text-xl font-bold text-white">{greet} — Your Workout Dashboard</h1>
           <p className="text-[13px] text-text-secondary mt-0.5">
-            Ready to crush it today?
+            {goalSubText(profile?.fitness_goal)}
           </p>
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[50px] bg-card border border-border">

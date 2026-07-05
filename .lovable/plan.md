@@ -1,44 +1,97 @@
-## Viral Growth Features for SweatReel
+# SweatReel: Affiliate + Production Polish
 
-Six additions focused on organic sharing and retention. All UI stays in the existing dark theme with current tokens (`#0A0A0F`, `#141420`, `#4361EE`, `#FF6B35`, `#06D6A0`, etc.).
+Six features. Everything backend-touching happens in one migration; UI ships after approval.
 
-### 1. Share My Week card (Plans screen)
-- Add `Share My Week 📤` button top-right of the "My Week" header in `src/routes/plans.tsx`.
-- New util `src/lib/share-card.ts` renders a 1080×1080 canvas: gradient bg, blue glow, logo, `[Name]'s Week 🔥`, 7 day rows (muscle-color left border for planned days, gray "Rest Day" otherwise), streak pill, CTA.
-- Export as PNG blob → `navigator.share({ files })` on mobile, download `SweatReel-MyWeek.png` on desktop. 1s minimum loading state with spinner overlay.
+## 1. Database migration (single call)
 
-### 2. Web push–style reminders
-- New `src/lib/reminders.ts` + `<ReminderPrompt />` mounted in `AppShell`. Uses `localStorage` timer; after 3 min of session time on first login shows bottom banner.
-- On enable: `Notification.requestPermission()`, then persist `notifications_enabled` + `reminder_time` on `profiles`.
-- Profile screen Notifications row becomes real: toggle + time dropdown (6 AM–10 PM). Values saved to Supabase.
-- In-app `setInterval` (1 min) fires `new Notification("Time to sweat! 💪", { body, icon: "/icon-192.png" })` when local time matches. No service worker.
+New `body_stats` table, plus 3 new `profiles` columns.
 
-### 3. Share Streak card (Progress screen)
-- `Share Streak 🔥` button under streak number in `src/routes/progress.tsx`.
-- Reuse share util for a 1080×1920 stories card (fire glow, big 🔥, streak number, tagline, SweatReel wordmark). Same share/download path as Feature 1.
+```sql
+-- profiles: goal + workout prefs
+ALTER TABLE public.profiles
+  ADD COLUMN fitness_goal text,
+  ADD COLUMN default_difficulty text NOT NULL DEFAULT 'Medium',
+  ADD COLUMN rest_timer_seconds integer NOT NULL DEFAULT 60,
+  ADD COLUMN auto_advance_rest boolean NOT NULL DEFAULT false;
 
-### 4. Achievements (Progress screen)
-- New `src/lib/achievements.ts` with 6 definitions and evaluator against profile/workouts/plans/AI counters.
-- Migration: add `unlocked_achievements jsonb default '[]'` and `ai_extractions_count int default 0` to `profiles`. Increment counter in `ai-extract.functions.ts`.
-- 2×3 grid section on Progress below the heatmap. Locked = `#252535`; unlocked = per-achievement gradient; "30-Day Legend" gets shimmer animation.
-- On app load (root effect), evaluate → if newly unlocked, persist to profile and trigger bottom slide-up toast (`linear-gradient(90deg,#7B2FBE,#4361EE)`), auto-dismiss 4s.
+-- weekly_plans: rest day metadata (nullable; a "rest day" is a row with workout_id NULL)
+ALTER TABLE public.weekly_plans ALTER COLUMN workout_id DROP NOT NULL;
+ALTER TABLE public.weekly_plans ADD COLUMN rest_type text; -- 'active'|'full'|'ice'|'cardio'|null
 
-### 5. Referral link (Profile screen)
-- New "Refer a Friend" section on `src/routes/profile.tsx`: heading, copy-link button, WhatsApp share button. Ref id = `user.id.slice(0,8)`.
-- Migration: add `referred_by text` to `profiles`.
-- Root route reads `?ref=` and stashes in `sessionStorage`; `handle_new_user` trigger stays as-is, plus a client-side one-shot after signup writes `referred_by` if unset and the stashed ref differs from own id.
+-- body_stats
+CREATE TABLE public.body_stats (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  weight_kg numeric,
+  body_fat_pct numeric,
+  notes text,
+  logged_at timestamptz NOT NULL DEFAULT now()
+);
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.body_stats TO authenticated;
+GRANT ALL ON public.body_stats TO service_role;
+ALTER TABLE public.body_stats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "own body_stats all" ON public.body_stats
+  FOR ALL TO authenticated
+  USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE INDEX body_stats_user_logged_idx ON public.body_stats(user_id, logged_at DESC);
+```
 
-### 6. Today's Workout widget (Home)
-- In `src/routes/index.tsx`, when today has a planned workout, replace the current "Today's Plan" section with an expanded card: left column (TODAY label, title, muscle+difficulty tags, duration), right column (100×75 thumbnail), horizontal scroll of exercise pills if `exercises[]` present, orange full-width `Start Today's Workout 🔥` CTA that opens `ActiveWorkoutMode` directly for that workout.
+## 2. Gear tab (affiliate)
 
-### Technical notes
-- Migration (single call): add `notifications_enabled boolean default false`, `reminder_time text`, `unlocked_achievements jsonb default '[]'`, `ai_extractions_count int default 0`, `referred_by text` to `public.profiles`. Existing RLS + grants already cover new columns.
-- Share util is browser-only; guard `navigator.share` + `canShare({ files })` with a download fallback.
-- Notifications and share buttons are suppressed while `ActiveWorkoutMode` is open (respects earlier "never during active workout" rule).
-- Referral capture and reminders both key off `localStorage`/`sessionStorage` so nothing runs during SSR.
-- No new dependencies.
+- `BottomNav.tsx`: 5 tabs (`grid-cols-5`), smaller icons (20px) and 10px labels. Order: Home, Plans, Progress, Profile, Gear (ShoppingBag).
+- New route `src/routes/gear.tsx` with its own `head()` (title, description, og:*).
+- New `src/lib/gear-catalog.ts` — hardcoded 6-item array + `REPLACE placeholder affiliate_url` comment.
+- UI: header "Fitness Gear 🏋️" + "Affiliate store", disclosure subtext, horizontal category pills (All + 6), 2-column product card grid using `picsum.photos/seed/<slug>/400/400` thumbnails, star rating (4.5 default), price, "Buy on Amazon →" outlined button (#FF9900). Tap opens `affiliate_url` in new tab + toast "Opening Amazon… 🛍️".
+- Sticky footer: "As an Amazon Associate, SweatReel earns from qualifying purchases."
 
-### Files touched
-- New: `src/lib/share-card.ts`, `src/lib/reminders.ts`, `src/lib/achievements.ts`, `src/components/fitvault/ReminderPrompt.tsx`, `src/components/fitvault/AchievementToast.tsx`, `src/components/fitvault/AchievementsGrid.tsx`, `src/components/fitvault/TodayWorkoutCard.tsx`.
-- Edited: `src/routes/plans.tsx`, `src/routes/progress.tsx`, `src/routes/profile.tsx`, `src/routes/index.tsx`, `src/routes/__root.tsx` (ref capture + achievement toast host), `src/components/fitvault/AppShell.tsx` (reminder prompt mount), `src/lib/profile-store.ts` (new fields + setters), `src/lib/ai-extract.functions.ts` (increment counter).
-- Migration for the 5 new `profiles` columns.
+## 3. Body Stats tracker (Progress)
+
+- New `src/lib/body-stats-store.ts` — CRUD via authenticated Supabase client, mirroring `workouts-store`.
+- New `src/components/fitvault/BodyStatsSection.tsx` above `AchievementsGrid`:
+  - "My Progress" heading, "Log Today 📊" outlined-blue full-width button.
+  - Bottom sheet with weight (stepper ±0.5kg), body-fat %, notes.
+  - Inline SVG line chart of last 7 entries: 260×120 viewBox, #4361EE polyline, 8px dots with `<title>` tooltips, min/max Y-axis auto-scaled.
+- Route `/progress` renders the section between the heatmap and Achievements.
+
+## 4. Rest Day types (Plans)
+
+- Add "Mark as Rest Day" button in the empty-day state and in the day header when no workouts scheduled.
+- New `RestDayTypeSheet` bottom sheet: 4 options (Active Recovery 🧘, Full Rest 💤, Ice Bath 🧊, Light Cardio 🏃).
+- On select: insert a `weekly_plans` row with `workout_id=null`, `rest_type=<key>`. Update `plans-store` types & fetcher (join now optional).
+- Day cell shows emoji dot for rest days; day view shows a "Rest Day — <label>" card with remove button.
+- If `active`: show tip card "💡 Try 20 min of light walking or foam rolling…".
+- Share-week card: treat rest rows as "Rest Day" text (unchanged behavior).
+
+## 5. Privacy + Terms
+
+- Rewrite `src/routes/privacy.tsx` with 5 sections from the spec.
+- New `src/routes/terms.tsx` with 5 bullet Terms.
+- Both routes get full `head()` (title, description, og:*, canonical).
+- Profile → Support section: add link row to `/terms` (already links `/privacy`).
+
+## 6. Onboarding goal (screen 4) + personalized greeting
+
+- Extend `Onboarding.tsx`: add 4th slide with 4 goal cards (build/lose/flex/general). Select → checkmark + border #4361EE. "Continue →" button on selection.
+- Store: pass `goal` up to `AppShell`, persist via `profileStore.setFitnessGoal(goal)` (writes `profiles.fitness_goal`). Slide is skippable via existing Skip button (stores null).
+- If user is unauthenticated when they finish, stash goal in `sessionStorage` and flush after signup (like referrals).
+- `src/routes/index.tsx` greeting sub-text switches on `profile.fitness_goal`.
+
+## 7. Settings expansion (Profile)
+
+Add three new sections to `profile.tsx`:
+
+- **Workout Preferences**: Default Difficulty segmented control (Easy/Medium/Hard), Rest Timer select (30/60/90/120s), Auto-advance toggle. All persisted via `profileStore`.
+- **About SweatReel**: version row (v1.0.0), Terms link, Privacy link, Rate SweatReel (placeholder `#`), Share App (Web Share API with the specified copy).
+- **Danger Zone**: red-outlined card with "Delete My Account" button → confirm dialog → MVP behavior: `signOut()` + toast "Account deletion requested — email support@sweatreel.com to complete." (Client-side `admin.deleteUser` is not possible; documented in code comment.)
+
+## Files
+
+**New:** `src/lib/gear-catalog.ts`, `src/lib/body-stats-store.ts`, `src/routes/gear.tsx`, `src/routes/terms.tsx`, `src/components/fitvault/BodyStatsSection.tsx`, `src/components/fitvault/RestDayTypeSheet.tsx`, `src/components/fitvault/DeleteAccountDialog.tsx`.
+
+**Edited:** `BottomNav.tsx`, `Onboarding.tsx`, `AppShell.tsx`, `profile-store.ts`, `plans-store.ts`, `plans.tsx`, `progress.tsx`, `profile.tsx`, `index.tsx`, `privacy.tsx`, `share-card.ts` (rest-day label), `integrations/supabase/types.ts` (auto-regenerated).
+
+## Notes
+
+- All Supabase reads/writes go through the existing browser client with RLS; no server functions needed.
+- No new dependencies (SVG chart inline).
+- Delete-account cannot fully purge the user client-side without service role — MVP flow logs out and instructs email, per spec's fallback.

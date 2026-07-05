@@ -31,17 +31,26 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Once the user is signed in, persist any stashed referral.
+  // Once the user is signed in, persist any stashed referral + goal.
   useEffect(() => {
     if (!auth.user) return;
     let ref: string | null = null;
+    let goal: string | null = null;
     try {
       ref = sessionStorage.getItem(REF_KEY);
+      goal = sessionStorage.getItem("sweatreel_goal");
     } catch {}
     if (ref) {
       profileStore.setReferredBy(ref).finally(() => {
         try {
           sessionStorage.removeItem(REF_KEY);
+        } catch {}
+      });
+    }
+    if (goal && ["build", "lose", "flex", "general"].includes(goal)) {
+      profileStore.setFitnessGoal(goal as any).finally(() => {
+        try {
+          sessionStorage.removeItem("sweatreel_goal");
         } catch {}
       });
     }
@@ -76,7 +85,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (!auth.onboarded) {
     return (
       <>
-        <Onboarding onDone={() => authStore.completeOnboarding()} />
+        <Onboarding
+          onDone={(goal) => {
+            if (goal) {
+              try {
+                sessionStorage.setItem("sweatreel_goal", goal);
+              } catch {}
+              profileStore.setFitnessGoal(goal).catch(() => {});
+            }
+            authStore.completeOnboarding();
+          }}
+        />
         <ToastHost />
       </>
     );
