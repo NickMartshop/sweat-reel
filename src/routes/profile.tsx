@@ -351,6 +351,11 @@ function ProfilePage() {
         SweatReel v1.0.0 · Your workouts. Organized.
       </p>
       <ToastHost />
+      <DeleteAccountDialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onDone={() => navigate({ to: "/auth" })}
+      />
     </AppShell>
   );
 }
