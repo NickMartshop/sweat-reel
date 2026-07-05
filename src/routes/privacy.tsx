@@ -5,18 +5,46 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({
     meta: [
       { title: "Privacy Policy — SweatReel" },
-      { name: "description", content: "Learn how SweatReel handles your data and keeps your workout information secure and private." },
+      {
+        name: "description",
+        content:
+          "Learn how SweatReel handles your data and keeps your workout information secure and private.",
+      },
       { property: "og:title", content: "Privacy Policy — SweatReel" },
-      { property: "og:description", content: "How SweatReel collects, stores and protects your account and workout data." },
+      {
+        property: "og:description",
+        content:
+          "How SweatReel collects, stores and protects your account and workout data.",
+      },
       { property: "og:url", content: "https://sweat-reel.lovable.app/privacy" },
       { name: "twitter:title", content: "Privacy Policy — SweatReel" },
-      { name: "twitter:description", content: "How SweatReel collects, stores and protects your account and workout data." },
+      {
+        name: "twitter:description",
+        content:
+          "How SweatReel collects, stores and protects your account and workout data.",
+      },
     ],
     links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/privacy" }],
   }),
-
   component: PrivacyPage,
 });
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <h2 className="text-[16px] font-semibold text-white">{title}</h2>
+      <div className="mt-2 text-[14px] leading-[1.65] text-white/90 space-y-2">
+        {children}
+      </div>
+    </section>
+  );
+}
 
 function PrivacyPage() {
   const router = useRouter();
@@ -37,36 +65,73 @@ function PrivacyPage() {
         <h1 className="text-[28px] font-bold text-white mt-4">Privacy Policy</h1>
         <p className="text-[12px] text-text-secondary mt-1">Last updated: June 2026</p>
 
-        <div className="mt-6 space-y-5 text-[14px] leading-[1.65] text-white/90">
-          <p>
-            SweatReel is built to help you save and organize your workouts. We collect
-            only the information needed to run the app: your email address (for
-            account creation and sign-in) and the workouts you choose to save.
-          </p>
-          <p>
-            Your workout data is stored securely with Supabase, our backend provider.
-            All data is encrypted in transit and at rest, and only you can access
-            the workouts in your library.
-          </p>
-          <p>
-            <span className="text-white font-semibold">We do not sell your data.</span>{" "}
-            We do not share personal information with advertisers or third-party
-            marketers. Ever.
-          </p>
-          <p>
-            When you save a workout link, we use Google Gemini AI to analyze the
-            workout title and description so we can extract exercises and structure
-            the content for you. Only text is sent — never the video itself, and
-            never any personal data.
-          </p>
-          <p>
-            You can delete your account and all associated workout data at any time
-            from the Profile screen. Deletion is permanent and immediate.
-          </p>
-          <p>
-            Questions, requests, or concerns? Reach out to{" "}
-            <span className="text-primary">privacy@fitvault.app</span>.
-          </p>
+        <div className="mt-6 space-y-6">
+          <Section title="1. Data We Collect">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Email address and name for account creation</li>
+              <li>Workout URLs and titles you save (your content)</li>
+              <li>Body stats if voluntarily logged</li>
+              <li>Streak and workout completion data</li>
+              <li>Device type and browser (automatically)</li>
+            </ul>
+          </Section>
+
+          <Section title="2. How We Use Your Data">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>To provide and improve SweatReel features</li>
+              <li>To send workout reminders (only if you enable)</li>
+              <li>
+                We <span className="font-semibold text-white">NEVER</span> sell your
+                personal data to third parties
+              </li>
+            </ul>
+          </Section>
+
+          <Section title="3. Third-Party Services">
+            <ul className="list-disc pl-5 space-y-2">
+              <li>
+                <span className="text-white font-semibold">Google AdSense:</span>{" "}
+                serves ads to free users. Google may use cookies for ad
+                personalization.
+              </li>
+              <li>
+                <span className="text-white font-semibold">Razorpay:</span> processes
+                payments securely. We do not store your card details.
+              </li>
+              <li>
+                <span className="text-white font-semibold">Google Gemini AI:</span>{" "}
+                we send workout titles (text only, no video data) to Gemini for
+                exercise suggestions. No personal info is sent.
+              </li>
+              <li>
+                <span className="text-white font-semibold">Amazon Associates:</span>{" "}
+                we earn commission on clicks to Amazon products. Your Amazon
+                purchase data is governed by Amazon's privacy policy.
+              </li>
+              <li>
+                <span className="text-white font-semibold">Supabase:</span> stores
+                your encrypted app data on servers in Singapore.
+              </li>
+            </ul>
+          </Section>
+
+          <Section title="4. Your Rights">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>
+                Download your data: contact{" "}
+                <span className="text-primary">support@sweatreel.com</span>
+              </li>
+              <li>Delete your account: Settings → Delete Account</li>
+              <li>Opt out of ads: Upgrade to SweatReel Pro</li>
+            </ul>
+          </Section>
+
+          <Section title="5. Contact">
+            <p>
+              Email: <span className="text-primary">support@sweatreel.com</span>
+            </p>
+            <p>Last updated: June 2026</p>
+          </Section>
         </div>
       </div>
     </div>
