@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://jepupjfxibtoweeuhjjd.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "sweatreel-mcp",
+      "version": "0.1.0",
+      "title": "SweatReel"
+    },
+    "tools": [
+      {
+        "name": "list_workouts",
+        "title": "List workouts",
+        "description": "List the signed-in user's saved workouts from their SweatReel library.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "limit": {
+              "description": "Max workouts to return (default 25).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_profile",
+        "title": "Get profile",
+        "description": "Get the signed-in user's SweatReel profile: name, current streak, best streak, total workouts, last workout date.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_week_plan",
+        "title": "Get week plan",
+        "description": "Get the signed-in user's planned workouts for a given week (defaults to current week). Returns workouts scheduled per day.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "week_start_date": {
+              "description": "Optional YYYY-MM-DD Monday date. Defaults to the current week.",
+              "type": "string"
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "add_workout",
+        "title": "Add workout",
+        "description": "Add a new workout to the signed-in user's SweatReel library.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "muscle_group": {
+              "default": "Full Body",
+              "type": "string"
+            },
+            "difficulty": {
+              "default": "Medium",
+              "type": "string",
+              "enum": [
+                "Easy",
+                "Medium",
+                "Hard"
+              ]
+            },
+            "duration_mins": {
+              "default": 30,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 360
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "thumbnail_url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "platform": {
+              "type": "string"
+            },
+            "exercises": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sets": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20
+                  },
+                  "reps": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 500
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "sets",
+                  "reps"
+                ]
+              }
+            }
+          },
+          "required": [
+            "title"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "schedule_workout",
+        "title": "Schedule workout",
+        "description": "Schedule an existing workout on a specific day of the week for the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "workout_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "day_of_week": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6,
+              "description": "0=Monday .. 6=Sunday"
+            },
+            "week_start_date": {
+              "description": "YYYY-MM-DD Monday date. Defaults to current week.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "workout_id",
+            "day_of_week"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "log_completed_workout",
+        "title": "Log completed workout",
+        "description": "Log that the signed-in user completed a workout. Records duration and timestamp.",
+        "annotations": {
+          "readOnlyHint": false,
+          "idempotentHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "workout_id": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "duration_mins": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 600
+            }
+          },
+          "required": [
+            "duration_mins"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
