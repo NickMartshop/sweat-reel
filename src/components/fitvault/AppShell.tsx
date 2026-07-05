@@ -76,7 +76,17 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (!auth.onboarded) {
     return (
       <>
-        <Onboarding onDone={() => authStore.completeOnboarding()} />
+        <Onboarding
+          onDone={(goal) => {
+            if (goal) {
+              try {
+                sessionStorage.setItem("sweatreel_goal", goal);
+              } catch {}
+              profileStore.setFitnessGoal(goal).catch(() => {});
+            }
+            authStore.completeOnboarding();
+          }}
+        />
         <ToastHost />
       </>
     );
