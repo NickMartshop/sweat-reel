@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Share2, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { AchievementsGrid } from "@/components/fitvault/AchievementsGrid";
+import { BodyStatsSection } from "@/components/fitvault/BodyStatsSection";
 import { toast } from "@/components/fitvault/Toast";
 import { DAYS, getMondayIndex } from "@/lib/fitvault-data";
 import { usePlans } from "@/lib/plans-store";
@@ -199,6 +200,7 @@ function ProgressPage() {
         </div>
       </section>
 
+      <BodyStatsSection />
       <AchievementsGrid />
 
 

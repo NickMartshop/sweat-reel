@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useState } from "react";
 
 import {
   Bell,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { ToastHost, toast } from "@/components/fitvault/Toast";
+import { DeleteAccountDialog } from "@/components/fitvault/DeleteAccountDialog";
 import { useProfile, profileStore } from "@/lib/profile-store";
 import { authStore } from "@/lib/auth-store";
 import {
@@ -118,6 +120,7 @@ function formatTime(t: string) {
 function ProfilePage() {
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const notifEnabled = !!profile?.notifications_enabled;
   const reminderTime = profile?.reminder_time || "08:00";
@@ -300,27 +303,38 @@ function ProfilePage() {
 
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold text-text-secondary uppercase tracking-wider px-1">
-          Support
+          About SweatReel
         </h2>
         <div className="mt-2 rounded-2xl overflow-hidden border border-border flex flex-col gap-[2px] bg-border">
-          <Link to="/privacy" className="block">
-            <Row
-              icon={<Lock size={18} />}
-              label="Privacy Policy"
-              right={<ChevronRight size={16} className="text-text-secondary" />}
-            />
+          <Row icon={<Lock size={18} />} label="App Version" right={<span className="text-[12px] text-text-secondary">v1.0.0</span>} />
+          <Link to="/terms" className="block">
+            <Row icon={<Lock size={18} />} label="Terms of Service" right={<ChevronRight size={16} className="text-text-secondary" />} />
           </Link>
-          <Row
-            icon={<Star size={18} />}
-            label="Rate SweatReel"
-            right={<ChevronRight size={16} className="text-text-secondary" />}
-          />
+          <Link to="/privacy" className="block">
+            <Row icon={<Lock size={18} />} label="Privacy Policy" right={<ChevronRight size={16} className="text-text-secondary" />} />
+          </Link>
+          <Row icon={<Star size={18} />} label="Rate SweatReel" right={<ChevronRight size={16} className="text-text-secondary" />} />
           <Row
             icon={<Share2 size={18} />}
             label="Share App"
             onClick={handleShare}
             right={<ChevronRight size={16} className="text-text-secondary" />}
           />
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="text-[12px] font-semibold uppercase tracking-wider px-1" style={{ color: "#EF476F" }}>
+          Danger Zone
+        </h2>
+        <div className="mt-2 rounded-2xl p-4" style={{ border: "1px solid #EF476F33", background: "rgba(239,71,111,0.05)" }}>
+          <button
+            onClick={() => setDeleteOpen(true)}
+            className="press-scale w-full h-11 rounded-xl border font-semibold text-[13px]"
+            style={{ color: "#EF476F", borderColor: "#EF476F" }}
+          >
+            Delete My Account
+          </button>
         </div>
       </section>
 
