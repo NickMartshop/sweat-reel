@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      body_stats: {
+        Row: {
+          body_fat_pct: number | null
+          id: string
+          logged_at: string
+          notes: string | null
+          user_id: string
+          weight_kg: number | null
+        }
+        Insert: {
+          body_fat_pct?: number | null
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          user_id: string
+          weight_kg?: number | null
+        }
+        Update: {
+          body_fat_pct?: number | null
+          id?: string
+          logged_at?: string
+          notes?: string | null
+          user_id?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
       completed_workouts: {
         Row: {
           completed_at: string
@@ -49,15 +76,19 @@ export type Database = {
       profiles: {
         Row: {
           ai_extractions_count: number
+          auto_advance_rest: boolean
           best_streak: number
           created_at: string
+          default_difficulty: string
           email: string
+          fitness_goal: string | null
           id: string
           last_workout_date: string | null
           name: string
           notifications_enabled: boolean
           referred_by: string | null
           reminder_time: string | null
+          rest_timer_seconds: number
           streak_count: number
           total_workouts: number
           unlocked_achievements: Json
@@ -65,15 +96,19 @@ export type Database = {
         }
         Insert: {
           ai_extractions_count?: number
+          auto_advance_rest?: boolean
           best_streak?: number
           created_at?: string
+          default_difficulty?: string
           email?: string
+          fitness_goal?: string | null
           id: string
           last_workout_date?: string | null
           name?: string
           notifications_enabled?: boolean
           referred_by?: string | null
           reminder_time?: string | null
+          rest_timer_seconds?: number
           streak_count?: number
           total_workouts?: number
           unlocked_achievements?: Json
@@ -81,15 +116,19 @@ export type Database = {
         }
         Update: {
           ai_extractions_count?: number
+          auto_advance_rest?: boolean
           best_streak?: number
           created_at?: string
+          default_difficulty?: string
           email?: string
+          fitness_goal?: string | null
           id?: string
           last_workout_date?: string | null
           name?: string
           notifications_enabled?: boolean
           referred_by?: string | null
           reminder_time?: string | null
+          rest_timer_seconds?: number
           streak_count?: number
           total_workouts?: number
           unlocked_achievements?: Json
@@ -102,25 +141,28 @@ export type Database = {
           created_at: string
           day_of_week: number
           id: string
+          rest_type: string | null
           user_id: string
           week_start_date: string
-          workout_id: string
+          workout_id: string | null
         }
         Insert: {
           created_at?: string
           day_of_week: number
           id?: string
+          rest_type?: string | null
           user_id: string
           week_start_date: string
-          workout_id: string
+          workout_id?: string | null
         }
         Update: {
           created_at?: string
           day_of_week?: number
           id?: string
+          rest_type?: string | null
           user_id?: string
           week_start_date?: string
-          workout_id?: string
+          workout_id?: string | null
         }
         Relationships: [
           {
