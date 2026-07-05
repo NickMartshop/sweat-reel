@@ -30,20 +30,25 @@ export const Route = createFileRoute("/auth")({
     ],
     links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/auth" }],
   }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : undefined,
+  }),
   component: AuthPage,
 });
 
 function AuthPage() {
   const auth = useAuth();
+  const { next } = Route.useSearch();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // After login, redirect to home
+  // After login, redirect to `next` (must be a same-origin relative path) or home.
   useEffect(() => {
     if (auth.user && typeof window !== "undefined") {
-      window.location.replace("/");
+      const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      window.location.replace(target);
     }
-  }, [auth.user]);
+  }, [auth.user, next]);
 
   if (!mounted || !auth.hydrated) {
     return <div className="min-h-screen bg-background" />;
