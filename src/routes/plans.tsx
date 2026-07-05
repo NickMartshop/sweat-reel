@@ -1,8 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Trash2, X, Share2, Loader2 } from "lucide-react";
+import { Plus, Trash2, X, Share2, Loader2, Coffee } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { ToastHost, toast } from "@/components/fitvault/Toast";
+import {
+  REST_TYPE_META,
+  RestDayTypeSheet,
+} from "@/components/fitvault/RestDayTypeSheet";
+import type { RestType } from "@/lib/plans-store";
 import {
   DAYS,
   DAYS_FULL,
@@ -20,13 +25,22 @@ export const Route = createFileRoute("/plans")({
       { title: "SweatReel — Plans" },
       {
         name: "description",
-        content: "Build and review your weekly workout routine to stay on track with your fitness goals on SweatReel.",
+        content:
+          "Build and review your weekly workout routine to stay on track with your fitness goals on SweatReel.",
       },
       { property: "og:title", content: "My Workout Plans — SweatReel" },
-      { property: "og:description", content: "Plan your week, schedule workouts by day, and keep your training organized." },
+      {
+        property: "og:description",
+        content:
+          "Plan your week, schedule workouts by day, and keep your training organized.",
+      },
       { property: "og:url", content: "https://sweat-reel.lovable.app/plans" },
       { name: "twitter:title", content: "My Workout Plans — SweatReel" },
-      { name: "twitter:description", content: "Plan your week, schedule workouts by day, and keep your training organized." },
+      {
+        name: "twitter:description",
+        content:
+          "Plan your week, schedule workouts by day, and keep your training organized.",
+      },
     ],
     links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/plans" }],
   }),
@@ -39,6 +53,7 @@ function PlansPage() {
   const todayIdx = getMondayIndex(today);
   const [selected, setSelected] = useState(todayIdx);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [restOpen, setRestOpen] = useState(false);
   const [sharing, setSharing] = useState(false);
   const { entries, loading } = usePlans();
   const { workouts } = useWorkouts();
@@ -60,6 +75,8 @@ function PlansPage() {
   }, [entries]);
 
   const dayEntries = entries.filter((e) => e.day_of_week === selected);
+  const workoutEntries = dayEntries.filter((e) => e.kind === "workout");
+  const restEntry = dayEntries.find((e) => e.kind === "rest");
 
   async function handleRemove(id: string) {
     try {
@@ -80,16 +97,34 @@ function PlansPage() {
     }
   }
 
+  async function handleSelectRest(type: RestType) {
+    try {
+      await plansStore.addRest(selected, type);
+      setRestOpen(false);
+      toast.show("Rest day set 🧘", "success");
+    } catch {
+      toast.show("Couldn't set rest day. Try again.", "error");
+    }
+  }
+
   async function handleShareWeek() {
     if (sharing) return;
     setSharing(true);
     try {
       const days = Array.from({ length: 7 }, (_, i) => {
         const entry = entries.find((e) => e.day_of_week === i);
+        if (!entry) return { dayIndex: i, title: null, muscle: null };
+        if (entry.kind === "workout") {
+          return {
+            dayIndex: i,
+            title: entry.workout.title,
+            muscle: entry.workout.muscle_group,
+          };
+        }
         return {
           dayIndex: i,
-          title: entry?.workout.title ?? null,
-          muscle: entry?.workout.muscle_group ?? null,
+          title: `Rest — ${REST_TYPE_META[entry.rest_type].label}`,
+          muscle: null,
         };
       });
       const [canvas] = await Promise.all([
@@ -138,13 +173,15 @@ function PlansPage() {
         </button>
       </header>
 
-
       <div className="mt-4 grid grid-cols-7 gap-1.5">
         {DAYS.map((d, i) => {
           const date = weekDates[i];
           const isToday = i === todayIdx;
           const isSel = i === selected;
           const hasPlan = dayHasPlan.has(i);
+          const isRest = entries.some(
+            (e) => e.day_of_week === i && e.kind === "rest",
+          );
           return (
             <button
               key={d}
@@ -156,7 +193,9 @@ function PlansPage() {
                 color: isSel ? "#fff" : "#8888AA",
               }}
             >
-              <span className="text-[10px] font-semibold tracking-wide">{d}</span>
+              <span className="text-[10px] font-semibold tracking-wide">
+                {d}
+              </span>
               <span
                 className="text-[14px] font-bold"
                 style={{
@@ -165,16 +204,20 @@ function PlansPage() {
               >
                 {date.getDate()}
               </span>
-              <span
-                className="w-1 h-1 rounded-full -mt-0.5"
-                style={{
-                  background: hasPlan
-                    ? "#06D6A0"
-                    : isSel
-                      ? "rgba(255,255,255,0.4)"
-                      : "#252535",
-                }}
-              />
+              {isRest ? (
+                <span className="text-[10px] leading-none">💤</span>
+              ) : (
+                <span
+                  className="w-1 h-1 rounded-full -mt-0.5"
+                  style={{
+                    background: hasPlan
+                      ? "#06D6A0"
+                      : isSel
+                        ? "rgba(255,255,255,0.4)"
+                        : "#252535",
+                  }}
+                />
+              )}
             </button>
           );
         })}
@@ -183,7 +226,9 @@ function PlansPage() {
       <section className="mt-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white">{DAYS_FULL[selected]}</h2>
+            <h2 className="text-lg font-bold text-white">
+              {DAYS_FULL[selected]}
+            </h2>
             <p className="text-[12px] text-text-secondary mt-0.5">
               {weekDates[selected].toLocaleDateString("en-US", {
                 month: "long",
@@ -214,57 +259,120 @@ function PlansPage() {
             <p className="mt-2 text-white font-semibold">
               Nothing planned for {DAYS_FULL[selected]}
             </p>
-            <button
-              onClick={() => setPickerOpen(true)}
-              className="press-scale mt-4 inline-flex items-center gap-1 px-4 h-10 rounded-xl bg-primary text-white text-[13px] font-semibold"
-            >
-              Add a workout +
-            </button>
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                onClick={() => setPickerOpen(true)}
+                className="press-scale inline-flex items-center justify-center gap-1 px-4 h-10 rounded-xl bg-primary text-white text-[13px] font-semibold"
+              >
+                Add a workout +
+              </button>
+              <button
+                onClick={() => setRestOpen(true)}
+                className="press-scale inline-flex items-center justify-center gap-1 px-4 h-10 rounded-xl border border-border text-white text-[13px] font-semibold"
+              >
+                <Coffee size={14} /> Mark as Rest Day
+              </button>
+            </div>
           </div>
         ) : (
           <ul className="mt-4 space-y-2">
-            {dayEntries.map((e) => (
-              <li
-                key={e.id}
-                className="flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
-              >
-                <img
-                  src={e.workout.thumbnail_url}
-                  alt=""
-                  className="w-[60px] h-[60px] rounded-xl object-cover"
-                />
+            {restEntry && restEntry.kind === "rest" && (
+              <li className="flex items-center gap-3 p-3 bg-card border border-border rounded-2xl">
+                <span className="text-2xl">
+                  {REST_TYPE_META[restEntry.rest_type].emoji}
+                </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-semibold text-white truncate">
-                    {e.workout.title}
+                  <p className="text-[14px] font-semibold text-white">
+                    Rest Day — {REST_TYPE_META[restEntry.rest_type].label}
                   </p>
-                  <span
-                    className="inline-block mt-1 px-2 py-0.5 rounded-[50px] text-[10px] font-semibold text-white"
-                    style={{
-                      background: muscleColors[e.workout.muscle_group],
-                    }}
-                  >
-                    {e.workout.muscle_group}
-                  </span>
+                  <p className="text-[12px] text-text-secondary">
+                    {REST_TYPE_META[restEntry.rest_type].sub}
+                  </p>
                 </div>
                 <button
-                  onClick={() => handleRemove(e.id)}
+                  onClick={() => handleRemove(restEntry.id)}
                   className="press-scale w-9 h-9 flex items-center justify-center text-text-secondary"
                   aria-label="Remove"
                 >
                   <Trash2 size={16} />
                 </button>
               </li>
-            ))}
+            )}
+            {restEntry &&
+              restEntry.kind === "rest" &&
+              restEntry.rest_type === "active" && (
+                <li className="rounded-2xl border border-primary/40 bg-primary/10 p-3 text-[12px] text-white/90 leading-relaxed">
+                  💡 Try 20 min of light walking or foam rolling to help your
+                  muscles recover faster.
+                </li>
+              )}
+            {workoutEntries.map(
+              (e) =>
+                e.kind === "workout" && (
+                  <li
+                    key={e.id}
+                    className="flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
+                  >
+                    <img
+                      src={e.workout.thumbnail_url}
+                      alt=""
+                      className="w-[60px] h-[60px] rounded-xl object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[14px] font-semibold text-white truncate">
+                        {e.workout.title}
+                      </p>
+                      <span
+                        className="inline-block mt-1 px-2 py-0.5 rounded-[50px] text-[10px] font-semibold text-white"
+                        style={{
+                          background:
+                            muscleColors[
+                              e.workout
+                                .muscle_group as keyof typeof muscleColors
+                            ] ?? "#4361EE",
+                        }}
+                      >
+                        {e.workout.muscle_group}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleRemove(e.id)}
+                      className="press-scale w-9 h-9 flex items-center justify-center text-text-secondary"
+                      aria-label="Remove"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </li>
+                ),
+            )}
           </ul>
         )}
 
-        <button
-          onClick={() => setPickerOpen(true)}
-          className="press-scale mt-4 w-full h-12 rounded-xl border-[1.5px] border-dashed border-primary text-primary font-semibold flex items-center justify-center gap-2"
-        >
-          <Plus size={18} />
-          Add workout to {DAYS_FULL[selected]}
-        </button>
+        {!restEntry && (
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="press-scale mt-4 w-full h-12 rounded-xl border-[1.5px] border-dashed border-primary text-primary font-semibold flex items-center justify-center gap-2"
+          >
+            <Plus size={18} />
+            Add workout to {DAYS_FULL[selected]}
+          </button>
+        )}
+        {!restEntry && workoutEntries.length === 0 && dayEntries.length > 0 && (
+          <button
+            onClick={() => setRestOpen(true)}
+            className="press-scale mt-2 w-full h-11 rounded-xl border border-border text-white text-[13px] font-semibold flex items-center justify-center gap-2"
+          >
+            <Coffee size={14} /> Mark as Rest Day
+          </button>
+        )}
+        {workoutEntries.length > 0 && !restEntry && (
+          <button
+            onClick={() => setRestOpen(true)}
+            className="press-scale mt-2 w-full h-10 rounded-xl border border-border text-text-secondary text-[12px] font-semibold flex items-center justify-center gap-2"
+          >
+            <Coffee size={14} /> Add rest day note
+          </button>
+        )}
       </section>
 
       {pickerOpen && (
@@ -316,6 +424,12 @@ function PlansPage() {
           </div>
         </div>
       )}
+
+      <RestDayTypeSheet
+        open={restOpen}
+        onClose={() => setRestOpen(false)}
+        onSelect={handleSelectRest}
+      />
       <ToastHost />
     </AppShell>
   );
