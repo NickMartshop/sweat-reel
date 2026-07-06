@@ -1,97 +1,69 @@
-# SweatReel: Affiliate + Production Polish
+# SweatReel Production Update — Implementation Plan
 
-Six features. Everything backend-touching happens in one migration; UI ships after approval.
+Large scope. I'll implement in the order below so each section builds on the previous.
 
-## 1. Database migration (single call)
+## 1. Database migration
+Single migration adding to `profiles`: `is_premium`, `premium_plan`, `premium_expires_at`, `razorpay_payment_id`, `ai_extractions_used`. (Other columns from your SQL already exist: `fitness_goal`, `notifications_enabled`, `reminder_time`, `unlocked_achievements`, `referred_by`, and `body_stats` table.)
 
-New `body_stats` table, plus 3 new `profiles` columns.
+## 2. Env vars & security headers
+- Add `VITE_RAZORPAY_KEY_ID`, `VITE_ADSENSE_CLIENT_ID`, `VITE_ADSENSE_AD_SLOT` to `.env` (placeholders — user fills in).
+- Add CSP `<meta>` in `src/routes/__root.tsx` head (TanStack Start has no `index.html`).
+- Add Razorpay checkout script tag via root `scripts`.
+- `src/types/global.d.ts` with `Window.Razorpay` typings.
 
-```sql
--- profiles: goal + workout prefs
-ALTER TABLE public.profiles
-  ADD COLUMN fitness_goal text,
-  ADD COLUMN default_difficulty text NOT NULL DEFAULT 'Medium',
-  ADD COLUMN rest_timer_seconds integer NOT NULL DEFAULT 60,
-  ADD COLUMN auto_advance_rest boolean NOT NULL DEFAULT false;
+Note: I'll use `usePremium` as a plain React store (subscribe pattern like existing `authStore`) rather than adding Zustand — matches the codebase and avoids a new dep. Public API is identical (`usePremium()` hook + `checkPremium`/`refreshPremium`).
 
--- weekly_plans: rest day metadata (nullable; a "rest day" is a row with workout_id NULL)
-ALTER TABLE public.weekly_plans ALTER COLUMN workout_id DROP NOT NULL;
-ALTER TABLE public.weekly_plans ADD COLUMN rest_type text; -- 'active'|'full'|'ice'|'cardio'|null
+## 3. Premium store
+`src/lib/premium-store.ts` — reads `is_premium`, plan, expiry, `ai_extractions_used` from `profiles`. Hydrated in `AppShell` when `auth.user` becomes available. Exposes `isPremium`, `plan`, `expiresAt`, `aiExtractionsUsed`, `checkPremium`, `refreshPremium`.
 
--- body_stats
-CREATE TABLE public.body_stats (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  weight_kg numeric,
-  body_fat_pct numeric,
-  notes text,
-  logged_at timestamptz NOT NULL DEFAULT now()
-);
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.body_stats TO authenticated;
-GRANT ALL ON public.body_stats TO service_role;
-ALTER TABLE public.body_stats ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "own body_stats all" ON public.body_stats
-  FOR ALL TO authenticated
-  USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE INDEX body_stats_user_logged_idx ON public.body_stats(user_id, logged_at DESC);
-```
+## 4. Free-tier limits
+- **Library cap (15):** Check count in `AddWorkoutSheet` save; block + open UpgradeSheet with trigger `library_limit`. Home banner "📚 n/15 saved · Go unlimited →" with 24h dismiss via `localStorage`.
+- **AI cap (3):** In `extractExercises` call site (AddWorkoutSheet), gate before invoking serverFn; increment `ai_extractions_used` after success (server already increments `ai_extractions_count` — I'll add a parallel `ai_extractions_used` update from the client and refresh). Show "✨ {n} AI uses left" hint.
+- **Plans cap (3 days):** Thu–Sun rendered with 🔒 overlay in `plans.tsx` day picker. Tapping shows inline upgrade card; open UpgradeSheet with `plans_locked`.
 
-## 2. Gear tab (affiliate)
+## 5. UpgradeSheet component
+New `src/components/fitvault/UpgradeSheet.tsx`. Bottom sheet with trigger-based headline, feature comparison table, Monthly/Annual toggle (annual default, "SAVE 44%" badge), gradient CTA with pulse, Restore Purchase, secure footer, close button (hidden when `trigger==='library_limit'`).
 
-- `BottomNav.tsx`: 5 tabs (`grid-cols-5`), smaller icons (20px) and 10px labels. Order: Home, Plans, Progress, Profile, Gear (ShoppingBag).
-- New route `src/routes/gear.tsx` with its own `head()` (title, description, og:*).
-- New `src/lib/gear-catalog.ts` — hardcoded 6-item array + `REPLACE placeholder affiliate_url` comment.
-- UI: header "Fitness Gear 🏋️" + "Affiliate store", disclosure subtext, horizontal category pills (All + 6), 2-column product card grid using `picsum.photos/seed/<slug>/400/400` thumbnails, star rating (4.5 default), price, "Buy on Amazon →" outlined button (#FF9900). Tap opens `affiliate_url` in new tab + toast "Opening Amazon… 🛍️".
-- Sticky footer: "As an Amazon Associate, SweatReel earns from qualifying purchases."
+## 6. Razorpay integration
+`handleUpgrade` inside UpgradeSheet — opens Razorpay checkout with `VITE_RAZORPAY_KEY_ID`, `handler` updates `profiles` (dedupe on `razorpay_payment_id`), refreshes premium, closes sheet, shows success screen. `payment.failed` + `ondismiss` handled. Restore Purchase prompts for payment ID and validates against `profiles`.
 
-## 3. Body Stats tracker (Progress)
+Comment near key usage: `// KEY_ID only — secret key must NEVER be in frontend`.
 
-- New `src/lib/body-stats-store.ts` — CRUD via authenticated Supabase client, mirroring `workouts-store`.
-- New `src/components/fitvault/BodyStatsSection.tsx` above `AchievementsGrid`:
-  - "My Progress" heading, "Log Today 📊" outlined-blue full-width button.
-  - Bottom sheet with weight (stepper ±0.5kg), body-fat %, notes.
-  - Inline SVG line chart of last 7 entries: 260×120 viewBox, #4361EE polyline, 8px dots with `<title>` tooltips, min/max Y-axis auto-scaled.
-- Route `/progress` renders the section between the heatmap and Achievements.
+## 7. Premium success screen
+`src/components/fitvault/PremiumSuccess.tsx` — fixed full-screen overlay, CSS confetti (30 particles), ⚡ glow, stats row, plan pill, "Start Training 🔥" CTA, 6s auto-dismiss. Mounted from `AppShell`, triggered via a small event bus in `premium-store`.
 
-## 4. Rest Day types (Plans)
+## 8. AdSense banner
+`src/components/fitvault/AdBanner.tsx` — hides for premium, renders `<ins class="adsbygoogle">` when `VITE_ADSENSE_CLIENT_ID` configured, otherwise dashed placeholder. AdSense loader script added conditionally in `__root.tsx` head. Placed on Home (between stats and Today's Plan) and Progress (between weekly chart and monthly heatmap).
 
-- Add "Mark as Rest Day" button in the empty-day state and in the day header when no workouts scheduled.
-- New `RestDayTypeSheet` bottom sheet: 4 options (Active Recovery 🧘, Full Rest 💤, Ice Bath 🧊, Light Cardio 🏃).
-- On select: insert a `weekly_plans` row with `workout_id=null`, `rest_type=<key>`. Update `plans-store` types & fetcher (join now optional).
-- Day cell shows emoji dot for rest days; day view shows a "Rest Day — <label>" card with remove button.
-- If `active`: show tip card "💡 Try 20 min of light walking or foam rolling…".
-- Share-week card: treat rest rows as "Rest Day" text (unchanged behavior).
+## 9. Gear screen refresh
+Rewrite `src/lib/gear-catalog.ts` with 6 products (emoji + gradient, real Amazon links, tags, ratings, reviews). Rewrite `src/routes/gear.tsx`: yellow affiliate disclosure banner, emoji-card products (no external images), category filter with emojis, 150ms delayed `window.open` with toast, empty state per category.
 
-## 5. Privacy + Terms
+## 10. Profile screen premium UI
+In `src/routes/profile.tsx`: `PRO ⚡` pill next to name for premium; replace upgrade row with active status card (plan + renews date). Free users see gradient "Go Pro — ₹999/year" card opening UpgradeSheet(`manual`). Keep existing About/Danger Zone; add "Rate SweatReel" placeholder + "Refer a Friend" (copy `?ref=<uid>` link).
 
-- Rewrite `src/routes/privacy.tsx` with 5 sections from the spec.
-- New `src/routes/terms.tsx` with 5 bullet Terms.
-- Both routes get full `head()` (title, description, og:*, canonical).
-- Profile → Support section: add link row to `/terms` (already links `/privacy`).
+## 11. Terms page
+Update `src/routes/terms.tsx` to the full 7-section content specified.
 
-## 6. Onboarding goal (screen 4) + personalized greeting
+## 12. Play Store readiness
+- Overwrite `public/manifest.json` per spec (shortcuts, screenshots entry, `en-IN`, categories).
+- Update `src/routes/__root.tsx` head: title, description, keywords, OG tags, canonical, apple-web-app metas, theme-color. (TanStack Start owns HTML head — no `index.html` edits.)
 
-- Extend `Onboarding.tsx`: add 4th slide with 4 goal cards (build/lose/flex/general). Select → checkmark + border #4361EE. "Continue →" button on selection.
-- Store: pass `goal` up to `AppShell`, persist via `profileStore.setFitnessGoal(goal)` (writes `profiles.fitness_goal`). Slide is skippable via existing Skip button (stores null).
-- If user is unauthenticated when they finish, stash goal in `sessionStorage` and flush after signup (like referrals).
-- `src/routes/index.tsx` greeting sub-text switches on `profile.fitness_goal`.
+## 13. Security hardening
+- **Rate limit AI:** 3s cooldown on AI extract button in AddWorkoutSheet.
+- **Sanitize inputs:** shared `sanitize()` util applied to workout title, exercise name, notes on save.
+- **URL validation:** `isValidWorkoutUrl` in AddWorkoutSheet; error toast for invalid.
+- **Auth events:** extend existing `onAuthStateChange` in root/`auth-store` — refresh premium on `TOKEN_REFRESHED`; on `SIGNED_OUT` clear premium state.
+- **Loading states:** ensure UpgradeSheet CTA disables during `isProcessing`; existing skeletons kept.
+- XSS: all existing renders already use `{text}` — verified.
 
-## 7. Settings expansion (Profile)
-
-Add three new sections to `profile.tsx`:
-
-- **Workout Preferences**: Default Difficulty segmented control (Easy/Medium/Hard), Rest Timer select (30/60/90/120s), Auto-advance toggle. All persisted via `profileStore`.
-- **About SweatReel**: version row (v1.0.0), Terms link, Privacy link, Rate SweatReel (placeholder `#`), Share App (Web Share API with the specified copy).
-- **Danger Zone**: red-outlined card with "Delete My Account" button → confirm dialog → MVP behavior: `signOut()` + toast "Account deletion requested — email support@sweatreel.com to complete." (Client-side `admin.deleteUser` is not possible; documented in code comment.)
+## Technical notes
+- No Zustand added; premium store follows existing subscribe pattern.
+- No `index.html` edits — TanStack Start renders HTML via `__root.tsx` `head()` and `scripts`; CSP meta + Razorpay/AdSense scripts go there.
+- `admin.deleteUser` remains out of scope (client-side); existing `DeleteAccountDialog` message already matches spec.
+- Screenshot file `/screenshots/home.png` referenced in manifest is optional — I'll leave the entry and note it; the manifest still validates without the file present in most stores, but ideally you upload one later.
+- Amazon Associate tag `nickinfotech-21` noted in code comment as requested; the `amzn.to`/`a.co` short links you provided already carry your tag server-side.
 
 ## Files
-
-**New:** `src/lib/gear-catalog.ts`, `src/lib/body-stats-store.ts`, `src/routes/gear.tsx`, `src/routes/terms.tsx`, `src/components/fitvault/BodyStatsSection.tsx`, `src/components/fitvault/RestDayTypeSheet.tsx`, `src/components/fitvault/DeleteAccountDialog.tsx`.
-
-**Edited:** `BottomNav.tsx`, `Onboarding.tsx`, `AppShell.tsx`, `profile-store.ts`, `plans-store.ts`, `plans.tsx`, `progress.tsx`, `profile.tsx`, `index.tsx`, `privacy.tsx`, `share-card.ts` (rest-day label), `integrations/supabase/types.ts` (auto-regenerated).
-
-## Notes
-
-- All Supabase reads/writes go through the existing browser client with RLS; no server functions needed.
-- No new dependencies (SVG chart inline).
-- Delete-account cannot fully purge the user client-side without service role — MVP flow logs out and instructs email, per spec's fallback.
+**New:** `src/lib/premium-store.ts`, `src/components/fitvault/UpgradeSheet.tsx`, `src/components/fitvault/PremiumSuccess.tsx`, `src/components/fitvault/AdBanner.tsx`, `src/types/global.d.ts`, `src/lib/sanitize.ts`
+**Edited:** `.env`, `public/manifest.json`, `src/routes/__root.tsx`, `src/routes/index.tsx`, `src/routes/plans.tsx`, `src/routes/progress.tsx`, `src/routes/profile.tsx`, `src/routes/gear.tsx`, `src/routes/terms.tsx`, `src/lib/gear-catalog.ts`, `src/lib/auth-store.ts`, `src/lib/profile-store.ts`, `src/components/fitvault/AppShell.tsx`, `src/components/fitvault/AddWorkoutSheet.tsx`
+**Migration:** one call adding 5 premium columns to `profiles`.
