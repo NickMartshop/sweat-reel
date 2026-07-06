@@ -7,12 +7,17 @@ import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { TodayWorkoutCard } from "@/components/fitvault/TodayWorkoutCard";
 import { ToastHost } from "@/components/fitvault/Toast";
+import { AdBanner } from "@/components/fitvault/AdBanner";
+import { UpgradeSheet, type UpgradeTrigger } from "@/components/fitvault/UpgradeSheet";
 import { greeting, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
 import { usePlans } from "@/lib/plans-store";
 import { useProfile } from "@/lib/profile-store";
 import { getMondayIndex } from "@/lib/fitvault-data";
+import { usePremium } from "@/lib/premium-store";
 import type { FitnessGoal } from "@/lib/profile-store";
+
+const BANNER_KEY = "sweatreel_banner_dismissed_at";
 
 function goalSubText(goal?: FitnessGoal | null): string {
   switch (goal) {
