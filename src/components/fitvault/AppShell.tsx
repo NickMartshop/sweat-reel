@@ -9,6 +9,8 @@ import { authStore, useAuth } from "@/lib/auth-store";
 import { useProfile, profileStore } from "@/lib/profile-store";
 import { startReminderLoop } from "@/lib/reminders";
 import { checkAchievements } from "@/lib/achievements";
+import { premiumStore } from "@/lib/premium-store";
+import { PremiumSuccessHost } from "./PremiumSuccess";
 
 const REF_KEY = "sweatreel_ref";
 
@@ -120,6 +122,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <BottomNav />
         <ReminderPrompt />
         <AchievementToastHost />
+        <PremiumSuccessHost />
       </div>
     </div>
   );

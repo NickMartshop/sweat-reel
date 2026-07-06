@@ -27,6 +27,19 @@ export const Route = createFileRoute("/terms")({
   component: TermsPage,
 });
 
+function Section({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-5">
+      <h2 className="text-[15px] font-semibold text-white">
+        {n}. {title}
+      </h2>
+      <div className="mt-1.5 text-[14px] leading-[1.65] text-white/85 space-y-2">
+        {children}
+      </div>
+    </section>
+  );
+}
+
 function TermsPage() {
   const router = useRouter();
   return (
@@ -46,30 +59,72 @@ function TermsPage() {
         <h1 className="text-[28px] font-bold text-white mt-4">Terms of Service</h1>
         <p className="text-[12px] text-text-secondary mt-1">Last updated: June 2026</p>
 
-        <div className="mt-6 space-y-4 text-[14px] leading-[1.65] text-white/90">
-          <ul className="list-disc pl-5 space-y-3">
-            <li>SweatReel is for personal, non-commercial use only.</li>
+        <Section n={1} title="Acceptance">
+          <p>
+            By using SweatReel, you agree to these Terms. If you disagree, please
+            stop using the app.
+          </p>
+        </Section>
+
+        <Section n={2} title="What SweatReel Is">
+          <p>
+            SweatReel is a personal fitness organization tool. We help you save,
+            organize, and plan workouts from YouTube, Instagram, and TikTok. We
+            do not host or own any workout content — we only store links and
+            your personal notes about them.
+          </p>
+        </Section>
+
+        <Section n={3} title="Your Account">
+          <ul className="list-disc pl-5 space-y-1.5">
+            <li>You are responsible for maintaining account security.</li>
+            <li>You must be 13+ years old to use SweatReel.</li>
+            <li>Do not share your login credentials.</li>
+          </ul>
+        </Section>
+
+        <Section n={4} title="Subscriptions and Payments">
+          <ul className="list-disc pl-5 space-y-1.5">
+            <li>SweatReel Pro subscriptions are billed via Razorpay.</li>
+            <li>Payments are processed in INR.</li>
+            <li>Monthly plans renew every 30 days.</li>
+            <li>Annual plans renew every 365 days.</li>
             <li>
-              Do not misuse, abuse, or reverse-engineer the app, its APIs, or its
-              infrastructure.
+              Refunds may be issued within 7 days of purchase at our discretion —
+              email <span className="text-primary">support@sweatreel.com</span>.
             </li>
             <li>
-              We may update features, add new ones, or change pricing with reasonable
-              notice.
-            </li>
-            <li>
-              Paid subscriptions auto-renew unless cancelled before the next billing
-              cycle.
-            </li>
-            <li>
-              Refunds are considered at our discretion within 7 days of purchase.
+              Cancellation: email{" "}
+              <span className="text-primary">support@sweatreel.com</span> before
+              the next renewal date.
             </li>
           </ul>
-          <p className="pt-3">
-            Questions? Reach out to{" "}
-            <span className="text-primary">support@sweatreel.com</span>.
+        </Section>
+
+        <Section n={5} title="Affiliate Disclosure">
+          <p>
+            The Gear section contains Amazon affiliate links. We earn a small
+            commission (4-8%) if you purchase through these links. This doesn't
+            affect the price you pay. We only recommend products relevant to
+            fitness.
           </p>
-        </div>
+        </Section>
+
+        <Section n={6} title="Limitations">
+          <ul className="list-disc pl-5 space-y-1.5">
+            <li>SweatReel is provided 'as is' without warranties.</li>
+            <li>We are not liable for fitness outcomes or injuries.</li>
+            <li>Always consult a physician before starting exercise.</li>
+          </ul>
+        </Section>
+
+        <Section n={7} title="Contact">
+          <p>
+            Email: <span className="text-primary">support@sweatreel.com</span>
+            <br />
+            Developer: SweatReel (India)
+          </p>
+        </Section>
       </div>
     </div>
   );

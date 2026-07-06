@@ -7,12 +7,17 @@ import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { TodayWorkoutCard } from "@/components/fitvault/TodayWorkoutCard";
 import { ToastHost } from "@/components/fitvault/Toast";
+import { AdBanner } from "@/components/fitvault/AdBanner";
+import { UpgradeSheet, type UpgradeTrigger } from "@/components/fitvault/UpgradeSheet";
 import { greeting, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
 import { usePlans } from "@/lib/plans-store";
 import { useProfile } from "@/lib/profile-store";
 import { getMondayIndex } from "@/lib/fitvault-data";
+import { usePremium } from "@/lib/premium-store";
 import type { FitnessGoal } from "@/lib/profile-store";
+
+const BANNER_KEY = "sweatreel_banner_dismissed_at";
 
 function goalSubText(goal?: FitnessGoal | null): string {
   switch (goal) {
@@ -90,12 +95,32 @@ function HomePage() {
   const { workouts, loading } = useWorkouts();
   const { entries: planEntries } = usePlans();
   const { profile, weeklyCompletedCount } = useProfile();
+  const { isPremium } = usePremium();
 
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [detail, setDetail] = useState<Workout | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeTrigger, setUpgradeTrigger] = useState<UpgradeTrigger>("manual");
+  const [bannerHidden, setBannerHidden] = useState(true);
   const [greet, setGreet] = useState("Welcome 👋");
   const [dateLabel, setDateLabel] = useState("");
+
+  useEffect(() => {
+    try {
+      const at = Number(localStorage.getItem(BANNER_KEY) ?? "0");
+      setBannerHidden(Date.now() - at < 24 * 60 * 60 * 1000);
+    } catch {
+      setBannerHidden(false);
+    }
+  }, []);
+
+  function dismissBanner() {
+    try {
+      localStorage.setItem(BANNER_KEY, String(Date.now()));
+    } catch {}
+    setBannerHidden(true);
+  }
 
   useEffect(() => {
     setGreet(greeting());
@@ -203,6 +228,38 @@ function HomePage() {
         <StatCard label="Done" value={weeklyCompletedCount} sub="completed" />
       </div>
 
+      {/* Free-tier library banner */}
+      {!isPremium && !bannerHidden && (
+        <div
+          className="mt-3 flex items-center justify-between rounded-[10px] px-3.5 py-2.5"
+          style={{ background: "#141420", border: "1px solid #252535" }}
+        >
+          <p className="text-[12px] text-text-secondary">
+            📚 {workouts.length}/15 saved ·{" "}
+            <button
+              onClick={() => {
+                setUpgradeTrigger("manual");
+                setUpgradeOpen(true);
+              }}
+              className="font-semibold press-scale"
+              style={{ color: "#4361EE" }}
+            >
+              Go unlimited →
+            </button>
+          </p>
+          <button
+            aria-label="Dismiss"
+            onClick={dismissBanner}
+            className="press-scale w-6 h-6 flex items-center justify-center text-text-secondary"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Ads (free users only, rendered before Today's Plan) */}
+      {!isPremium && <AdBanner />}
+
       <div className="mt-4 relative">
         <Search
           size={18}
@@ -298,8 +355,25 @@ function HomePage() {
         <Plus size={26} strokeWidth={2.5} />
       </button>
 
-      <AddWorkoutSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <AddWorkoutSheet
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onLimitReached={() => {
+          setAddOpen(false);
+          setUpgradeTrigger("library_limit");
+          setUpgradeOpen(true);
+        }}
+        onAiLimitReached={() => {
+          setUpgradeTrigger("ai_limit");
+          setUpgradeOpen(true);
+        }}
+      />
       <WorkoutDetailSheet workout={detail} onClose={() => setDetail(null)} />
+      <UpgradeSheet
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        trigger={upgradeTrigger}
+      />
       <ToastHost />
     </AppShell>
   );

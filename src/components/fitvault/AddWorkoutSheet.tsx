@@ -4,6 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { muscleColors, type Difficulty, type MuscleGroup } from "@/lib/fitvault-data";
 import { workoutsStore } from "@/lib/workouts-store";
 import { extractExercises } from "@/lib/ai-extract.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { authStore } from "@/lib/auth-store";
+import { premiumStore, usePremium } from "@/lib/premium-store";
+import { sanitize, isValidWorkoutUrl } from "@/lib/sanitize";
 import { toast } from "./Toast";
 
 const MUSCLE_GROUPS: { key: MuscleGroup; emoji: string }[] = [
@@ -38,12 +42,17 @@ type Exercise = { id: number; name: string; sets: number; reps: number };
 export function AddWorkoutSheet({
   open,
   onClose,
+  onLimitReached,
+  onAiLimitReached,
 }: {
   open: boolean;
   onClose: () => void;
+  onLimitReached?: () => void;
+  onAiLimitReached?: () => void;
 }) {
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
+  const { isPremium, aiExtractionsUsed } = usePremium();
 
   // form state
   const [url, setUrl] = useState("");
@@ -143,16 +152,24 @@ export function AddWorkoutSheet({
   }
 
   async function aiExtract() {
+    if (aiLoading) return;
+    // Free tier: 3 AI extractions total.
+    if (!isPremium && aiExtractionsUsed >= 3) {
+      onAiLimitReached?.();
+      return;
+    }
     const subject = title.trim() || url.trim();
     if (!subject) {
       toast.error("Please enter a workout title first");
       return;
     }
     setAiLoading(true);
+    // Rate limit: block re-taps for 3s to prevent accidental double calls.
+    const cooldown = new Promise((r) => setTimeout(r, 3000));
     const minDelay = new Promise((r) => setTimeout(r, 1600));
     try {
       const [{ exercises: ex }] = await Promise.all([
-        runExtract({ data: { title: subject } }),
+        runExtract({ data: { title: sanitize(subject) } }),
         minDelay,
       ]);
       setExercises(
@@ -163,20 +180,53 @@ export function AddWorkoutSheet({
           reps: e.reps,
         })),
       );
+      // Increment free-tier counter.
+      const user = authStore.get().user;
+      if (user && !isPremium) {
+        try {
+          await supabase
+            .from("profiles")
+            .update({ ai_extractions_used: aiExtractionsUsed + 1 } as any)
+            .eq("id", user.id);
+          await premiumStore.refreshPremium(user.id);
+        } catch {
+          /* non-fatal */
+        }
+      }
       toast.info("Exercises extracted ✨");
     } catch {
       toast.error("AI couldn't extract exercises. Add them manually.");
     } finally {
+      await cooldown;
       setAiLoading(false);
     }
   }
 
   async function save() {
     if (!canSave) return;
+    // URL validation: allow only YouTube/Instagram/TikTok
+    if (url.trim() && !isValidWorkoutUrl(url.trim())) {
+      toast.error("Only YouTube, Instagram, and TikTok URLs are allowed.");
+      return;
+    }
+    // Free tier: 15-workout library cap. Check server-side count to be safe.
+    if (!isPremium) {
+      const user = authStore.get().user;
+      if (user) {
+        const { count } = await supabase
+          .from("workouts")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id);
+        if ((count ?? 0) >= 15) {
+          onLimitReached?.();
+          return;
+        }
+      }
+    }
     setSavedAnim(true);
     try {
       await workoutsStore.add({
-        title: title.trim() || "Untitled Workout",
+        title: sanitize(title.trim() || "Untitled Workout"),
         url: url.trim() || null,
         thumbnail_url:
           thumbUrl && !thumbBroken
@@ -190,7 +240,7 @@ export function AddWorkoutSheet({
           .filter((e) => e.name.trim())
           .map((e) => ({
             id: String(e.id),
-            name: e.name.trim(),
+            name: sanitize(e.name.trim()),
             sets: e.sets,
             reps: e.reps,
           })),
@@ -440,6 +490,14 @@ export function AddWorkoutSheet({
                 )}
               </button>
             </div>
+            {!isPremium && (
+              <p
+                className="mt-1 text-[11px]"
+                style={{ color: aiExtractionsUsed >= 2 ? "#EF476F" : "#8888AA" }}
+              >
+                ✨ {Math.max(0, 3 - aiExtractionsUsed)} AI uses left
+              </p>
+            )}
 
             {aiLoading && (
               <div className="mt-2 p-3 rounded-xl bg-card border border-border flex items-center gap-2 animate-fade-in">

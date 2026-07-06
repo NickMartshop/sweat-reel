@@ -73,34 +73,63 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
+  head: () => {
+    const adsClient = import.meta.env.VITE_ADSENSE_CLIENT_ID as string | undefined;
+    const adsConfigured = !!adsClient && adsClient !== "PENDING";
+    const scripts: Array<Record<string, string | boolean>> = [
+      { src: "https://checkout.razorpay.com/v1/checkout.js", async: true },
+    ];
+    if (adsConfigured) {
+      scripts.push({
+        src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsClient}`,
+        async: true,
+        crossOrigin: "anonymous",
+      });
+    }
+    return ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      {
+        httpEquiv: "Content-Security-Policy",
+        content:
+          "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://pagead2.googlesyndication.com https://www.googletagmanager.com; connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com https://api.razorpay.com https://noembed.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://api.razorpay.com https://checkout.razorpay.com;",
+      },
       { name: "theme-color", content: "#4361EE" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "SweatReel" },
-      { title: "SweatReel — Your workouts. Organized." },
-      { name: "description", content: "SweatReel helps you save, organize and plan your workouts from anywhere — your library, your week, your progress." },
-      { property: "og:title", content: "SweatReel — Your workouts. Organized." },
-      { property: "og:description", content: "SweatReel helps you save, organize and plan your workouts from anywhere — your library, your week, your progress." },
+      { name: "robots", content: "index, follow" },
+      { name: "author", content: "SweatReel" },
+      {
+        name: "keywords",
+        content:
+          "workout organizer, fitness app, save workout reels, workout planner, gym tracker, exercise library, SweatReel",
+      },
+      { title: "SweatReel — Save & Organize Workout Videos" },
+      { name: "description", content: "Save workout videos from YouTube, Instagram & TikTok. Build your personal fitness library. Plan your week. Track your streak. Free to start." },
+      { property: "og:title", content: "SweatReel — Workout Organizer" },
+      { property: "og:description", content: "Save & organize your workout videos. Plan your week. Track your streak." },
+      { property: "og:url", content: "https://sweat-reel.lovable.app" },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "SweatReel — Your workouts. Organized." },
-      { name: "twitter:description", content: "SweatReel helps you save, organize and plan your workouts from anywhere — your library, your week, your progress." },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "SweatReel — Workout Organizer" },
+      { name: "twitter:description", content: "Save & organize your workout videos. Plan your week. Track your streak." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.json" },
+      { rel: "canonical", href: "https://sweat-reel.lovable.app" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
     ],
-  }),
+    scripts: scripts as any,
+  });
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

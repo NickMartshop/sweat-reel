@@ -76,6 +76,7 @@ export type Database = {
       profiles: {
         Row: {
           ai_extractions_count: number
+          ai_extractions_used: number
           auto_advance_rest: boolean
           best_streak: number
           created_at: string
@@ -83,9 +84,13 @@ export type Database = {
           email: string
           fitness_goal: string | null
           id: string
+          is_premium: boolean
           last_workout_date: string | null
           name: string
           notifications_enabled: boolean
+          premium_expires_at: string | null
+          premium_plan: string
+          razorpay_payment_id: string | null
           referred_by: string | null
           reminder_time: string | null
           rest_timer_seconds: number
@@ -96,6 +101,7 @@ export type Database = {
         }
         Insert: {
           ai_extractions_count?: number
+          ai_extractions_used?: number
           auto_advance_rest?: boolean
           best_streak?: number
           created_at?: string
@@ -103,9 +109,13 @@ export type Database = {
           email?: string
           fitness_goal?: string | null
           id: string
+          is_premium?: boolean
           last_workout_date?: string | null
           name?: string
           notifications_enabled?: boolean
+          premium_expires_at?: string | null
+          premium_plan?: string
+          razorpay_payment_id?: string | null
           referred_by?: string | null
           reminder_time?: string | null
           rest_timer_seconds?: number
@@ -116,6 +126,7 @@ export type Database = {
         }
         Update: {
           ai_extractions_count?: number
+          ai_extractions_used?: number
           auto_advance_rest?: boolean
           best_streak?: number
           created_at?: string
@@ -123,9 +134,13 @@ export type Database = {
           email?: string
           fitness_goal?: string | null
           id?: string
+          is_premium?: boolean
           last_workout_date?: string | null
           name?: string
           notifications_enabled?: boolean
+          premium_expires_at?: string | null
+          premium_plan?: string
+          razorpay_payment_id?: string | null
           referred_by?: string | null
           reminder_time?: string | null
           rest_timer_seconds?: number

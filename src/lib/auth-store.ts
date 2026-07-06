@@ -31,7 +31,7 @@ if (typeof window !== "undefined") {
     };
     emit();
 
-    supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.onAuthStateChange(async (event, session) => {
       state = {
         hydrated: true,
         onboarded: !!session || state.onboarded,
@@ -40,6 +40,18 @@ if (typeof window !== "undefined") {
       if (session) {
         try {
           localStorage.setItem(ONBOARDED_KEY, "true");
+        } catch {}
+      }
+      if (event === "SIGNED_OUT") {
+        try {
+          const { premiumStore } = await import("./premium-store");
+          premiumStore.clear();
+        } catch {}
+      }
+      if (event === "TOKEN_REFRESHED" && session) {
+        try {
+          const { premiumStore } = await import("./premium-store");
+          premiumStore.refreshPremium(session.user.id);
         } catch {}
       }
       emit();

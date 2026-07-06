@@ -17,6 +17,8 @@ import {
 import { usePlans, plansStore } from "@/lib/plans-store";
 import { useWorkouts } from "@/lib/workouts-store";
 import { useProfile } from "@/lib/profile-store";
+import { usePremium } from "@/lib/premium-store";
+import { UpgradeSheet } from "@/components/fitvault/UpgradeSheet";
 import { renderWeekCard, shareCanvas } from "@/lib/share-card";
 
 export const Route = createFileRoute("/plans")({
@@ -55,9 +57,12 @@ function PlansPage() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [restOpen, setRestOpen] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { entries, loading } = usePlans();
   const { workouts } = useWorkouts();
   const { profile } = useProfile();
+  const { isPremium } = usePremium();
+  const isLocked = !isPremium && selected > 2;
 
   const monday = new Date(today);
   monday.setDate(today.getDate() - todayIdx);
@@ -204,7 +209,9 @@ function PlansPage() {
               >
                 {date.getDate()}
               </span>
-              {isRest ? (
+              {!isPremium && i > 2 ? (
+                <span className="text-[10px] leading-none">🔒</span>
+              ) : isRest ? (
                 <span className="text-[10px] leading-none">💤</span>
               ) : (
                 <span
@@ -238,7 +245,24 @@ function PlansPage() {
           </div>
         </div>
 
-        {loading ? (
+        {isLocked ? (
+          <div
+            className="mt-4 rounded-xl p-4 text-center"
+            style={{ background: "#141420", border: "1px solid #252535" }}
+          >
+            <p className="text-[16px] font-semibold text-white">🔒 Unlock all 7 days</p>
+            <p className="mt-1 text-[12px] text-text-secondary">
+              Full week planning is a Pro feature
+            </p>
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              className="press-scale mt-3 w-full h-11 rounded-xl text-white text-[13px] font-semibold"
+              style={{ background: "linear-gradient(135deg,#4361EE,#7B2FBE)" }}
+            >
+              Upgrade to Pro ✨
+            </button>
+          </div>
+        ) : loading ? (
           <div className="mt-4 space-y-2">
             {Array.from({ length: 2 }).map((_, i) => (
               <div
@@ -429,6 +453,11 @@ function PlansPage() {
         open={restOpen}
         onClose={() => setRestOpen(false)}
         onSelect={handleSelectRest}
+      />
+      <UpgradeSheet
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        trigger="plans_locked"
       />
       <ToastHost />
     </AppShell>
