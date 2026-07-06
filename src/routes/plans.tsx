@@ -209,7 +209,9 @@ function PlansPage() {
               >
                 {date.getDate()}
               </span>
-              {isRest ? (
+              {!isPremium && i > 2 ? (
+                <span className="text-[10px] leading-none">🔒</span>
+              ) : isRest ? (
                 <span className="text-[10px] leading-none">💤</span>
               ) : (
                 <span
