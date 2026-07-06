@@ -105,7 +105,7 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
 
     try {
       const profile = profileStore.get().profile;
-      const options: RazorpayOptions = {
+      const options = {
         key: keyId,
         amount,
         currency: "INR",
@@ -121,7 +121,7 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
           ondismiss: () => setIsProcessing(false),
           escape: false,
         },
-        handler: async (response) => {
+        handler: async (response: { razorpay_payment_id: string }) => {
           const paymentId = response.razorpay_payment_id;
           if (!paymentId) {
             toast.error("Payment failed. Please try again.");
