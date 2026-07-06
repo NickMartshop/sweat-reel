@@ -355,8 +355,25 @@ function HomePage() {
         <Plus size={26} strokeWidth={2.5} />
       </button>
 
-      <AddWorkoutSheet open={addOpen} onClose={() => setAddOpen(false)} />
+      <AddWorkoutSheet
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onLimitReached={() => {
+          setAddOpen(false);
+          setUpgradeTrigger("library_limit");
+          setUpgradeOpen(true);
+        }}
+        onAiLimitReached={() => {
+          setUpgradeTrigger("ai_limit");
+          setUpgradeOpen(true);
+        }}
+      />
       <WorkoutDetailSheet workout={detail} onClose={() => setDetail(null)} />
+      <UpgradeSheet
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        trigger={upgradeTrigger}
+      />
       <ToastHost />
     </AppShell>
   );
