@@ -42,12 +42,17 @@ type Exercise = { id: number; name: string; sets: number; reps: number };
 export function AddWorkoutSheet({
   open,
   onClose,
+  onLimitReached,
+  onAiLimitReached,
 }: {
   open: boolean;
   onClose: () => void;
+  onLimitReached?: () => void;
+  onAiLimitReached?: () => void;
 }) {
   const [mounted, setMounted] = useState(open);
   const [visible, setVisible] = useState(false);
+  const { isPremium, aiExtractionsUsed } = usePremium();
 
   // form state
   const [url, setUrl] = useState("");
