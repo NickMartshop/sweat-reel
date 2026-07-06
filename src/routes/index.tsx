@@ -228,6 +228,38 @@ function HomePage() {
         <StatCard label="Done" value={weeklyCompletedCount} sub="completed" />
       </div>
 
+      {/* Free-tier library banner */}
+      {!isPremium && !bannerHidden && (
+        <div
+          className="mt-3 flex items-center justify-between rounded-[10px] px-3.5 py-2.5"
+          style={{ background: "#141420", border: "1px solid #252535" }}
+        >
+          <p className="text-[12px] text-text-secondary">
+            📚 {workouts.length}/15 saved ·{" "}
+            <button
+              onClick={() => {
+                setUpgradeTrigger("manual");
+                setUpgradeOpen(true);
+              }}
+              className="font-semibold press-scale"
+              style={{ color: "#4361EE" }}
+            >
+              Go unlimited →
+            </button>
+          </p>
+          <button
+            aria-label="Dismiss"
+            onClick={dismissBanner}
+            className="press-scale w-6 h-6 flex items-center justify-center text-text-secondary"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* Ads (free users only, rendered before Today's Plan) */}
+      {!isPremium && <AdBanner />}
+
       <div className="mt-4 relative">
         <Search
           size={18}
