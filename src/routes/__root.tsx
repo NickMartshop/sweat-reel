@@ -76,7 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => {
     const adsClient = import.meta.env.VITE_ADSENSE_CLIENT_ID as string | undefined;
     const adsConfigured = !!adsClient && adsClient !== "PENDING";
-    const scripts: Array<{ src: string; async?: boolean; crossOrigin?: string }> = [
+    const scripts: Array<Record<string, string | boolean>> = [
       { src: "https://checkout.razorpay.com/v1/checkout.js", async: true },
     ];
     if (adsConfigured) {
