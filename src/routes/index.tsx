@@ -95,12 +95,32 @@ function HomePage() {
   const { workouts, loading } = useWorkouts();
   const { entries: planEntries } = usePlans();
   const { profile, weeklyCompletedCount } = useProfile();
+  const { isPremium } = usePremium();
 
   const [query, setQuery] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [detail, setDetail] = useState<Workout | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeTrigger, setUpgradeTrigger] = useState<UpgradeTrigger>("manual");
+  const [bannerHidden, setBannerHidden] = useState(true);
   const [greet, setGreet] = useState("Welcome 👋");
   const [dateLabel, setDateLabel] = useState("");
+
+  useEffect(() => {
+    try {
+      const at = Number(localStorage.getItem(BANNER_KEY) ?? "0");
+      setBannerHidden(Date.now() - at < 24 * 60 * 60 * 1000);
+    } catch {
+      setBannerHidden(false);
+    }
+  }, []);
+
+  function dismissBanner() {
+    try {
+      localStorage.setItem(BANNER_KEY, String(Date.now()));
+    } catch {}
+    setBannerHidden(true);
+  }
 
   useEffect(() => {
     setGreet(greeting());
