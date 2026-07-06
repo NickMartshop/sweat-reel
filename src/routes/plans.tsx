@@ -17,6 +17,8 @@ import {
 import { usePlans, plansStore } from "@/lib/plans-store";
 import { useWorkouts } from "@/lib/workouts-store";
 import { useProfile } from "@/lib/profile-store";
+import { usePremium } from "@/lib/premium-store";
+import { UpgradeSheet } from "@/components/fitvault/UpgradeSheet";
 import { renderWeekCard, shareCanvas } from "@/lib/share-card";
 
 export const Route = createFileRoute("/plans")({
@@ -55,9 +57,12 @@ function PlansPage() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [restOpen, setRestOpen] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { entries, loading } = usePlans();
   const { workouts } = useWorkouts();
   const { profile } = useProfile();
+  const { isPremium } = usePremium();
+  const isLocked = !isPremium && selected > 2;
 
   const monday = new Date(today);
   monday.setDate(today.getDate() - todayIdx);
