@@ -454,6 +454,11 @@ function PlansPage() {
         onClose={() => setRestOpen(false)}
         onSelect={handleSelectRest}
       />
+      <UpgradeSheet
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        trigger="plans_locked"
+      />
       <ToastHost />
     </AppShell>
   );
