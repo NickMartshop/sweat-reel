@@ -16,7 +16,9 @@ import {
 import { AppShell } from "@/components/fitvault/AppShell";
 import { ToastHost, toast } from "@/components/fitvault/Toast";
 import { DeleteAccountDialog } from "@/components/fitvault/DeleteAccountDialog";
+import { UpgradeSheet } from "@/components/fitvault/UpgradeSheet";
 import { useProfile, profileStore } from "@/lib/profile-store";
+import { usePremium } from "@/lib/premium-store";
 import { authStore } from "@/lib/auth-store";
 import {
   disableReminders,
@@ -119,8 +121,10 @@ function formatTime(t: string) {
 
 function ProfilePage() {
   const { profile } = useProfile();
+  const { isPremium, plan, expiresAt } = usePremium();
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const notifEnabled = !!profile?.notifications_enabled;
   const reminderTime = profile?.reminder_time || "08:00";
@@ -200,9 +204,51 @@ function ProfilePage() {
         <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-2xl font-bold text-white">
           {initial}
         </div>
-        <h1 className="mt-3 text-xl font-bold text-white">{name}</h1>
+        <h1 className="mt-3 text-xl font-bold text-white flex items-center gap-2">
+          {name}
+          {isPremium && (
+            <span
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
+              style={{ background: "linear-gradient(135deg,#4361EE,#7B2FBE)" }}
+            >
+              PRO ⚡
+            </span>
+          )}
+        </h1>
         <p className="text-[14px] text-text-secondary">{email}</p>
       </div>
+
+      {isPremium ? (
+        <div className="mt-4 rounded-2xl bg-card border border-border p-3 text-center">
+          <p className="text-[14px] font-semibold" style={{ color: "#06D6A0" }}>
+            ✅ SweatReel Pro Active
+          </p>
+          <p className="text-[12px] text-text-secondary mt-0.5">
+            Plan: {plan === "annual" ? "Annual" : plan === "monthly" ? "Monthly" : "Pro"}
+          </p>
+          {expiresAt && (
+            <p className="text-[12px] text-text-secondary">
+              Renews: {expiresAt.toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+            </p>
+          )}
+        </div>
+      ) : (
+        <button
+          onClick={() => setUpgradeOpen(true)}
+          className="press-scale mt-4 w-full rounded-2xl p-3 flex items-center gap-3"
+          style={{
+            background: "rgba(67,97,238,0.08)",
+            border: "1px solid #4361EE55",
+          }}
+        >
+          <span className="text-2xl">⚡</span>
+          <div className="flex-1 text-left">
+            <p className="text-[14px] font-semibold text-white">Go Pro — ₹999/year</p>
+            <p className="text-[11px] text-text-secondary">Unlimited workouts + Zero ads</p>
+          </div>
+          <span className="text-[12px] font-semibold text-primary">Upgrade →</span>
+        </button>
+      )}
 
       <div className="flex gap-2 mt-5">
         <StatCard label="Joined" value={joined} />
