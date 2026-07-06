@@ -490,6 +490,14 @@ export function AddWorkoutSheet({
                 )}
               </button>
             </div>
+            {!isPremium && (
+              <p
+                className="mt-1 text-[11px]"
+                style={{ color: aiExtractionsUsed >= 2 ? "#EF476F" : "#8888AA" }}
+              >
+                ✨ {Math.max(0, 3 - aiExtractionsUsed)} AI uses left
+              </p>
+            )}
 
             {aiLoading && (
               <div className="mt-2 p-3 rounded-xl bg-card border border-border flex items-center gap-2 animate-fade-in">
