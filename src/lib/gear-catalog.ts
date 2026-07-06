@@ -1,5 +1,7 @@
-// REPLACE placeholder affiliate_url values with real Amazon affiliate links from
-// your Associates account at https://affiliate-program.amazon.in
+// Amazon Affiliate Store: nickinfotech-21
+// All affiliateUrl values include tracking via the Amazon Associates program.
+// Commission: 4-8% per qualifying purchase.
+
 export type GearCategory =
   | "Resistance"
   | "Weights"
@@ -9,89 +11,113 @@ export type GearCategory =
   | "Recovery";
 
 export interface GearProduct {
-  id: string;
+  id: number;
   name: string;
+  subtitle: string;
   price: string;
+  rating: number;
+  reviews: string;
   category: GearCategory;
-  asin: string;
-  affiliate_url: string;
-  rating: number; // 0-5
-  image: string;
+  emoji: string;
+  gradient: string;
+  affiliateUrl: string;
+  tag: string | null;
+  tagColor: string | null;
 }
 
-function img(seed: string) {
-  return `https://picsum.photos/seed/${seed}/400/400`;
-}
-
-export const GEAR_CATEGORIES: (GearCategory | "All")[] = [
-  "All",
-  "Resistance",
-  "Weights",
-  "Protein",
-  "Accessories",
-  "Yoga",
-  "Recovery",
+export const GEAR_CATEGORIES: { key: GearCategory | "All"; emoji: string }[] = [
+  { key: "All", emoji: "" },
+  { key: "Resistance", emoji: "🔴" },
+  { key: "Weights", emoji: "🏋️" },
+  { key: "Protein", emoji: "💪" },
+  { key: "Yoga", emoji: "🧘" },
+  { key: "Accessories", emoji: "🥊" },
+  { key: "Recovery", emoji: "🔵" },
 ];
 
 export const GEAR_PRODUCTS: GearProduct[] = [
   {
-    id: "bands",
-    name: "Boldfit Resistance Bands Set",
-    price: "₹499",
+    id: 1,
+    name: "Resistance Bands Set",
+    subtitle: "For strength & mobility training",
+    price: "From ₹299",
+    rating: 4.5,
+    reviews: "2.3k",
     category: "Resistance",
-    asin: "B07XXXXXXXXXXX",
-    affiliate_url: "https://amzn.to/PLACEHOLDER1",
-    rating: 4.5,
-    image: img("resistance-bands"),
+    emoji: "🔴",
+    gradient: "linear-gradient(135deg, #FF6B35 0%, #FF4500 100%)",
+    affiliateUrl: "https://a.co/d/002v8s8F",
+    tag: "Best Seller",
+    tagColor: "#FF6B35",
   },
   {
-    id: "weights",
-    name: "Kore PVC 10kg Weight Set",
-    price: "₹1,299",
+    id: 2,
+    name: "PVC Dumbbell Weight Set",
+    subtitle: "Home gym essentials — multiple sizes",
+    price: "From ₹899",
+    rating: 4.3,
+    reviews: "1.8k",
     category: "Weights",
-    asin: "B08XXXXXXXXXXX",
-    affiliate_url: "https://amzn.to/PLACEHOLDER2",
-    rating: 4.5,
-    image: img("dumbbells"),
+    emoji: "🏋️",
+    gradient: "linear-gradient(135deg, #4361EE 0%, #2541B2 100%)",
+    affiliateUrl: "https://amzn.to/3R01NIP",
+    tag: "Popular",
+    tagColor: "#4361EE",
   },
   {
-    id: "protein",
-    name: "MuscleBlaze Whey Protein 1kg",
-    price: "₹1,799",
+    id: 3,
+    name: "Whey Protein Powder",
+    subtitle: "Build muscle & recover faster",
+    price: "From ₹999",
+    rating: 4.6,
+    reviews: "5.1k",
     category: "Protein",
-    asin: "B09XXXXXXXXXXX",
-    affiliate_url: "https://amzn.to/PLACEHOLDER3",
-    rating: 4.5,
-    image: img("protein"),
+    emoji: "💪",
+    gradient: "linear-gradient(135deg, #06D6A0 0%, #048A5D 100%)",
+    affiliateUrl: "https://amzn.to/44Nct0N",
+    tag: "Top Rated",
+    tagColor: "#06D6A0",
   },
   {
-    id: "mat",
-    name: "Strauss Yoga Mat 6mm",
-    price: "₹599",
+    id: 4,
+    name: "Anti-Slip Yoga Mat",
+    subtitle: "6mm thick — perfect for all workouts",
+    price: "From ₹499",
+    rating: 4.4,
+    reviews: "3.7k",
     category: "Yoga",
-    asin: "B01XXXXXXXXXXX",
-    affiliate_url: "https://amzn.to/PLACEHOLDER4",
-    rating: 4.5,
-    image: img("yogamat"),
+    emoji: "🧘",
+    gradient: "linear-gradient(135deg, #7B2FBE 0%, #4A1180 100%)",
+    affiliateUrl: "https://amzn.to/4eVGHU4",
+    tag: null,
+    tagColor: null,
   },
   {
-    id: "gloves",
-    name: "Boldfit Gym Gloves",
-    price: "₹399",
+    id: 5,
+    name: "Gym Training Gloves",
+    subtitle: "Grip & wrist support for heavy lifts",
+    price: "From ₹299",
+    rating: 4.2,
+    reviews: "987",
     category: "Accessories",
-    asin: "B06XXXXXXXXXXX",
-    affiliate_url: "https://amzn.to/PLACEHOLDER5",
-    rating: 4.5,
-    image: img("gloves"),
+    emoji: "🥊",
+    gradient: "linear-gradient(135deg, #FFD166 0%, #F59700 100%)",
+    affiliateUrl: "https://amzn.to/44f00CY",
+    tag: null,
+    tagColor: null,
   },
   {
-    id: "foam",
-    name: "HealthSense Foam Roller",
-    price: "₹799",
-    category: "Recovery",
-    asin: "B07YYYYYYYYYYY",
-    affiliate_url: "https://amzn.to/PLACEHOLDER6",
+    id: 6,
+    name: "EVA Foam Roller",
+    subtitle: "Deep tissue recovery & muscle relief",
+    price: "From ₹599",
     rating: 4.5,
-    image: img("foamroller"),
+    reviews: "1.2k",
+    category: "Recovery",
+    emoji: "🔵",
+    gradient: "linear-gradient(135deg, #EF476F 0%, #C0003C 100%)",
+    affiliateUrl: "https://amzn.to/4aCsUjU",
+    tag: "Recovery",
+    tagColor: "#EF476F",
   },
 ];

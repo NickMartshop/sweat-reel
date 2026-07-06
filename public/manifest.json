@@ -1,16 +1,34 @@
 {
-  "name": "SweatReel",
+  "name": "SweatReel — Workout Organizer",
   "short_name": "SweatReel",
-  "description": "Save and organize your workout videos. Build your fitness library.",
-  "start_url": "/",
+  "description": "Save workout videos from YouTube, Instagram & TikTok. Plan your week. Build your streak. The fitness app built for how you actually train.",
+  "start_url": "/?source=pwa",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
   "background_color": "#0A0A0F",
   "theme_color": "#4361EE",
   "orientation": "portrait-primary",
-  "lang": "en",
-  "categories": ["health", "fitness"],
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["health", "fitness", "sports"],
+  "shortcuts": [
+    {
+      "name": "Add Workout",
+      "short_name": "Add",
+      "url": "/?add=1",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Today's Plan",
+      "short_name": "Today",
+      "url": "/plans",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
   "icons": [
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
-  ]
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
