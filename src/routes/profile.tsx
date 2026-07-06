@@ -402,6 +402,11 @@ function ProfilePage() {
         onClose={() => setDeleteOpen(false)}
         onDone={() => navigate({ to: "/auth" })}
       />
+      <UpgradeSheet
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        trigger="manual"
+      />
     </AppShell>
   );
 }
