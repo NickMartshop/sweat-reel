@@ -4,6 +4,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { muscleColors, type Difficulty, type MuscleGroup } from "@/lib/fitvault-data";
 import { workoutsStore } from "@/lib/workouts-store";
 import { extractExercises } from "@/lib/ai-extract.functions";
+import { supabase } from "@/integrations/supabase/client";
+import { authStore } from "@/lib/auth-store";
+import { premiumStore, usePremium } from "@/lib/premium-store";
+import { sanitize, isValidWorkoutUrl } from "@/lib/sanitize";
 import { toast } from "./Toast";
 
 const MUSCLE_GROUPS: { key: MuscleGroup; emoji: string }[] = [
