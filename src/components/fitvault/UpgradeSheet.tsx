@@ -44,6 +44,9 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
   const [visible, setVisible] = useState(false);
   const [cycle, setCycle] = useState<"monthly" | "annual">("annual");
   const [isProcessing, setIsProcessing] = useState(false);
+  const createOrder = useServerFn(createRazorpayOrder);
+  const verifyPayment = useServerFn(verifyRazorpayPayment);
+
 
   useEffect(() => {
     if (open) {
