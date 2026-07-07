@@ -42,6 +42,15 @@ export function ActiveWorkoutMode({
     return () => clearInterval(t);
   }, [completed]);
 
+  // Fire rating prompt shortly after this active-workout view closes.
+  useEffect(() => {
+    return () => {
+      if (ratingStore.isArmed()) {
+        setTimeout(() => ratingStore.show(), 2000);
+      }
+    };
+  }, []);
+
   // rest countdown
   useEffect(() => {
     if (!resting) return;
