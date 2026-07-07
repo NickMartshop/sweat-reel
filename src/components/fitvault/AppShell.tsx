@@ -11,6 +11,8 @@ import { startReminderLoop } from "@/lib/reminders";
 import { checkAchievements } from "@/lib/achievements";
 import { premiumStore } from "@/lib/premium-store";
 import { PremiumSuccessHost } from "./PremiumSuccess";
+import { OfflineBanner, useOnline } from "./OfflineBanner";
+import { RatingPrompt } from "./RatingPrompt";
 
 const REF_KEY = "sweatreel_ref";
 
