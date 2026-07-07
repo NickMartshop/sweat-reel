@@ -74,18 +74,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => {
-    const adsClient = import.meta.env.VITE_ADSENSE_CLIENT_ID as string | undefined;
-    const adsConfigured = !!adsClient && adsClient !== "PENDING";
     const scripts: Array<Record<string, string | boolean>> = [
       { src: "https://checkout.razorpay.com/v1/checkout.js", async: true },
-    ];
-    if (adsConfigured) {
-      scripts.push({
-        src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsClient}`,
+      {
+        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7298096903500162",
         async: true,
         crossOrigin: "anonymous",
-      });
-    }
+      },
+    ];
     return ({
     meta: [
       { charSet: "utf-8" },
