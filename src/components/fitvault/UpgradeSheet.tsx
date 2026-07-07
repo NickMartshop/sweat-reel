@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { X, Loader2, Sparkles } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { authStore } from "@/lib/auth-store";
 import { premiumStore } from "@/lib/premium-store";
 import { profileStore } from "@/lib/profile-store";
+import {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+} from "@/lib/razorpay.functions";
 import { toast } from "./Toast";
+
 
 export type UpgradeTrigger =
   | "library_limit"
@@ -38,6 +44,9 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
   const [visible, setVisible] = useState(false);
   const [cycle, setCycle] = useState<"monthly" | "annual">("annual");
   const [isProcessing, setIsProcessing] = useState(false);
+  const createOrder = useServerFn(createRazorpayOrder);
+  const verifyPayment = useServerFn(verifyRazorpayPayment);
+
 
   useEffect(() => {
     if (open) {
@@ -87,28 +96,26 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
       toast.error("Sign in first");
       return;
     }
-    const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
-    // KEY_ID only — secret key must NEVER be in frontend
-    if (!keyId || keyId === "PENDING") {
-      toast.error("Payments not configured. Add VITE_RAZORPAY_KEY_ID.");
-      return;
-    }
     if (typeof window === "undefined" || !window.Razorpay) {
       toast.error("Payment library didn't load. Check your internet.");
       return;
     }
 
-    const amount = cycle === "annual" ? 99900 : 14900;
     const planLabel =
       cycle === "annual" ? "SweatReel Pro Annual" : "SweatReel Pro Monthly";
     setIsProcessing(true);
 
     try {
+      // 1. Create the Razorpay order SERVER-SIDE. The server owns the amount
+      //    and returns the public keyId — nothing sensitive lives in the client.
+      const order = await createOrder({ data: { plan: cycle } });
       const profile = profileStore.get().profile;
+
       const options = {
-        key: keyId,
-        amount,
-        currency: "INR",
+        key: order.keyId,
+        amount: order.amount,
+        currency: order.currency,
+        order_id: order.orderId,
         name: "SweatReel",
         description: planLabel,
         image: "/icon-192.png",
@@ -121,54 +128,49 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
           ondismiss: () => setIsProcessing(false),
           escape: false,
         },
-        handler: async (response: { razorpay_payment_id: string }) => {
-          const paymentId = response.razorpay_payment_id;
-          if (!paymentId) {
-            toast.error("Payment failed. Please try again.");
-            setIsProcessing(false);
-            return;
-          }
-          // Dedupe: prevent double-application of the same payment.
-          const { data: existing } = await supabase
-            .from("profiles")
-            .select("razorpay_payment_id")
-            .eq("id", user.id)
-            .maybeSingle();
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id?: string;
+          razorpay_signature?: string;
+        }) => {
+          const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
+            response;
           if (
-            existing &&
-            (existing as any).razorpay_payment_id === paymentId
+            !razorpay_payment_id ||
+            !razorpay_order_id ||
+            !razorpay_signature
           ) {
-            toast.info("This payment was already applied.");
+            toast.error("Payment response incomplete. Please try again.");
             setIsProcessing(false);
             return;
           }
-          const now = new Date();
-          const ms =
-            cycle === "annual"
-              ? 365 * 24 * 60 * 60 * 1000
-              : 30 * 24 * 60 * 60 * 1000;
-          const expiresAt = new Date(now.getTime() + ms);
-          const { error } = await supabase
-            .from("profiles")
-            .update({
-              is_premium: true,
-              premium_plan: cycle,
-              premium_expires_at: expiresAt.toISOString(),
-              razorpay_payment_id: paymentId,
-            } as any)
-            .eq("id", user.id);
-          if (error) {
+          try {
+            // 2. Server verifies the HMAC signature and payment status with
+            //    Razorpay, then activates premium via the service-role client.
+            //    Clients cannot write is_premium / premium_plan / etc. directly.
+            const result = await verifyPayment({
+              data: {
+                plan: cycle,
+                razorpay_order_id,
+                razorpay_payment_id,
+                razorpay_signature,
+              },
+            });
+            await premiumStore.refreshPremium(user.id);
+            setIsProcessing(false);
+            onClose();
+            if (result.alreadyApplied) {
+              toast.info("This payment was already applied.");
+            } else {
+              premiumStore.fireSuccess();
+            }
+          } catch (err: any) {
             toast.error(
               "Payment received but activation failed. Email support@sweatreel.com with ID: " +
-                paymentId,
+                razorpay_payment_id,
             );
             setIsProcessing(false);
-            return;
           }
-          await premiumStore.refreshPremium(user.id);
-          setIsProcessing(false);
-          onClose();
-          premiumStore.fireSuccess();
         },
       };
       const rzp = new window.Razorpay(options);
@@ -180,11 +182,12 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
         setIsProcessing(false);
       });
       rzp.open();
-    } catch {
-      toast.error("Could not open payment. Check your internet.");
+    } catch (err: any) {
+      toast.error(err?.message || "Could not start payment. Try again.");
       setIsProcessing(false);
     }
   }
+
 
   const priceHead =
     cycle === "annual" ? "₹999 / year" : "₹149 / month";
