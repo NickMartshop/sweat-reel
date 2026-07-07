@@ -1,10 +1,16 @@
 import { useEffect, useState } from "react";
 import { X, Loader2, Sparkles } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { authStore } from "@/lib/auth-store";
 import { premiumStore } from "@/lib/premium-store";
 import { profileStore } from "@/lib/profile-store";
+import {
+  createRazorpayOrder,
+  verifyRazorpayPayment,
+} from "@/lib/razorpay.functions";
 import { toast } from "./Toast";
+
 
 export type UpgradeTrigger =
   | "library_limit"
