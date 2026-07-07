@@ -3,6 +3,9 @@ import { X, Minus, Plus } from "lucide-react";
 import type { Workout } from "@/lib/fitvault-data";
 import { toast } from "./Toast";
 import { profileStore } from "@/lib/profile-store";
+import { supabase } from "@/integrations/supabase/client";
+import { authStore } from "@/lib/auth-store";
+import { ratingStore } from "@/lib/rating-store";
 
 function fmt(s: number) {
   const h = Math.floor(s / 3600);
@@ -456,6 +459,16 @@ function CompletionScreen({
                   Math.max(1, Math.round(elapsed / 60)),
                 );
                 toast.success("Workout logged ✓");
+                try {
+                  const user = authStore.get().user;
+                  if (user && !ratingStore.isAsked()) {
+                    const { count } = await supabase
+                      .from("completed_workouts")
+                      .select("id", { count: "exact", head: true })
+                      .eq("user_id", user.id);
+                    if (count === 5) ratingStore.arm();
+                  }
+                } catch {}
               } catch {
                 setLogged(false);
                 toast.error("Couldn't log. Try again.");
