@@ -11,6 +11,8 @@ import { startReminderLoop } from "@/lib/reminders";
 import { checkAchievements } from "@/lib/achievements";
 import { premiumStore } from "@/lib/premium-store";
 import { PremiumSuccessHost } from "./PremiumSuccess";
+import { OfflineBanner, useOnline } from "./OfflineBanner";
+import { RatingPrompt } from "./RatingPrompt";
 
 const REF_KEY = "sweatreel_ref";
 
@@ -80,24 +82,38 @@ export function AppShell({ children }: { children: ReactNode }) {
     profile?.best_streak,
   ]);
 
+  const online = useOnline();
+  const offsetTop = online ? 0 : 40;
+
   if (!mounted || !auth.hydrated) {
-    return <div className="min-h-screen w-full bg-background" />;
+    return (
+      <>
+        <OfflineBanner online={online} />
+        <div
+          className="min-h-screen w-full bg-background"
+          style={{ paddingTop: offsetTop }}
+        />
+      </>
+    );
   }
 
   if (!auth.onboarded) {
     return (
       <>
-        <Onboarding
-          onDone={(goal) => {
-            if (goal) {
-              try {
-                sessionStorage.setItem("sweatreel_goal", goal);
-              } catch {}
-              profileStore.setFitnessGoal(goal).catch(() => {});
-            }
-            authStore.completeOnboarding();
-          }}
-        />
+        <OfflineBanner online={online} />
+        <div style={{ paddingTop: offsetTop }}>
+          <Onboarding
+            onDone={(goal) => {
+              if (goal) {
+                try {
+                  sessionStorage.setItem("sweatreel_goal", goal);
+                } catch {}
+                profileStore.setFitnessGoal(goal).catch(() => {});
+              }
+              authStore.completeOnboarding();
+            }}
+          />
+        </div>
         <ToastHost />
       </>
     );
@@ -106,24 +122,34 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (!auth.user) {
     return (
       <>
-        <AuthScreen />
+        <OfflineBanner online={online} />
+        <div style={{ paddingTop: offsetTop }}>
+          <AuthScreen />
+        </div>
         <ToastHost />
       </>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-background flex justify-center">
+    <>
+      <OfflineBanner online={online} />
       <div
-        className="relative w-full max-w-[430px] min-h-screen bg-background"
-        style={{ paddingTop: "env(safe-area-inset-top)" }}
+        className="min-h-screen w-full bg-background flex justify-center"
+        style={{ paddingTop: offsetTop }}
       >
-        <main className="pb-24 px-4 pt-4">{children}</main>
-        <BottomNav />
-        <ReminderPrompt />
-        <AchievementToastHost />
-        <PremiumSuccessHost />
+        <div
+          className="relative w-full max-w-[430px] min-h-screen bg-background"
+          style={{ paddingTop: "env(safe-area-inset-top)" }}
+        >
+          <main className="pb-24 px-4 pt-4">{children}</main>
+          <BottomNav />
+          <ReminderPrompt />
+          <AchievementToastHost />
+          <PremiumSuccessHost />
+          <RatingPrompt />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
