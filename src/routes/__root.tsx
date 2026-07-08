@@ -82,6 +82,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         async: true,
         crossOrigin: "anonymous",
       },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "SweatReel",
+              url: "https://sweat-reel.lovable.app",
+              logo: "https://sweat-reel.lovable.app/favicon.ico",
+            },
+            {
+              "@type": "WebSite",
+              name: "SweatReel",
+              url: "https://sweat-reel.lovable.app",
+            },
+          ],
+        }),
+      },
     ];
     return ({
     meta: [
