@@ -339,7 +339,7 @@ function PlansPage() {
                   >
                     <img
                       src={e.workout.thumbnail_url}
-                      alt=""
+                      alt={e.workout.title}
                       className="w-[60px] h-[60px] rounded-xl object-cover"
                     />
                     <div className="min-w-0 flex-1">
@@ -429,7 +429,7 @@ function PlansPage() {
                     >
                       <img
                         src={w.thumbnail_url}
-                        alt=""
+                        alt={w.title}
                         className="w-[52px] h-[52px] rounded-xl object-cover"
                       />
                       <div className="min-w-0 flex-1">

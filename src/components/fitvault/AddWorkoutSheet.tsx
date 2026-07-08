@@ -343,7 +343,7 @@ export function AddWorkoutSheet({
                   {thumbUrl && !thumbBroken ? (
                     <img
                       src={thumbUrl}
-                      alt=""
+                      alt={title.trim() || "Workout preview"}
                       onError={() => setThumbBroken(true)}
                       className="w-full h-full object-cover"
                     />

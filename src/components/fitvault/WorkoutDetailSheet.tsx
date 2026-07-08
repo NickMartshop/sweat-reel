@@ -149,7 +149,7 @@ export function WorkoutDetailSheet({
             <div className="relative w-full aspect-video bg-[#252535]">
               <img
                 src={workout.thumbnail_url}
-                alt={workout.title}
+                alt={`${workout.title} workout thumbnail`}
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-black/20" />
