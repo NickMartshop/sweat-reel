@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return (
       <>
         <OfflineBanner online={online} />
-        <div
+        <main
           className="min-h-screen w-full bg-background"
           style={{ paddingTop: offsetTop }}
         />
@@ -101,7 +101,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return (
       <>
         <OfflineBanner online={online} />
-        <div style={{ paddingTop: offsetTop }}>
+        <main style={{ paddingTop: offsetTop }}>
           <Onboarding
             onDone={(goal) => {
               if (goal) {
@@ -113,7 +113,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               authStore.completeOnboarding();
             }}
           />
-        </div>
+        </main>
         <ToastHost />
       </>
     );
@@ -123,9 +123,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     return (
       <>
         <OfflineBanner online={online} />
-        <div style={{ paddingTop: offsetTop }}>
+        <main style={{ paddingTop: offsetTop }}>
           <AuthScreen />
-        </div>
+        </main>
         <ToastHost />
       </>
     );
