@@ -10,29 +10,82 @@ import {
   type GearProduct,
 } from "@/lib/gear-catalog";
 
+function parsePrice(price: string) {
+  const match = price.match(/₹([\d,]+)/);
+  if (!match) return { price: "", currency: "INR" };
+  return { price: match[1].replace(/,/g, ""), currency: "INR" };
+}
+
+function parseReviews(reviews: string) {
+  const num = parseFloat(reviews.replace(/k/, ""));
+  if (reviews.includes("k")) return Math.round(num * 1000);
+  return parseInt(reviews, 10) || 0;
+}
+
 export const Route = createFileRoute("/gear")({
-  head: () => ({
-    meta: [
-      { title: "SweatReel — Gear" },
-      {
-        name: "description",
-        content:
-          "Fitness gear our community trains with — resistance bands, weights, protein, yoga mats and recovery tools.",
+  head: () => {
+    const productItems = GEAR_PRODUCTS.map((p) => {
+      const { price, currency } = parsePrice(p.price);
+      return {
+        "@type": "Product" as const,
+        name: p.name,
+        description: p.subtitle,
+        offers: {
+          "@type": "Offer" as const,
+          price,
+          priceCurrency: currency,
+          availability: "https://schema.org/InStock",
+          url: p.affiliateUrl,
+        },
+        aggregateRating: {
+          "@type": "AggregateRating" as const,
+          ratingValue: String(p.rating),
+          reviewCount: String(parseReviews(p.reviews)),
+        },
+      };
+    });
+
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Fitness Gear — SweatReel",
+      url: "https://sweat-reel.lovable.app/gear",
+      description: "Handpicked fitness gear our community trains with.",
+      mainEntity: {
+        "@type": "ItemList",
+        itemListElement: productItems,
       },
-      { property: "og:title", content: "Fitness Gear — SweatReel" },
-      {
-        property: "og:description",
-        content: "Handpicked fitness gear our community trains with.",
-      },
-      { property: "og:url", content: "https://sweat-reel.lovable.app/gear" },
-      { name: "twitter:title", content: "Fitness Gear — SweatReel" },
-      {
-        name: "twitter:description",
-        content: "Handpicked fitness gear our community trains with.",
-      },
-    ],
-    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/gear" }],
-  }),
+    };
+
+    return {
+      meta: [
+        { title: "SweatReel — Gear" },
+        {
+          name: "description",
+          content:
+            "Fitness gear our community trains with — resistance bands, weights, protein, yoga mats and recovery tools.",
+        },
+        { property: "og:title", content: "Fitness Gear — SweatReel" },
+        {
+          property: "og:description",
+          content: "Handpicked fitness gear our community trains with.",
+        },
+        { property: "og:url", content: "https://sweat-reel.lovable.app/gear" },
+        { name: "twitter:title", content: "Fitness Gear — SweatReel" },
+        {
+          name: "twitter:description",
+          content: "Handpicked fitness gear our community trains with.",
+        },
+      ],
+      links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/gear" }],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify(structuredData),
+        },
+      ] as any,
+    };
+  },
   component: GearPage,
 });
 
