@@ -18,7 +18,7 @@ export function WorkoutCard({
       <div className="relative aspect-video bg-[#252535]">
         <img
           src={workout.thumbnail_url}
-          alt={workout.title}
+          alt={`${workout.title} workout thumbnail`}
           loading="lazy"
           className="w-full h-full object-cover"
         />
