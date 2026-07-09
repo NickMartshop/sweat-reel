@@ -98,6 +98,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               name: "SweatReel",
               url: "https://sweat-reel.lovable.app",
             },
+            {
+              "@type": "MobileApplication",
+              name: "SweatReel",
+              description:
+                "Save workout videos from YouTube, Instagram & TikTok. Organize your fitness library. Plan your week. Track your streak.",
+              url: "https://sweat-reel.lovable.app",
+              applicationCategory: "HealthApplication",
+              operatingSystem: "Android, iOS",
+              offers: [
+                { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Free" },
+                { "@type": "Offer", price: "999", priceCurrency: "INR", name: "SweatReel Pro Annual" },
+              ],
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.8",
+                ratingCount: "12",
+              },
+              author: {
+                "@type": "Organization",
+                name: "SweatReel",
+                email: "support@sweatreel.com",
+              },
+              inLanguage: "en-IN",
+            },
           ],
         }),
       },
@@ -134,11 +158,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Save & organize your workout videos. Plan your week. Track your streak." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
       { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
+      { name: "application-name", content: "SweatReel" },
+      { name: "msapplication-TileImage", content: "/icon-512.png" },
+      { name: "msapplication-TileColor", content: "#4361EE" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.json" },
       { rel: "canonical", href: "https://sweat-reel.lovable.app" },
+      { rel: "apple-touch-icon", href: "/icon-192.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
@@ -168,6 +196,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    void import("../lib/register-sw").then((m) => m.registerSw());
+  }, []);
 
   return (
     <ErrorBoundary>

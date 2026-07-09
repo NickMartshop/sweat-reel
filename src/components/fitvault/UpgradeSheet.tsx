@@ -100,6 +100,10 @@ export function UpgradeSheet({ open, onClose, trigger = "manual" }: Props) {
       toast.error("Payment library didn't load. Check your internet.");
       return;
     }
+    if (!import.meta.env.VITE_RAZORPAY_KEY_ID) {
+      toast.error("Payments not configured. Email support@sweatreel.com");
+      return;
+    }
 
     const planLabel =
       cycle === "annual" ? "SweatReel Pro Annual" : "SweatReel Pro Monthly";

@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { toast } from "./Toast";
 
-function initialOnline() {
-  if (typeof navigator === "undefined") return true;
-  return navigator.onLine;
-}
-
 export function useOnline() {
-  const [online, setOnline] = useState<boolean>(initialOnline());
+  // Start as online on both SSR and first client render to keep HTML
+  // stable; flip to offline only after mount to avoid hydration mismatch.
+  const [online, setOnline] = useState<boolean>(true);
   useEffect(() => {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      setOnline(false);
+    }
     const handleOnline = () => {
       setOnline(true);
       toast.success("Back online ✅");
