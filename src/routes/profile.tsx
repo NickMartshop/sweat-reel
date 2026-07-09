@@ -353,6 +353,21 @@ function ProfilePage() {
         </h2>
         <div className="mt-2 rounded-2xl overflow-hidden border border-border flex flex-col gap-[2px] bg-border">
           <Row icon={<Lock size={18} />} label="App Version" right={<span className="text-[12px] text-text-secondary">v1.0.0</span>} />
+          {import.meta.env.DEV && (
+            <Row
+              icon={<Lock size={18} />}
+              label="Test Payment Config"
+              onClick={() => {
+                const keyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+                const hasScript =
+                  typeof window !== "undefined" && !!window.Razorpay;
+                toast.info(
+                  `Key: ${keyId ? "✅ " + keyId.slice(0, 12) + "…" : "❌ missing"} · Script: ${hasScript ? "✅" : "❌"}`,
+                );
+              }}
+              right={<ChevronRight size={16} className="text-text-secondary" />}
+            />
+          )}
           <Link to="/terms" className="block">
             <Row icon={<Lock size={18} />} label="Terms of Service" right={<ChevronRight size={16} className="text-text-secondary" />} />
           </Link>
