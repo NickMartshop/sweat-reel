@@ -98,6 +98,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               name: "SweatReel",
               url: "https://sweat-reel.lovable.app",
             },
+            {
+              "@type": "MobileApplication",
+              name: "SweatReel",
+              description:
+                "Save workout videos from YouTube, Instagram & TikTok. Organize your fitness library. Plan your week. Track your streak.",
+              url: "https://sweat-reel.lovable.app",
+              applicationCategory: "HealthApplication",
+              operatingSystem: "Android, iOS",
+              offers: [
+                { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Free" },
+                { "@type": "Offer", price: "999", priceCurrency: "INR", name: "SweatReel Pro Annual" },
+              ],
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: "4.8",
+                ratingCount: "12",
+              },
+              author: {
+                "@type": "Organization",
+                name: "SweatReel",
+                email: "support@sweatreel.com",
+              },
+              inLanguage: "en-IN",
+            },
           ],
         }),
       },
