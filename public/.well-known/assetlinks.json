@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.sweat_reel.twa",
+    "sha256_cert_fingerprints": [
+      "30:F4:69:79:38:59:75:A4:FB:8B:28:D9:D9:29:FA:A3:6C:FC:8C:53:7F:1F:F6:36:C3:02:65:17:9C:F9:06:10"
+    ]
+  }
+}]
