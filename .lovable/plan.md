@@ -1,41 +1,25 @@
-## Goal
-Integrate Progressier (manifest + script + service worker) into SweatReel, using the exact URLs provided.
+## Context / conflict to resolve first
 
-## Changes
+Two things about your request don't fit this project as-is:
 
-### 1. `src/routes/__root.tsx` (replaces the missing `index.html`)
-TanStack Start has no `index.html` — head tags live in the route `head()`. In the existing `head()`:
+1. **There is no `index.html`.** This app is TanStack Start (SSR). Head tags and scripts are declared in `src/routes/__root.tsx` via the `head()` function, and SW registration runs from `src/lib/register-sw.ts` (called in a `useEffect` in the root component). Any registration must go there — not into an HTML file.
+2. **Progressier currently owns the service worker.** In the last change we intentionally switched the manifest and SW to Progressier (`https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/sw.js`), and `register-sw.ts` was rewritten to *unregister* any `/sw.js` so Progressier's worker has sole control of scope `/`. Registering `/sw.js` again will race Progressier for the same scope, which typically ends with one worker overwriting the other and stale caches on returning users.
 
-- **Comment out** the current manifest link so it doesn't conflict with Progressier's:
-  - `// { rel: "manifest", href: "/manifest.json" }, // disabled: replaced by Progressier`
-- **Add** the Progressier manifest link:
-  - `{ rel: "manifest", href: "https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/progressier.json" }`
-- **Add** the Progressier script into the existing `scripts` array:
-  - `{ src: "https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/script.js", defer: true }`
+Only one service worker can own scope `/`. So I need you to pick before I implement.
 
-No other Progressier IDs exist in the codebase, so nothing else needs updating (Rule 1 satisfied). Only one existing manifest exists (`/manifest.json`) — commented out per Rule 2. URLs used verbatim per Rule 3.
+## Options
 
-### 2. `public/progressier.js` (new)
-Single line, exactly:
-```
-importScripts("https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/sw.js")
-```
+**A. Keep Progressier, ignore this instruction.** Do nothing. Progressier's SW stays active, offline/install continues to work through Progressier. Recommended if you're happy with Progressier.
 
-### 3. Existing service worker (`public/sw.js` + `src/lib/register-sw.ts`)
-Progressier's own script auto-registers `progressier.js` as the service worker. Our existing `sw.js` registration would compete for the same scope (`/`) and cause conflicts.
+**B. Drop Progressier, use our own `/sw.js` (what this message literally asks).** Then I will:
+- Remove the Progressier `<script>` from the `scripts` array in `src/routes/__root.tsx`.
+- Remove the Progressier `<link rel="manifest">` and re-enable `{ rel: "manifest", href: "/manifest.json" }`.
+- Rewrite `src/lib/register-sw.ts` to actually register `/sw.js` (scope `/`) on `window` load, keeping the existing guards so it does **not** register in dev, in iframes, on `id-preview--*` / `preview--*` / `*.lovableproject.com` / `*.lovableproject-dev.com` / `*.beta.lovable.dev`, or when `?sw=off` is present. In those refused contexts it will unregister any existing `/sw.js`. (Per Lovable's PWA rules, we can't inject a raw `<script>` that registers in preview.)
+- Add a same-path kill-switch step so Progressier's previously-installed worker gets replaced cleanly for returning visitors (unregister any active SW whose scriptURL is on `progressier.app` on first load in production).
+- Verify `public/manifest.json` — the icons already reference `/icon-192.png` and `/icon-512.png` with `"type": "image/png"`, so no change needed there. I'll just confirm.
 
-- Stop calling `registerSw()` from `RootComponent` in `__root.tsx` (remove the `useEffect` that imports `register-sw`).
-- Leave `public/sw.js` in place but make `register-sw.ts` proactively **unregister** any existing `/sw.js` on load (it already has an `unregisterExisting` helper) — this cleans up returning users who installed the old worker. Actually simpler: replace the effect with a one-time unregister-only call.
+**C. Hybrid (not recommended).** Keep Progressier's manifest but also register `/sw.js`. Two SWs will fight for scope `/`; expect stale-cache and update bugs. I'd only do this if you insist.
 
-This ensures Progressier's SW is the only one active.
+## Which do you want?
 
-## Explicitly NOT doing
-- Not editing `index.html` (doesn't exist in TanStack Start).
-- Not modifying the Progressier URLs, IDs, or file contents.
-- Not deleting `public/manifest.json` or `public/sw.js` — just disconnecting them.
-
-## Verify
-- Build passes.
-- `/progressier.js` fetches and returns the `importScripts(...)` line.
-- Head contains the Progressier manifest link and script tag; old manifest link is commented out.
-- In production, only the Progressier service worker is registered.
+If you confirm **B**, I'll implement exactly the file changes above in one pass and leave everything else untouched. If **A**, no code change — I'll just close this out.
