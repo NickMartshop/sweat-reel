@@ -168,7 +168,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "manifest", href: "/manifest.json" },
+      // { rel: "manifest", href: "/manifest.json" }, // Replaced by Progressier manifest below
+      { rel: "manifest", href: "https://progressier.app/y6aoSzd2PvHcOUlczvbM/progressier.json" },
+
+
 
       { rel: "canonical", href: "https://sweat-reel.lovable.app" },
       { rel: "apple-touch-icon", href: "/icon-192.png" },
