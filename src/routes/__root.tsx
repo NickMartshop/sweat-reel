@@ -82,6 +82,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         async: true,
         crossOrigin: "anonymous",
       },
+      { src: "https://progressier.app/y6aoSzd2PvHcOUlczvbM/script.js", defer: true },
+      
       
 
       {
