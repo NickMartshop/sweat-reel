@@ -1,109 +1,47 @@
-const CACHE_NAME = 'sweatreel-v1.0.0';
+// This is the "Offline page" service worker
 
-const STATIC_ASSETS = [
-  '/',
-  '/manifest.json',
-];
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-// Install: cache static assets
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
+const CACHE = "pwabuilder-page";
+
+// TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
+const offlineFallbackPage = "ToDo-replace-this-name.html";
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+self.addEventListener('install', async (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return Promise.allSettled(
-        STATIC_ASSETS.map(url => cache.add(url).catch(() => null))
-      );
-    })
+    caches.open(CACHE)
+      .then((cache) => cache.add(offlineFallbackPage))
   );
 });
 
-// Activate: clean old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      );
-    }).then(() => self.clients.claim())
-  );
-});
+if (workbox.navigationPreload.isSupported()) {
+  workbox.navigationPreload.enable();
+}
 
-// Fetch: network-first for API calls, cache-first for assets
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // Never intercept: Supabase, Razorpay, Gemini, external APIs
-  const skipDomains = [
-    'supabase.co',
-    'razorpay.com',
-    'googleapis.com',
-    'googlesyndication.com',
-    'amazon.in',
-    'amzn.to',
-    'a.co',
-  ];
-
-  if (skipDomains.some(domain => url.hostname.includes(domain))) {
-    return; // Let these pass through normally
-  }
-
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
-
-  // For navigation (HTML pages): network-first, fallback to cache
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, cloned);
-          });
-          return response;
-        })
-        .catch(() => caches.match('/'))
-    );
-    return;
+    event.respondWith((async () => {
+      try {
+        const preloadResp = await event.preloadResponse;
+
+        if (preloadResp) {
+          return preloadResp;
+        }
+
+        const networkResp = await fetch(event.request);
+        return networkResp;
+      } catch (error) {
+
+        const cache = await caches.open(CACHE);
+        const cachedResp = await cache.match(offlineFallbackPage);
+        return cachedResp;
+      }
+    })());
   }
-
-  // For static assets (JS, CSS, images): cache-first
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200) return response;
-
-        const cloned = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, cloned);
-        });
-        return response;
-      }).catch(() => null);
-    })
-  );
-});
-
-// Push notifications handler
-self.addEventListener('push', (event) => {
-  const data = event.data
-    ? event.data.json()
-    : { title: 'SweatReel', body: "Time to train! 💪" };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
-      vibrate: [100, 50, 100],
-      tag: 'sweatreel-notification',
-      renotify: true,
-    })
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  event.waitUntil(clients.openWindow('/'));
 });
