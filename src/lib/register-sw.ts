@@ -32,30 +32,8 @@ async function unregisterExisting() {
 
 export function registerSw() {
   if (typeof window === "undefined") return;
-  if (!("serviceWorker" in navigator)) return;
-
-  const inIframe = window.self !== window.top;
-  const url = new URL(window.location.href);
-  const swOff = url.searchParams.get("sw") === "off";
-  const hostname = window.location.hostname;
-  const preview = isPreviewHost(hostname);
-  const isProd = import.meta.env.PROD;
-
-  if (!isProd || inIframe || preview || swOff) {
-    void unregisterExisting();
-    return;
-  }
-
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/sw.js", { scope: "/" })
-      .then((reg) => {
-        // eslint-disable-next-line no-console
-        console.log("SweatReel SW registered:", reg.scope);
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.log("SW registration failed:", err);
-      });
-  });
+  // Progressier owns the service worker now. Unconditionally remove any
+  // legacy /sw.js registration so it doesn't compete for scope "/".
+  void unregisterExisting();
 }
+

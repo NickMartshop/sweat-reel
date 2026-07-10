@@ -202,8 +202,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    // Progressier registers its own SW; ensure our legacy /sw.js is removed.
     void import("../lib/register-sw").then((m) => m.registerSw());
   }, []);
+
 
   return (
     <ErrorBoundary>
