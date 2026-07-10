@@ -1,0 +1,27 @@
+{
+  "rewrites": [
+    {
+      "source": "/((?!api|_next|sw\\.js|manifest\\.json|icon.*|screenshot.*|robots\\.txt|sitemap\\.xml|\\.well-known).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
+      ]
+    }
+  ]
+}
