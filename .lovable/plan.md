@@ -1,36 +1,41 @@
 ## Goal
-Make SweatReel score well on PWABuilder / packageable as an Android APK, adapted to this stack (TanStack Start on Cloudflare via Lovable — no `index.html`, no Vercel).
+Integrate Progressier (manifest + script + service worker) into SweatReel, using the exact URLs provided.
 
 ## Changes
 
-### 1. `public/manifest.json`
-Replace verbatim with the JSON you provided (adds `scope`, `id`, moves start_url to `?utm_source=pwa&utm_medium=homescreen`, adds shortcut descriptions, splits maskable into its own icon entry).
+### 1. `src/routes/__root.tsx` (replaces the missing `index.html`)
+TanStack Start has no `index.html` — head tags live in the route `head()`. In the existing `head()`:
 
-### 2. Service worker (preview-safe)
-- Add `public/sw.js` with your exact contents.
-- Add `src/lib/register-sw.ts` — guarded wrapper that only registers when: `import.meta.env.PROD`, not in an iframe, hostname is not `id-preview--*` / `preview--*` / `*.lovableproject.com` / `*.lovableproject-dev.com` / `*.beta.lovable.dev`, and no `?sw=off`. In any refused context, unregister `/sw.js` if present. This prevents SW from breaking the Lovable editor iframe.
-- Call `registerSw()` from a `useEffect` in `RootComponent` (`src/routes/__root.tsx`).
+- **Comment out** the current manifest link so it doesn't conflict with Progressier's:
+  - `// { rel: "manifest", href: "/manifest.json" }, // disabled: replaced by Progressier`
+- **Add** the Progressier manifest link:
+  - `{ rel: "manifest", href: "https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/progressier.json" }`
+- **Add** the Progressier script into the existing `scripts` array:
+  - `{ src: "https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/script.js", defer: true }`
 
-### 3. Head metadata in `src/routes/__root.tsx`
-Extend the existing `head()` (do not add a second mechanism):
-- Meta: `application-name`, `apple-mobile-web-app-title`, `msapplication-TileImage`, `msapplication-TileColor`. (`apple-mobile-web-app-capable` + status-bar-style already present.)
-- Links: `apple-touch-icon` → `/icon-192.png`.
-- Add a `MobileApplication` JSON-LD script alongside the existing Organization/WebSite graph (single JSON-LD script, extend the `@graph`). Uses `sweat-reel.lovable.app` (our real domain), not vercel.app.
+No other Progressier IDs exist in the codebase, so nothing else needs updating (Rule 1 satisfied). Only one existing manifest exists (`/manifest.json`) — commented out per Rule 2. URLs used verbatim per Rule 3.
 
-### 4. Razorpay guard + dev-only debug row
-- In `UpgradeSheet.tsx`, before `new window.Razorpay(...)`: if `import.meta.env.VITE_RAZORPAY_KEY_ID` is falsy or `"undefined"`, toast `"Payment temporarily unavailable. Please try later."` and return. (Server function still owns the real `keyId`; this only prevents opening checkout when misconfigured.)
-- In `src/routes/profile.tsx`, add a "Test Payment Config" settings row visible only when `import.meta.env.DEV`; onClick logs `Razorpay key configured: <boolean>`.
+### 2. `public/progressier.js` (new)
+Single line, exactly:
+```
+importScripts("https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/sw.js")
+```
 
-### 5. Runtime hydration fix (quiet)
-`OfflineBanner` currently renders a `fixed` div at SSR that clashes with the `<main>` server HTML. Guard it with `useHydrated()` (or return `null` until mounted) so SSR and client agree.
+### 3. Existing service worker (`public/sw.js` + `src/lib/register-sw.ts`)
+Progressier's own script auto-registers `progressier.js` as the service worker. Our existing `sw.js` registration would compete for the same scope (`/`) and cause conflicts.
 
-## Explicitly NOT doing (would break the stack)
-- **No `index.html` edits** — doesn't exist. Meta/JSON-LD/SW registration go through `__root.tsx` per TanStack Start.
-- **No `vercel.json`** — app deploys on Cloudflare Workers via Lovable, not Vercel. Headers already set via CSP meta in `__root.tsx`; SPA rewrites unnecessary (file-based router handles it).
-- **No overwrite of `public/robots.txt` or `public/sitemap.xml`** — current versions correctly point to `sweat-reel.lovable.app` and already list more routes (`/plans`, `/profile`, `/progress`, `/gear`, `/mcp`, etc.). Replacing them with your `vercel.app` 3-URL versions would be a regression. Domain in your prompt (`sweat-reel.vercel.app`) is not this project's URL.
+- Stop calling `registerSw()` from `RootComponent` in `__root.tsx` (remove the `useEffect` that imports `register-sw`).
+- Leave `public/sw.js` in place but make `register-sw.ts` proactively **unregister** any existing `/sw.js` on load (it already has an `unregisterExisting` helper) — this cleans up returning users who installed the old worker. Actually simpler: replace the effect with a one-time unregister-only call.
+
+This ensures Progressier's SW is the only one active.
+
+## Explicitly NOT doing
+- Not editing `index.html` (doesn't exist in TanStack Start).
+- Not modifying the Progressier URLs, IDs, or file contents.
+- Not deleting `public/manifest.json` or `public/sw.js` — just disconnecting them.
 
 ## Verify
 - Build passes.
-- `/sw.js` and `/manifest.json` fetch successfully.
-- Hydration error gone on `/`.
-- PWABuilder against `https://sweat-reel.lovable.app` shows improved manifest/SW score.
+- `/progressier.js` fetches and returns the `importScripts(...)` line.
+- Head contains the Progressier manifest link and script tag; old manifest link is commented out.
+- In production, only the Progressier service worker is registered.
