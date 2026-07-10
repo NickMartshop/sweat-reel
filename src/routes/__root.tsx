@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         async: true,
         crossOrigin: "anonymous",
       },
-      { src: "https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/script.js", defer: true },
+      
 
       {
         type: "application/ld+json",
@@ -166,8 +166,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      // { rel: "manifest", href: "/manifest.json" }, // disabled: replaced by Progressier
-      { rel: "manifest", href: "https://progressier.app/OL1ZjHYBZsZRj3uaEoiZ/progressier.json" },
+      { rel: "manifest", href: "/manifest.json" },
 
       { rel: "canonical", href: "https://sweat-reel.lovable.app" },
       { rel: "apple-touch-icon", href: "/icon-192.png" },
