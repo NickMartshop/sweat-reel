@@ -1,10 +1,8 @@
 [{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "app.vercel.sweat_reel.twa",
-    "sha256_cert_fingerprints": [
-      "30:F4:69:79:38:59:75:A4:FB:8B:28:D9:D9:29:FA:A3:6C:FC:8C:53:7F:1F:F6:36:C3:02:65:17:9C:F9:06:10"
-    ]
-  }
-}]
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.sweatreel.app",
+        "sha256_cert_fingerprints": ["E2:96:73:73:76:49:42:F3:90:C8:CD:60:59:69:01:B4:67:9C:D0:74:BD:A4:A7:5D:77:11:E2:5B:30:E5:AE:1F"]
+      }
+    }]
