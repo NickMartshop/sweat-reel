@@ -121,7 +121,13 @@ function PrivacyPage() {
                 Download your data: contact{" "}
                 <span className="text-primary">support@sweatreel.com</span>
               </li>
-              <li>Delete your account: Settings → Delete Account</li>
+              <li>
+                Delete your account: Settings → Delete Account (see the{" "}
+                <a href="/delete-account" className="text-primary underline underline-offset-4">
+                  account deletion page
+                </a>
+                )
+              </li>
               <li>Opt out of ads: Upgrade to SweatReel Pro</li>
             </ul>
           </Section>
