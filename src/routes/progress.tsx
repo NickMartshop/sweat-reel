@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Share2, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/fitvault/AppShell";
 import { AchievementsGrid } from "@/components/fitvault/AchievementsGrid";
+import { MonthSummaryCard } from "@/components/fitvault/MonthSummaryCard";
 import { BodyStatsSection } from "@/components/fitvault/BodyStatsSection";
 import { AdBanner } from "@/components/fitvault/AdBanner";
 import { toast } from "@/components/fitvault/Toast";
@@ -98,8 +99,10 @@ function ProgressPage() {
 
   return (
     <AppShell>
+      <MonthSummaryCard />
       <header className="text-center pt-2">
         <h1 className="text-lg font-bold text-white mb-2">My Fitness Progress</h1>
+
 
         <p className="text-5xl">🔥</p>
         <div className="relative inline-block mt-2">
