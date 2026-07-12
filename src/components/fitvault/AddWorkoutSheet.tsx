@@ -445,7 +445,7 @@ export function AddWorkoutSheet({
                 <button
                   onClick={() => setDuration((d) => Math.max(0, d - 5))}
                   className="press-scale h-full w-10 flex items-center justify-center text-text-secondary"
-                  aria-label="Decrease"
+                  aria-label="Decrease duration"
                 >
                   <Minus size={16} />
                 </button>
@@ -455,12 +455,13 @@ export function AddWorkoutSheet({
                   onChange={(e) =>
                     setDuration(Math.max(0, Number(e.target.value) || 0))
                   }
+                  aria-label="Duration in minutes"
                   className="flex-1 min-w-0 bg-transparent text-center text-white text-[14px] font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button
                   onClick={() => setDuration((d) => d + 5)}
                   className="press-scale h-full w-10 flex items-center justify-center text-text-secondary"
-                  aria-label="Increase"
+                  aria-label="Increase duration"
                 >
                   <Plus size={16} />
                 </button>
