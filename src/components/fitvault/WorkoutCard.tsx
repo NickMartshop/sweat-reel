@@ -20,6 +20,7 @@ export function WorkoutCard({
           src={workout.thumbnail_url}
           alt={`${workout.title} workout thumbnail`}
           loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover"
         />
         <div

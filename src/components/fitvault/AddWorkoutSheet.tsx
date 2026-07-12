@@ -64,6 +64,7 @@ export function AddWorkoutSheet({
   const [aiLoading, setAiLoading] = useState(false);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [savedAnim, setSavedAnim] = useState(false);
+  const [lastExtractTime, setLastExtractTime] = useState(0);
   const exId = useRef(1);
 
   const platform = detectPlatform(url);
@@ -153,6 +154,12 @@ export function AddWorkoutSheet({
 
   async function aiExtract() {
     if (aiLoading) return;
+    // Client-side cooldown: 5s between extractions.
+    const now = Date.now();
+    if (now - lastExtractTime < 5000) {
+      toast.info("Please wait 5 seconds between extractions");
+      return;
+    }
     // Free tier: 3 AI extractions total.
     if (!isPremium && aiExtractionsUsed >= 3) {
       onAiLimitReached?.();
@@ -163,6 +170,7 @@ export function AddWorkoutSheet({
       toast.error("Please enter a workout title first");
       return;
     }
+    setLastExtractTime(now);
     setAiLoading(true);
     // Rate limit: block re-taps for 3s to prevent accidental double calls.
     const cooldown = new Promise((r) => setTimeout(r, 3000));
@@ -194,7 +202,8 @@ export function AddWorkoutSheet({
         }
       }
       toast.info("Exercises extracted ✨");
-    } catch {
+    } catch (err: any) {
+      console.error("Supabase error code:", err?.code);
       toast.error("AI couldn't extract exercises. Add them manually.");
     } finally {
       await cooldown;
@@ -251,6 +260,7 @@ export function AddWorkoutSheet({
         onClose();
       }, 400);
     } catch (err: any) {
+      console.error("Supabase error code:", err?.code);
       setSavedAnim(false);
       toast.error(
         err?.message?.includes("network") || err?.message?.includes("fetch")
@@ -305,7 +315,13 @@ export function AddWorkoutSheet({
           </header>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
+          <div
+            className="flex-1 overflow-y-auto px-4 pt-4 pb-32"
+            style={{
+              WebkitOverflowScrolling: "touch",
+              paddingBottom: "env(keyboard-inset-height, 300px)",
+            }}
+          >
             {/* Source */}
             <SectionLabel>Workout Source</SectionLabel>
             <div className="relative mt-2">
@@ -345,6 +361,8 @@ export function AddWorkoutSheet({
                       src={thumbUrl}
                       alt={title.trim() || "Workout preview"}
                       onError={() => setThumbBroken(true)}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                   ) : (

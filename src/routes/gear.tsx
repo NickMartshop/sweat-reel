@@ -117,6 +117,8 @@ function ProductImage({ product }: { product: GearProduct }) {
       src={product.imageUrl}
       alt={product.name}
       onError={() => setImgFailed(true)}
+      loading="lazy"
+      decoding="async"
       style={{
         width: "100%",
         height: 160,

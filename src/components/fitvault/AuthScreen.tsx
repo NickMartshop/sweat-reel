@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +22,9 @@ function friendlyAuthError(msg: string | undefined): string {
   return "Something went wrong. Try again.";
 }
 
+const SIGNUP_WINDOW_MS = 60_000;
+const SIGNUP_MAX = 5;
+
 export function AuthScreen() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("signup");
@@ -33,9 +36,44 @@ export function AuthScreen() {
   const [showConf, setShowConf] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [signUpLocked, setSignUpLocked] = useState(false);
+  const signUpAttempts = useRef<number[]>([]);
+  const unlockTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Read the mode requested from onboarding once on mount.
+  useEffect(() => {
+    try {
+      const m = sessionStorage.getItem("sweatreel_auth_mode");
+      if (m === "signin" || m === "signup") setMode(m);
+      sessionStorage.removeItem("sweatreel_auth_mode");
+    } catch {}
+    return () => {
+      if (unlockTimer.current) clearTimeout(unlockTimer.current);
+    };
+  }, []);
+
+  function registerSignupAttempt(): boolean {
+    const now = Date.now();
+    signUpAttempts.current = signUpAttempts.current.filter(
+      (t) => now - t < SIGNUP_WINDOW_MS,
+    );
+    signUpAttempts.current.push(now);
+    if (signUpAttempts.current.length >= SIGNUP_MAX) {
+      setSignUpLocked(true);
+      toast.show("Too many attempts. Wait 60 seconds.", "error");
+      if (unlockTimer.current) clearTimeout(unlockTimer.current);
+      unlockTimer.current = setTimeout(() => {
+        signUpAttempts.current = [];
+        setSignUpLocked(false);
+      }, SIGNUP_WINDOW_MS);
+      return false;
+    }
+    return true;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === "signup" && signUpLocked) return;
     const errs: Record<string, string> = {};
     if (mode === "signup" && name.trim().length < 2)
       errs.name = "Please enter your name";
@@ -45,6 +83,8 @@ export function AuthScreen() {
       errs.confirm = "Passwords don't match";
     setErrors(errs);
     if (Object.keys(errs).length) return;
+
+    if (mode === "signup" && !registerSignupAttempt()) return;
 
     setSubmitting(true);
     try {
@@ -69,6 +109,7 @@ export function AuthScreen() {
       }
       navigate({ to: "/" });
     } catch (err: any) {
+      console.error("Supabase error code:", err?.code);
       toast.show(friendlyAuthError(err?.message), "error");
     } finally {
       setSubmitting(false);
@@ -78,11 +119,19 @@ export function AuthScreen() {
   const fieldCls =
     "w-full h-[52px] px-4 rounded-xl bg-card border border-border text-[15px] text-white placeholder:text-text-secondary outline-none focus:border-primary transition-colors";
 
+  const submitDisabled =
+    submitting || (mode === "signup" && signUpLocked);
+
   return (
     <div className="min-h-screen w-full bg-background flex justify-center">
       <div
         className="w-full max-w-[430px] px-6 py-10 flex flex-col"
-        style={{ paddingTop: "calc(env(safe-area-inset-top) + 40px)" }}
+        style={{
+          paddingTop: "calc(env(safe-area-inset-top) + 40px)",
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+          paddingBottom: "env(keyboard-inset-height, 300px)",
+        }}
       >
         <div className="flex flex-col items-center">
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
@@ -94,7 +143,23 @@ export function AuthScreen() {
           </p>
         </div>
 
-        <div className="mt-8 grid grid-cols-2 bg-card rounded-[50px] p-1 h-11">
+        {/* Free tier badge */}
+        <div
+          className="mt-6 text-center"
+          style={{
+            background: "rgba(6,214,160,0.1)",
+            border: "1px solid rgba(6,214,160,0.3)",
+            color: "#06D6A0",
+            fontSize: 12,
+            padding: "8px 16px",
+            borderRadius: 8,
+            marginBottom: 16,
+          }}
+        >
+          ✅ Free to use — no credit card needed
+        </div>
+
+        <div className="grid grid-cols-2 bg-card rounded-[50px] p-1 h-11">
           {(["signup", "signin"] as const).map((m) => {
             const active = mode === m;
             return (
@@ -156,6 +221,7 @@ export function AuthScreen() {
               <button
                 type="button"
                 onClick={() => setShowPw((s) => !s)}
+                aria-label={showPw ? "Hide password" : "Show password"}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary p-2"
               >
                 {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -179,6 +245,7 @@ export function AuthScreen() {
                 <button
                   type="button"
                   onClick={() => setShowConf((s) => !s)}
+                  aria-label={showConf ? "Hide password" : "Show password"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary p-2"
                 >
                   {showConf ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -198,23 +265,41 @@ export function AuthScreen() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitDisabled}
             className="press-scale w-full rounded-xl bg-primary text-white font-semibold text-[16px] mt-5 disabled:opacity-60"
             style={{ height: 56 }}
           >
             {submitting
               ? "Please wait…"
-              : mode === "signup"
-                ? "Create Account"
-                : "Sign In"}
+              : mode === "signup" && signUpLocked
+                ? "Locked — wait 60s"
+                : mode === "signup"
+                  ? "Create Account"
+                  : "Sign In"}
           </button>
 
           {mode === "signup" && (
-            <p className="text-[11px] text-text-secondary text-center pt-2">
+            <p
+              className="text-center pt-2"
+              style={{ fontSize: 11, color: "#8888AA" }}
+            >
               By signing up you agree to our{" "}
-              <Link to="/privacy" className="text-primary">
+              <Link
+                to="/privacy"
+                className="px-1"
+                style={{ color: "#4361EE" }}
+              >
                 Privacy Policy
+              </Link>{" "}
+              and{" "}
+              <Link
+                to="/terms"
+                className="px-1"
+                style={{ color: "#4361EE" }}
+              >
+                Terms of Service
               </Link>
+              .
             </p>
           )}
         </form>

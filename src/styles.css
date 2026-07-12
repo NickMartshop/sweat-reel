@@ -53,6 +53,7 @@
 @layer base {
   * {
     border-color: var(--border-color);
+    -webkit-tap-highlight-color: transparent;
   }
   html, body {
     background-color: var(--background);
@@ -62,6 +63,9 @@
   }
   body {
     overscroll-behavior-y: none;
+  }
+  img {
+    content-visibility: auto;
   }
   button, a {
     transition: all 200ms ease;
