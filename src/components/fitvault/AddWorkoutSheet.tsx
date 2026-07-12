@@ -477,6 +477,7 @@ export function AddWorkoutSheet({
               <button
                 onClick={aiExtract}
                 disabled={aiLoading}
+                aria-label="Extract exercises with AI"
                 className="text-[13px] font-semibold text-primary press-scale flex items-center gap-1 disabled:opacity-50"
               >
                 {aiLoading ? (
