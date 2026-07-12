@@ -1,34 +1,34 @@
-## Fix 1 — Canonical duplication
+## Rebuild `/gear` into a full marketplace
 
-There is no `index.html` in this TanStack Start project. The duplicate canonical comes from `src/routes/__root.tsx`, which sets a sitewide `<link rel="canonical" href="https://sweat-reel.lovable.app">`. TanStack Router concatenates `links` without dedup, so every leaf route emits both the root canonical and its own leaf canonical.
+### Files to change
 
-- Remove the canonical link from `src/routes/__root.tsx` (line 176).
-- Leave all leaf canonicals as-is (`/`, `/privacy`, `/terms`, `/delete-account`, `/gear`, `/plans`, `/profile`, `/progress`, `/auth`) — each already emits exactly one self-referencing canonical.
+1. **`src/lib/gear-catalog.ts`** — replace the 6-product array with the full 18-product list. Extend `GearProduct` with:
+   - `mrp: string`
+   - `imageUrl: string` (may be `""`)
+   - `badge: string` (discount, e.g. `"50% OFF"`)
+   
+   Extend `GearCategory` union to add `"Cardio"`. Update `GEAR_CATEGORIES` list to: All, Resistance, Weights, Protein, Yoga, Accessories, Cardio, Recovery (in that order, with emojis per spec).
 
-Note: keeping current domain `sweat-reel.lovable.app` since domain changes are out of scope.
+2. **`src/routes/gear.tsx`** — rebuild the page:
+   - **Header row**: left `🛒 Gear Store` (20/700 white); right static cart badge showing `0` (non-functional, purely visual, `aria-label="Cart"`).
+   - Keep existing amber affiliate-disclosure block unchanged.
+   - **Search bar** (new): controlled input, `aria-label="Search gear"`, placeholder `"Search gear..."`, styled to match Home search (same dark pill, search icon left, clear ✕ button when text present).
+   - **Category pills**: same horizontal scroller, updated categories incl. Cardio.
+   - **Product count line**: `Showing {n} products` (12px, `#8888AA`).
+   - **Filtering**: products filtered by category AND case-insensitive name match on search.
+   - **`ProductImage` subcomponent** exactly per spec: local `useState` for `imgFailed`; renders emoji gradient block (160px) when `imageUrl` empty/failed, else `<img>` with `onError`, `object-fit: contain`, `#1A1A2E` bg, 8px padding, 160px height. Always passes real `alt={product.name}`.
+   - **Product card redesign** per spec:
+     - 160px image area via `ProductImage`
+     - Top-right: existing `tag` pill (white bg, tagColor text)
+     - Top-left: `badge` discount pill (`#EF476F` bg, white text, radius `0 0 8px 0`)
+     - Info block: name (14/600, 2-line clamp), subtitle (11px muted, 1-line ellipsis), price row with strikethrough MRP + sale price side-by-side, rating row (⭐ rating + `(reviews reviews)`), Amazon button (unchanged style, 38px, `#FF9900` on `#000`).
+   - **Empty state**: keep current "No {category} gear" but also handle search-only misses ("No results for '{query}'").
+   - **Bottom CTA section** (new): 1px `#252535` divider, centered `"Want a specific product?"` (14/white), outlined button (`#FF9900` border + text, 44px, full width, `aria-label="Search Amazon India"`) opening `https://www.amazon.in/s?k=fitness+equipment&tag=nickinfotech-21` via existing `window.open` pattern with toast.
+   - Update the JSON-LD `productItems` to reflect all 18 products (already dynamic — will scale automatically since it maps `GEAR_PRODUCTS`).
+   - Keep the `head()` metadata otherwise unchanged.
 
-## Fix 2 — Accessible names on unlabeled inputs / icon-only controls
-
-Add `aria-label` to interactive elements that currently have no accessible name:
-
-**`src/routes/index.tsx`**
-- Search input (line 268): add `aria-label="Search your workouts"`.
-
-**`src/components/fitvault/AddWorkoutSheet.tsx`**
-- Duration number input (line 452): `aria-label="Duration in minutes"`.
-- Duration steppers (lines 448, 463): change generic `"Decrease"`/`"Increase"` to `"Decrease duration"`/`"Increase duration"`.
-- Per-exercise name input (line 520): `aria-label="Exercise name"`.
-- Per-exercise sets input (line 533): `aria-label="Sets"`.
-- Per-exercise reps input (line 546): `aria-label="Reps"`.
-- AI Extract button (line 476): `aria-label="Extract exercises with AI"`.
-- Per-exercise delete button (line 559): change `"Delete"` to `"Remove exercise"`.
-
-**`src/components/fitvault/BodyStatsSection.tsx`**
-- Weight input (line 160): `aria-label="Weight in kilograms"`.
-- Body-fat input (line 183): `aria-label="Body fat percentage"`.
-- Notes input: `aria-label="Notes"`.
-- Weight steppers: change `"Decrease"`/`"Increase"` to `"Decrease weight"`/`"Increase weight"`.
-
-**Audit sweep** for any remaining icon-only `<button>` (X close, three-dot menu, sparkle) across `src/components/fitvault/*` and `src/routes/*` that lacks `aria-label`; add a descriptive one. Skip anything already labeled.
-
-No other changes.
+### Out of scope
+- No real Amazon image URLs added — every `imageUrl` stays `""`, comment block in the catalog file explains how to fill them in later.
+- Cart badge is display-only (no cart logic).
+- No changes to any other routes, monetization, or auth code.
+- No design-token changes; keep inline color hex values consistent with the existing gear file.
