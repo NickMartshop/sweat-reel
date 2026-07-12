@@ -529,6 +529,7 @@ export function AddWorkoutSheet({
                       )
                     }
                     placeholder="Exercise"
+                    aria-label="Exercise name"
                     className="min-w-0 flex-1 bg-transparent text-[13px] text-white placeholder:text-text-secondary outline-none"
                   />
                   <span className="text-text-secondary text-[12px]">×</span>
@@ -542,6 +543,7 @@ export function AddWorkoutSheet({
                         ),
                       )
                     }
+                    aria-label="Sets"
                     className="w-9 bg-[#252535] rounded text-center text-[12px] text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-[11px] text-text-secondary">sets</span>
@@ -555,6 +557,7 @@ export function AddWorkoutSheet({
                         ),
                       )
                     }
+                    aria-label="Reps"
                     className="w-9 bg-[#252535] rounded text-center text-[12px] text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-[11px] text-text-secondary">reps</span>
