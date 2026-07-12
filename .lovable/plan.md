@@ -1,30 +1,34 @@
-## Add `/delete-account` public page (Play Store compliance)
+## Fix 1 — Canonical duplication
 
-Create a new public TanStack route that documents how users delete their SweatReel account and data. No auth, no redirects, indexable.
+There is no `index.html` in this TanStack Start project. The duplicate canonical comes from `src/routes/__root.tsx`, which sets a sitewide `<link rel="canonical" href="https://sweat-reel.lovable.app">`. TanStack Router concatenates `links` without dedup, so every leaf route emits both the root canonical and its own leaf canonical.
 
-### Files
+- Remove the canonical link from `src/routes/__root.tsx` (line 176).
+- Leave all leaf canonicals as-is (`/`, `/privacy`, `/terms`, `/delete-account`, `/gear`, `/plans`, `/profile`, `/progress`, `/auth`) — each already emits exactly one self-referencing canonical.
 
-1. **`src/routes/delete-account.tsx`** (new)
-   - `createFileRoute("/delete-account")` with full `head()`:
-     - `title`: "Delete Your SweatReel Account"
-     - `description`: "Permanently delete your SweatReel account and personal data. Step-by-step instructions and support contact."
-     - matching `og:title`, `og:description`, `og:url`, `og:type=website`, `twitter:card`
-     - `link rel="canonical"` → `https://sweat-reel.lovable.app/delete-account`
-     - `robots: index, follow`
-   - Component: dark-themed, mobile-first, matches existing `privacy.tsx` / `terms.tsx` styling (bg-background, text tokens, max-w container, semantic `<main>`, single `<h1>`, `<h2>` sections).
-   - Sections:
-     1. Intro paragraph
-     2. **How to delete your account** — ordered list (Open app → Profile → Settings → Delete Account → Confirm)
-     3. **Can't access your account?** — mailto link to `support@sweatreel.com`
-     4. **What gets deleted** — bullet list (account info, saved plans, saved videos, profile, user-generated data)
-     5. **Data retention** — note that legally-required data is retained only for the minimum required period
-     6. Footer links: Privacy Policy (`/privacy`), Terms (`/terms`), Home (`/`) using `<Link>`
+Note: keeping current domain `sweat-reel.lovable.app` since domain changes are out of scope.
 
-2. **`src/routes/sitemap[.]xml.ts`** — add `/delete-account` entry (weekly, priority 0.5).
+## Fix 2 — Accessible names on unlabeled inputs / icon-only controls
 
-3. **`src/routes/privacy.tsx`** — add a small link to `/delete-account` in the account/data section (helps discoverability + Play Store review).
+Add `aria-label` to interactive elements that currently have no accessible name:
 
-### Notes
-- Uses project domain `sweat-reel.lovable.app` for canonical/og:url (per project head-meta rules). The user's referenced `sweatreel.com` isn't a configured custom domain; canonical will resolve correctly once it is.
-- No `og:image` — leaves hosting default in place.
-- Verification: after build, `curl -I /delete-account` → 200; sitemap contains the new URL.
+**`src/routes/index.tsx`**
+- Search input (line 268): add `aria-label="Search your workouts"`.
+
+**`src/components/fitvault/AddWorkoutSheet.tsx`**
+- Duration number input (line 452): `aria-label="Duration in minutes"`.
+- Duration steppers (lines 448, 463): change generic `"Decrease"`/`"Increase"` to `"Decrease duration"`/`"Increase duration"`.
+- Per-exercise name input (line 520): `aria-label="Exercise name"`.
+- Per-exercise sets input (line 533): `aria-label="Sets"`.
+- Per-exercise reps input (line 546): `aria-label="Reps"`.
+- AI Extract button (line 476): `aria-label="Extract exercises with AI"`.
+- Per-exercise delete button (line 559): change `"Delete"` to `"Remove exercise"`.
+
+**`src/components/fitvault/BodyStatsSection.tsx`**
+- Weight input (line 160): `aria-label="Weight in kilograms"`.
+- Body-fat input (line 183): `aria-label="Body fat percentage"`.
+- Notes input: `aria-label="Notes"`.
+- Weight steppers: change `"Decrease"`/`"Increase"` to `"Decrease weight"`/`"Increase weight"`.
+
+**Audit sweep** for any remaining icon-only `<button>` (X close, three-dot menu, sparkle) across `src/components/fitvault/*` and `src/routes/*` that lacks `aria-label`; add a descriptive one. Skip anything already labeled.
+
+No other changes.
