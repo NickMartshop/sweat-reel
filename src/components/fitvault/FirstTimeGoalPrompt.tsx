@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { profileStore, type FitnessGoal } from "@/lib/profile-store";
+import { profileStore, useProfile, type FitnessGoal } from "@/lib/profile-store";
 import { useAuth } from "@/lib/auth-store";
-import { useProfile } from "@/lib/profile-store";
 
 const KEY = "sweatreel_goal_asked";
 
