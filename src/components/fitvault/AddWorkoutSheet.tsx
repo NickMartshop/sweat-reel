@@ -445,7 +445,7 @@ export function AddWorkoutSheet({
                 <button
                   onClick={() => setDuration((d) => Math.max(0, d - 5))}
                   className="press-scale h-full w-10 flex items-center justify-center text-text-secondary"
-                  aria-label="Decrease"
+                  aria-label="Decrease duration"
                 >
                   <Minus size={16} />
                 </button>
@@ -455,12 +455,13 @@ export function AddWorkoutSheet({
                   onChange={(e) =>
                     setDuration(Math.max(0, Number(e.target.value) || 0))
                   }
+                  aria-label="Duration in minutes"
                   className="flex-1 min-w-0 bg-transparent text-center text-white text-[14px] font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button
                   onClick={() => setDuration((d) => d + 5)}
                   className="press-scale h-full w-10 flex items-center justify-center text-text-secondary"
-                  aria-label="Increase"
+                  aria-label="Increase duration"
                 >
                   <Plus size={16} />
                 </button>
@@ -476,6 +477,7 @@ export function AddWorkoutSheet({
               <button
                 onClick={aiExtract}
                 disabled={aiLoading}
+                aria-label="Extract exercises with AI"
                 className="text-[13px] font-semibold text-primary press-scale flex items-center gap-1 disabled:opacity-50"
               >
                 {aiLoading ? (
@@ -527,6 +529,7 @@ export function AddWorkoutSheet({
                       )
                     }
                     placeholder="Exercise"
+                    aria-label="Exercise name"
                     className="min-w-0 flex-1 bg-transparent text-[13px] text-white placeholder:text-text-secondary outline-none"
                   />
                   <span className="text-text-secondary text-[12px]">×</span>
@@ -540,6 +543,7 @@ export function AddWorkoutSheet({
                         ),
                       )
                     }
+                    aria-label="Sets"
                     className="w-9 bg-[#252535] rounded text-center text-[12px] text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-[11px] text-text-secondary">sets</span>
@@ -553,11 +557,12 @@ export function AddWorkoutSheet({
                         ),
                       )
                     }
+                    aria-label="Reps"
                     className="w-9 bg-[#252535] rounded text-center text-[12px] text-white outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <span className="text-[11px] text-text-secondary">reps</span>
                   <button
-                    aria-label="Delete"
+                    aria-label="Remove exercise"
                     onClick={() =>
                       setExercises((arr) => arr.filter((x) => x.id !== ex.id))
                     }

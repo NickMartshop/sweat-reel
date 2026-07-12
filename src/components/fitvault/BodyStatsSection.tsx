@@ -152,7 +152,7 @@ export function BodyStatsSection() {
                   <button
                     onClick={() => step(-0.5)}
                     className="press-scale w-11 h-11 rounded-xl bg-card border border-border text-white flex items-center justify-center"
-                    aria-label="Decrease"
+                    aria-label="Decrease weight"
                   >
                     <Minus size={18} />
                   </button>
@@ -163,12 +163,13 @@ export function BodyStatsSection() {
                     value={weight}
                     onChange={(e) => setWeight(e.target.value)}
                     placeholder="72.5"
+                    aria-label="Weight in kilograms"
                     className="flex-1 h-11 text-center rounded-xl bg-card border border-border text-white text-[16px] font-semibold outline-none focus:border-primary"
                   />
                   <button
                     onClick={() => step(0.5)}
                     className="press-scale w-11 h-11 rounded-xl bg-card border border-border text-white flex items-center justify-center"
-                    aria-label="Increase"
+                    aria-label="Increase weight"
                   >
                     <PlusIcon size={18} />
                   </button>
@@ -186,6 +187,7 @@ export function BodyStatsSection() {
                   value={bodyFat}
                   onChange={(e) => setBodyFat(e.target.value)}
                   placeholder="18.5"
+                  aria-label="Body fat percentage"
                   className="mt-2 w-full h-11 px-3 rounded-xl bg-card border border-border text-white text-[14px] outline-none focus:border-primary"
                 />
               </div>
@@ -199,6 +201,7 @@ export function BodyStatsSection() {
                   onChange={(e) => setNotes(e.target.value)}
                   maxLength={140}
                   placeholder="Felt strong today"
+                  aria-label="Notes"
                   className="mt-2 w-full h-11 px-3 rounded-xl bg-card border border-border text-white text-[14px] outline-none focus:border-primary"
                 />
               </div>
