@@ -8,6 +8,7 @@ import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { TodayWorkoutCard } from "@/components/fitvault/TodayWorkoutCard";
 import { ToastHost } from "@/components/fitvault/Toast";
 import { AdBanner } from "@/components/fitvault/AdBanner";
+import { FirstTimeGoalPrompt } from "@/components/fitvault/FirstTimeGoalPrompt";
 import { UpgradeSheet, type UpgradeTrigger } from "@/components/fitvault/UpgradeSheet";
 import { greeting, type Workout } from "@/lib/fitvault-data";
 import { useWorkouts, workoutsStore } from "@/lib/workouts-store";
@@ -376,6 +377,7 @@ function HomePage() {
         trigger={upgradeTrigger}
       />
       <ToastHost />
+      <FirstTimeGoalPrompt />
     </AppShell>
   );
 }
