@@ -562,7 +562,7 @@ export function AddWorkoutSheet({
                   />
                   <span className="text-[11px] text-text-secondary">reps</span>
                   <button
-                    aria-label="Delete"
+                    aria-label="Remove exercise"
                     onClick={() =>
                       setExercises((arr) => arr.filter((x) => x.id !== ex.id))
                     }
