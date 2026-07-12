@@ -146,11 +146,29 @@ function ProductCard({ p }: { p: GearProduct }) {
     >
       <div className="relative">
         <ProductImage product={p} />
+        {p.isNew && (
+          <span
+            className="absolute"
+            style={{
+              top: 0,
+              left: 0,
+              fontSize: 10,
+              fontWeight: 700,
+              background: "#06D6A0",
+              color: "#0A0A0F",
+              padding: "3px 8px",
+              borderRadius: "0 0 8px 0",
+              zIndex: 2,
+            }}
+          >
+            NEW
+          </span>
+        )}
         {p.badge && (
           <span
             className="absolute text-[10px] font-bold"
             style={{
-              top: 0,
+              top: p.isNew ? 22 : 0,
               left: 0,
               background: "#EF476F",
               color: "#fff",

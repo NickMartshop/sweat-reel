@@ -352,7 +352,7 @@ function ProfilePage() {
           About SweatReel
         </h2>
         <div className="mt-2 rounded-2xl overflow-hidden border border-border flex flex-col gap-[2px] bg-border">
-          <Row icon={<Lock size={18} />} label="App Version" right={<span className="text-[12px] text-text-secondary">v1.0.0</span>} />
+          <Row icon={<Lock size={18} />} label="App Version" right={<span className="text-[12px] text-text-secondary">v1.0.1</span>} />
           {import.meta.env.DEV && (
             <Row
               icon={<Lock size={18} />}
@@ -409,7 +409,7 @@ function ProfilePage() {
       </button>
 
       <p className="text-center text-[11px] text-text-secondary mt-6">
-        SweatReel v1.0.0 · Your workouts. Organized.
+        SweatReel v1.0.1 · Your workouts. Organized.
       </p>
       <ToastHost />
       <DeleteAccountDialog

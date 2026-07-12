@@ -6,6 +6,7 @@ import { WorkoutCard } from "@/components/fitvault/WorkoutCard";
 import { AddWorkoutSheet } from "@/components/fitvault/AddWorkoutSheet";
 import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { TodayWorkoutCard } from "@/components/fitvault/TodayWorkoutCard";
+import { DailyQuoteCard } from "@/components/fitvault/DailyQuoteCard";
 import { ToastHost } from "@/components/fitvault/Toast";
 import { AdBanner } from "@/components/fitvault/AdBanner";
 import { FirstTimeGoalPrompt } from "@/components/fitvault/FirstTimeGoalPrompt";
@@ -228,6 +229,10 @@ function HomePage() {
         <StatCard label="This Week" value={plannedThisWeek} sub="planned" />
         <StatCard label="Done" value={weeklyCompletedCount} sub="completed" />
       </div>
+
+      <DailyQuoteCard />
+
+
 
       {/* Free-tier library banner */}
       {!isPremium && !bannerHidden && (

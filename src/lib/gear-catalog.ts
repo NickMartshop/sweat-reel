@@ -38,6 +38,7 @@ export interface GearProduct {
   tag: string | null;
   tagColor: string | null;
   badge: string;
+  isNew?: boolean;
 }
 
 export const GEAR_CATEGORIES: { key: GearCategory | "All"; emoji: string }[] = [
@@ -318,6 +319,7 @@ export const GEAR_PRODUCTS: GearProduct[] = [
     tag: "New",
     tagColor: "#EF476F",
     badge: "50% OFF",
+    isNew: true,
   },
   // RECOVERY
   {
@@ -353,6 +355,7 @@ export const GEAR_PRODUCTS: GearProduct[] = [
     tag: null,
     tagColor: null,
     badge: "57% OFF",
+    isNew: true,
   },
   {
     id: 18,
