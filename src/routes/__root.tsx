@@ -82,7 +82,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         async: true,
         crossOrigin: "anonymous",
       },
-      { src: "https://progressier.app/y6aoSzd2PvHcOUlczvbM/script.js", defer: true },
+      
       
       
 
@@ -169,7 +169,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       // { rel: "manifest", href: "/manifest.json" }, // Replaced by Progressier manifest below
-      { rel: "manifest", href: "https://progressier.app/y6aoSzd2PvHcOUlczvbM/progressier.json" },
+      { rel: "manifest", href: "/manifest.json" },
 
 
 
