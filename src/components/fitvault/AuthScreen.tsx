@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { authStore } from "@/lib/auth-store";
 import { toast } from "./Toast";
 
 type Mode = "signup" | "signin";
@@ -10,16 +11,34 @@ function isEmail(v: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
-function friendlyAuthError(msg: string | undefined): string {
-  if (!msg) return "Something went wrong. Try again.";
+function friendlyAuthError(msg: string | undefined, status?: number): string {
+  if (!msg) return "Something went wrong. Please try again.";
   const m = msg.toLowerCase();
   if (m.includes("invalid login")) return "Wrong email or password";
   if (m.includes("already registered") || m.includes("already exists"))
     return "An account with this email already exists";
+  if (m.includes("signup") && m.includes("disabled"))
+    return "Sign ups are temporarily disabled. Please contact support.";
+  if (m.includes("email") && m.includes("rate"))
+    return "Too many email attempts. Please wait and try again.";
+  if (m.includes("api key") || m.includes("invalid key") || status === 401)
+    return "Authentication is not configured correctly. Please contact support.";
+  if (m.includes("not allowed") || m.includes("redirect"))
+    return "This sign-in link isn't allowed yet. Please contact support.";
   if (m.includes("password")) return "Password doesn't meet requirements";
   if (m.includes("network") || m.includes("fetch"))
     return "Connection error. Check your internet.";
-  return "Something went wrong. Try again.";
+  return "Something went wrong. Please try again.";
+}
+
+function logAuthFailure(action: Mode, err: any) {
+  console.warn("Auth failed", {
+    action,
+    code: err?.code ?? null,
+    status: err?.status ?? null,
+    name: err?.name ?? null,
+    message: typeof err?.message === "string" ? err.message.slice(0, 160) : null,
+  });
 }
 
 const SIGNUP_WINDOW_MS = 60_000;
@@ -88,29 +107,39 @@ export function AuthScreen() {
 
     setSubmitting(true);
     try {
+      const cleanEmail = email.trim().toLowerCase();
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email: email.trim(),
+        const { data, error } = await supabase.auth.signUp({
+          email: cleanEmail,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: `${window.location.origin}/auth`,
             data: { name: name.trim() },
           },
         });
         if (error) throw error;
+        await authStore.refresh();
+        if (!data.session) {
+          toast.show("Account created. Check your email to confirm sign in.", "success");
+          setMode("signin");
+          setPassword("");
+          setConfirm("");
+          return;
+        }
         toast.show("Welcome to SweatReel! 💪", "success");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
+          email: cleanEmail,
           password,
         });
         if (error) throw error;
+        await authStore.refresh();
         toast.show("Welcome back!", "success");
       }
       navigate({ to: "/" });
     } catch (err: any) {
-      console.error("Supabase error code:", err?.code);
-      toast.show(friendlyAuthError(err?.message), "error");
+      logAuthFailure(mode, err);
+      toast.show(friendlyAuthError(err?.message, err?.status), "error");
     } finally {
       setSubmitting(false);
     }
