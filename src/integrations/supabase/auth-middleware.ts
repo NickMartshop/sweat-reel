@@ -77,4 +77,4 @@ const { data, error } = await supabase.auth.getClaims(token);
     });
   },
 );
-)
+
