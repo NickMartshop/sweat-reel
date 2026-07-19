@@ -1,8 +1,8 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.sweatreel.app",
-        "sha256_cert_fingerprints": ["E2:96:73:73:76:49:42:F3:90:C8:CD:60:59:69:01:B4:67:9C:D0:74:BD:A4:A7:5D:77:11:E2:5B:30:E5:AE:1F"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.sweatreel.twa",
+    "sha256_cert_fingerprints": ["FC:2B:5E:F3:69:B4:EA:DF:F4:1A:3B:13:D8:86:64:F7:73:CB:D2:18:F7:73:23:98:B5:E0:CD:3B:FD:D1:C3:AE"]
+  }
+}]
