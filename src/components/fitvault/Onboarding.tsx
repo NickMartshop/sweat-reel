@@ -168,7 +168,7 @@ export function Onboarding({ onDone }: Props) {
               onDone(null);
             }}
             className="press-scale"
-            style={{ color: "#4361EE", fontWeight: 600 }}
+            style={{ color: "#9DB2FF", fontWeight: 600 }}
           >
             Sign in
           </button>

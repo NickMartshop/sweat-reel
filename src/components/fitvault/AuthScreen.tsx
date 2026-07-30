@@ -166,7 +166,7 @@ export function AuthScreen() {
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center">
             <span className="text-white text-2xl font-bold">SR</span>
           </div>
-          <h1 className="mt-3 text-[28px] font-bold text-white">SweatReel — Your Organized Workout Library</h1>
+          <h1 className="mt-3 text-[28px] font-bold text-white text-center">Sign in to SweatReel</h1>
           <p className="text-[14px] text-text-secondary mt-1">
             Your workouts. Organized.
           </p>
@@ -316,7 +316,7 @@ export function AuthScreen() {
               <Link
                 to="/privacy"
                 className="px-1"
-                style={{ color: "#4361EE" }}
+                style={{ color: "#9DB2FF" }}
               >
                 Privacy Policy
               </Link>{" "}
@@ -324,7 +324,7 @@ export function AuthScreen() {
               <Link
                 to="/terms"
                 className="px-1"
-                style={{ color: "#4361EE" }}
+                style={{ color: "#9DB2FF" }}
               >
                 Terms of Service
               </Link>

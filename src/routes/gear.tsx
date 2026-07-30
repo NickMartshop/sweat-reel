@@ -340,6 +340,10 @@ function GearPage() {
         )}
       </div>
 
+      <h2 className="mt-5 text-[13px] font-semibold uppercase tracking-wider" style={{ color: "#8888AA" }}>
+        Shop by category
+      </h2>
+
       {/* Category filter */}
       <div className="mt-3 -mx-4 px-4 overflow-x-auto no-scrollbar">
         <div className="flex gap-2 min-w-min">
@@ -368,6 +372,10 @@ function GearPage() {
         Showing {products.length} product{products.length === 1 ? "" : "s"}
       </p>
 
+      <h2 className="mt-4 text-[13px] font-semibold uppercase tracking-wider" style={{ color: "#8888AA" }}>
+        Recommended gear
+      </h2>
+
       {products.length === 0 ? (
         <div className="mt-10 text-center">
           <p className="text-[14px] text-white font-semibold">
@@ -390,6 +398,9 @@ function GearPage() {
       {/* Bottom Amazon CTA */}
       <div className="mt-8">
         <div style={{ height: 1, background: "#252535" }} />
+        <h2 className="mt-5 text-center text-[13px] font-semibold uppercase tracking-wider" style={{ color: "#8888AA" }}>
+          More options
+        </h2>
         <p className="mt-5 text-center text-[14px] text-white">
           Want a specific product?
         </p>

@@ -205,7 +205,7 @@ function ProfilePage() {
           {initial}
         </div>
         <h1 className="mt-3 text-xl font-bold text-white flex items-center gap-2">
-          {name}
+          {name} — Your Profile
           {isPremium && (
             <span
               className="px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
