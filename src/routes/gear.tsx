@@ -115,7 +115,7 @@ function ProductImage({ product }: { product: GearProduct }) {
   return (
     <img
       src={product.imageUrl}
-      alt={product.name}
+      alt={`${product.name} fitness equipment`}
       onError={() => setImgFailed(true)}
       loading="lazy"
       decoding="async"

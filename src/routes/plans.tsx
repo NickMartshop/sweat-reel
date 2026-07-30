@@ -154,7 +154,7 @@ function PlansPage() {
     <AppShell>
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-white">My Week</h1>
+          <h1 className="text-xl font-bold text-white">Weekly Workout Planner</h1>
           <p className="text-[13px] text-text-secondary mt-0.5">
             Build your weekly routine
           </p>
@@ -339,7 +339,7 @@ function PlansPage() {
                   >
                     <img
                       src={e.workout.thumbnail_url}
-                      alt={e.workout.title}
+                      alt={`${e.workout.title} workout video thumbnail`}
                       className="w-[60px] h-[60px] rounded-xl object-cover"
                     />
                     <div className="min-w-0 flex-1">
@@ -429,7 +429,7 @@ function PlansPage() {
                     >
                       <img
                         src={w.thumbnail_url}
-                        alt={w.title}
+                        alt={`${w.title} workout video thumbnail`}
                         className="w-[52px] h-[52px] rounded-xl object-cover"
                       />
                       <div className="min-w-0 flex-1">
