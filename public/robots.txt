@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /.lovable/
+Disallow: /.mcp/
 
 Sitemap: https://sweat-reel.lovable.app/sitemap.xml
