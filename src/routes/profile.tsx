@@ -36,11 +36,11 @@ export const Route = createFileRoute("/profile")({
       },
       { property: "og:title", content: "My Profile — SweatReel" },
       { property: "og:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
-      { property: "og:url", content: "https://sweat-reel.lovable.app/profile" },
+      { property: "og:url", content: "https://sweatreel.com/profile" },
       { name: "twitter:title", content: "My Profile — SweatReel" },
       { name: "twitter:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
     ],
-    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/profile" }],
+    links: [{ rel: "canonical", href: "https://sweatreel.com/profile" }],
   }),
 
   component: ProfilePage,
@@ -141,7 +141,7 @@ function ProfilePage() {
 
   const refId = profile?.id ? profile.id.slice(0, 8) : "";
   const origin =
-    typeof window !== "undefined" ? window.location.origin : "https://sweat-reel.lovable.app";
+    typeof window !== "undefined" ? window.location.origin : "https://sweatreel.com";
   const referralUrl = refId ? `${origin}?ref=${refId}` : origin;
   const waHref = `https://wa.me/?text=${encodeURIComponent(
     `I've been organizing my workouts with SweatReel and it's 🔥 Try it free: ${referralUrl}`,

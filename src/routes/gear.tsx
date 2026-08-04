@@ -52,7 +52,7 @@ export const Route = createFileRoute("/gear")({
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       name: "Fitness Gear — SweatReel",
-      url: "https://sweat-reel.lovable.app/gear",
+      url: "https://sweatreel.com/gear",
       description: "Handpicked fitness gear our community trains with.",
       mainEntity: {
         "@type": "ItemList",
@@ -73,14 +73,14 @@ export const Route = createFileRoute("/gear")({
           property: "og:description",
           content: "Handpicked fitness gear our community trains with.",
         },
-        { property: "og:url", content: "https://sweat-reel.lovable.app/gear" },
+        { property: "og:url", content: "https://sweatreel.com/gear" },
         { name: "twitter:title", content: "Fitness Gear — SweatReel" },
         {
           name: "twitter:description",
           content: "Handpicked fitness gear our community trains with.",
         },
       ],
-      links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/gear" }],
+      links: [{ rel: "canonical", href: "https://sweatreel.com/gear" }],
       scripts: [
         {
           type: "application/ld+json",

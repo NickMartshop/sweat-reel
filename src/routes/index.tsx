@@ -53,11 +53,11 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:title", content: "SweatReel — Your Workout Dashboard & Planner" },
       { property: "og:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
-      { property: "og:url", content: "https://sweat-reel.lovable.app/" },
+      { property: "og:url", content: "https://sweatreel.com/" },
       { name: "twitter:title", content: "SweatReel — Your Workout Dashboard & Planner" },
       { name: "twitter:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
     ],
-    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://sweatreel.com/" }],
   }),
 
   component: HomePage,

@@ -94,20 +94,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             {
               "@type": "Organization",
               name: "SweatReel",
-              url: "https://sweat-reel.lovable.app",
-              logo: "https://sweat-reel.lovable.app/favicon.ico",
+              url: "https://sweatreel.com",
+              logo: "https://sweatreel.com/favicon.ico",
             },
             {
               "@type": "WebSite",
               name: "SweatReel",
-              url: "https://sweat-reel.lovable.app",
+              url: "https://sweatreel.com",
             },
             {
               "@type": "MobileApplication",
               name: "SweatReel",
               description:
                 "Save workout videos from YouTube, Instagram & TikTok. Organize your fitness library. Plan your week. Track your streak.",
-              url: "https://sweat-reel.lovable.app",
+              url: "https://sweatreel.com",
               applicationCategory: "HealthApplication",
               operatingSystem: "Android, iOS",
               offers: [

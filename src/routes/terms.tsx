@@ -15,14 +15,14 @@ export const Route = createFileRoute("/terms")({
         property: "og:description",
         content: "Terms covering personal use, subscriptions, and refunds on SweatReel.",
       },
-      { property: "og:url", content: "https://sweat-reel.lovable.app/terms" },
+      { property: "og:url", content: "https://sweatreel.com/terms" },
       { name: "twitter:title", content: "Terms of Service — SweatReel" },
       {
         name: "twitter:description",
         content: "Terms covering personal use, subscriptions, and refunds on SweatReel.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/terms" }],
+    links: [{ rel: "canonical", href: "https://sweatreel.com/terms" }],
   }),
   component: TermsPage,
 });
