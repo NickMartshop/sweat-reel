@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
-import { Onboarding } from "./Onboarding";
+import { LandingScreen } from "./LandingScreen";
 import { AuthScreen } from "./AuthScreen";
 import { ToastHost } from "./Toast";
 import { ReminderPrompt } from "./ReminderPrompt";
