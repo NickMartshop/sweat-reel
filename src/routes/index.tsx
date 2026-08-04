@@ -45,19 +45,30 @@ function haptic(p: number | number[] = 50) {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SweatReel — Your Workout Dashboard & Planner" },
+      { title: "Stop Losing Your Saved Workout Reels — SweatReel" },
       {
         name: "description",
         content:
-          "Your workout dashboard — today's plan, saved library and quick stats, organized in one place on SweatReel.",
+          "You have 40 saved workout reels and you've done zero of them. SweatReel turns saved videos into an actual plan. Free.",
       },
-      { property: "og:title", content: "SweatReel — Your Workout Dashboard & Planner" },
-      { property: "og:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
-      { property: "og:url", content: "https://sweat-reel.lovable.app/" },
-      { name: "twitter:title", content: "SweatReel — Your Workout Dashboard & Planner" },
-      { name: "twitter:description", content: "See today's plan, browse your saved workout library, and check your streak at a glance." },
+      { property: "og:title", content: "Stop Losing Your Saved Workout Reels — SweatReel" },
+      {
+        property: "og:description",
+        content:
+          "You have 40 saved workout reels and you've done zero of them. SweatReel turns saved videos into an actual plan. Free.",
+      },
+      { property: "og:url", content: "https://sweatreel.com/" },
+      { property: "og:image", content: "https://sweatreel.com/icon-512.png" },
+      { name: "twitter:title", content: "Stop Losing Your Saved Workout Reels — SweatReel" },
+      {
+        name: "twitter:description",
+        content:
+          "You have 40 saved workout reels and you've done zero of them. SweatReel turns saved videos into an actual plan. Free.",
+      },
+      { name: "twitter:image", content: "https://sweatreel.com/icon-512.png" },
     ],
-    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/" }],
+    links: [{ rel: "canonical", href: "https://sweatreel.com/" }],
+
   }),
 
   component: HomePage,

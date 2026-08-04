@@ -18,7 +18,7 @@ export interface StreakCardData {
   streak: number;
 }
 
-const BRAND = "sweat-reel.lovable.app";
+const BRAND = "sweatreel.com";
 
 function roundRect(
   ctx: CanvasRenderingContext2D,

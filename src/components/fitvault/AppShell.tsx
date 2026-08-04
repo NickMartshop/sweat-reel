@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
-import { Onboarding } from "./Onboarding";
+import { LandingScreen } from "./LandingScreen";
 import { AuthScreen } from "./AuthScreen";
 import { ToastHost } from "./Toast";
 import { ReminderPrompt } from "./ReminderPrompt";
@@ -102,14 +102,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <>
         <OfflineBanner online={online} />
         <main style={{ paddingTop: offsetTop }}>
-          <Onboarding
-            onDone={(goal) => {
-              if (goal) {
-                try {
-                  sessionStorage.setItem("sweatreel_goal", goal);
-                } catch {}
-                profileStore.setFitnessGoal(goal).catch(() => {});
-              }
+          <LandingScreen
+            onGetStarted={() => {
+              try {
+                sessionStorage.setItem("sweatreel_auth_mode", "signup");
+              } catch {}
               authStore.completeOnboarding();
             }}
           />
@@ -118,6 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </>
     );
   }
+
 
   if (!auth.user) {
     return (

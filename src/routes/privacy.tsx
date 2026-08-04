@@ -16,7 +16,7 @@ export const Route = createFileRoute("/privacy")({
         content:
           "How SweatReel collects, stores and protects your account and workout data.",
       },
-      { property: "og:url", content: "https://sweat-reel.lovable.app/privacy" },
+      { property: "og:url", content: "https://sweatreel.com/privacy" },
       { name: "twitter:title", content: "Privacy Policy — SweatReel" },
       {
         name: "twitter:description",
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/privacy")({
           "How SweatReel collects, stores and protects your account and workout data.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sweat-reel.lovable.app/privacy" }],
+    links: [{ rel: "canonical", href: "https://sweatreel.com/privacy" }],
   }),
   component: PrivacyPage,
 });

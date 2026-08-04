@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
+import { BLOG_POSTS } from "@/lib/blog-posts";
 
-const BASE_URL = "https://sweat-reel.lovable.app";
+
+const BASE_URL = "https://sweatreel.com";
 
 interface SitemapEntry {
   path: string;
@@ -23,7 +25,14 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/progress", changefreq: "weekly", priority: "0.6" },
           { path: "/terms", changefreq: "yearly", priority: "0.3" },
           { path: "/delete-account", changefreq: "yearly", priority: "0.5" },
+          { path: "/blog", changefreq: "weekly", priority: "0.8" },
+          ...BLOG_POSTS.map((p) => ({
+            path: `/blog/${p.slug}`,
+            changefreq: "monthly" as const,
+            priority: "0.7",
+          })),
         ];
+
 
         const urls = entries.map((e) =>
           [

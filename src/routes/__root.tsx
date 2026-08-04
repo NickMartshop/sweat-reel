@@ -94,20 +94,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             {
               "@type": "Organization",
               name: "SweatReel",
-              url: "https://sweat-reel.lovable.app",
-              logo: "https://sweat-reel.lovable.app/favicon.ico",
+              url: "https://sweatreel.com",
+              logo: "https://sweatreel.com/favicon.ico",
             },
             {
               "@type": "WebSite",
               name: "SweatReel",
-              url: "https://sweat-reel.lovable.app",
+              url: "https://sweatreel.com",
             },
             {
               "@type": "MobileApplication",
               name: "SweatReel",
               description:
                 "Save workout videos from YouTube, Instagram & TikTok. Organize your fitness library. Plan your week. Track your streak.",
-              url: "https://sweat-reel.lovable.app",
+              url: "https://sweatreel.com",
               applicationCategory: "HealthApplication",
               operatingSystem: "Android, iOS",
               offers: [
@@ -155,8 +155,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "SweatReel" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/3367623f-e56e-4a1f-b855-cd58d2799ebc" },
+      { property: "og:image", content: "https://sweatreel.com/icon-512.png" },
+      { name: "twitter:image", content: "https://sweatreel.com/icon-512.png" },
       { name: "application-name", content: "SweatReel" },
       { name: "msapplication-TileImage", content: "/icon-512.png" },
       { name: "msapplication-TileColor", content: "#4361EE" },
