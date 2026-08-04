@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { getPost, BLOG_POSTS } from "@/lib/blog-posts";
+import { getPost, BLOG_POSTS, type BlogPost } from "@/lib/blog-posts";
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: ({ params }) => {
@@ -64,7 +64,7 @@ function PostNotFound() {
 }
 
 function BlogPostPage() {
-  const { post } = Route.useLoaderData();
+  const { post } = Route.useLoaderData() as { post: BlogPost };
   const others = BLOG_POSTS.filter((p) => p.slug !== post.slug);
 
   return (
