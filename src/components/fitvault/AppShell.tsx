@@ -102,14 +102,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <>
         <OfflineBanner online={online} />
         <main style={{ paddingTop: offsetTop }}>
-          <Onboarding
-            onDone={(goal) => {
-              if (goal) {
-                try {
-                  sessionStorage.setItem("sweatreel_goal", goal);
-                } catch {}
-                profileStore.setFitnessGoal(goal).catch(() => {});
-              }
+          <LandingScreen
+            onGetStarted={() => {
+              try {
+                sessionStorage.setItem("sweatreel_auth_mode", "signup");
+              } catch {}
               authStore.completeOnboarding();
             }}
           />
@@ -118,6 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </>
     );
   }
+
 
   if (!auth.user) {
     return (
