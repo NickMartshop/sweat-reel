@@ -266,7 +266,7 @@ function GearPage() {
   return (
     <AppShell>
       <header className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-white">🛒 Gear Store</h1>
+        <h1 className="text-xl font-bold text-white">🛒 Fitness Gear Store</h1>
         <div
           aria-label="Cart"
           className="relative flex items-center justify-center rounded-full"
