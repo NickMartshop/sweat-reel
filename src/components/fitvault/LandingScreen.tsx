@@ -53,7 +53,13 @@ export function LandingScreen({ onGetStarted }: Props) {
           list, you build the streak. Free, no card.
         </p>
 
-        <ul style={{ marginTop: 24 }} className="space-y-3">
+        <h2
+          style={{ marginTop: 28, fontSize: 18, fontWeight: 600, color: "#fff" }}
+        >
+          What SweatReel does
+        </h2>
+
+        <ul style={{ marginTop: 12 }} className="space-y-3">
           {BENEFITS.map((b) => (
             <li key={b} className="flex gap-3 items-start">
               <Check size={18} strokeWidth={3} style={{ color: "#06D6A0", flexShrink: 0, marginTop: 2 }} />

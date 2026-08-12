@@ -165,7 +165,7 @@ function ProfilePage() {
     try {
       await authStore.signOut();
       toast.show("Signed out", "info");
-      navigate({ to: "/auth" });
+      navigate({ to: "/auth", search: { next: undefined } });
     } catch {
       toast.show("Couldn't sign out. Try again.", "error");
     }
@@ -415,7 +415,7 @@ function ProfilePage() {
       <DeleteAccountDialog
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
-        onDone={() => navigate({ to: "/auth" })}
+        onDone={() => navigate({ to: "/auth", search: { next: undefined } })}
       />
       <UpgradeSheet
         open={upgradeOpen}
