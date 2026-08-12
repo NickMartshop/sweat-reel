@@ -3,4 +3,4 @@ Allow: /
 Disallow: /.lovable/
 Disallow: /.mcp/
 
-Sitemap: https://sweatreel.com/sitemap.xml
+Sitemap: https://sweat-reel.lovable.app/sitemap.xml
