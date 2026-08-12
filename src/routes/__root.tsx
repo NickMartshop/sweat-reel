@@ -205,6 +205,13 @@ function RootComponent() {
   useEffect(() => {
     // Progressier registers its own SW; ensure our legacy /sw.js is removed.
     void import("../lib/register-sw").then((m) => m.registerSw());
+
+    // Load third-party scripts only after hydration to avoid SSR/client mismatch.
+    loadClientScript("https://checkout.razorpay.com/v1/checkout.js");
+    loadClientScript(
+      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7298096903500162",
+      { crossorigin: "anonymous" },
+    );
   }, []);
 
 
