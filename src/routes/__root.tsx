@@ -76,16 +76,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => {
     const scripts: Array<Record<string, string | boolean>> = [
-      { src: "https://checkout.razorpay.com/v1/checkout.js", async: true },
-      {
-        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7298096903500162",
-        async: true,
-        crossOrigin: "anonymous",
-      },
-      
-      
-      
-
       {
         type: "application/ld+json",
         children: JSON.stringify({
@@ -183,6 +173,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+function loadClientScript(src: string, attrs?: Record<string, string>) {
+  if (typeof document === "undefined") return;
+  if (document.querySelector(`script[src="${src}"]`)) return;
+  const script = document.createElement("script");
+  script.src = src;
+  script.async = true;
+  if (attrs) {
+    Object.entries(attrs).forEach(([k, v]) => script.setAttribute(k, v));
+  }
+  document.body.appendChild(script);
+}
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
@@ -203,6 +205,13 @@ function RootComponent() {
   useEffect(() => {
     // Progressier registers its own SW; ensure our legacy /sw.js is removed.
     void import("../lib/register-sw").then((m) => m.registerSw());
+
+    // Load third-party scripts only after hydration to avoid SSR/client mismatch.
+    loadClientScript("https://checkout.razorpay.com/v1/checkout.js");
+    loadClientScript(
+      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7298096903500162",
+      { crossorigin: "anonymous" },
+    );
   }, []);
 
 
