@@ -1,0 +1,1 @@
+UPDATE public.profiles SET ai_extractions_used = 0, ai_extractions_count = 0 WHERE id = '3ca42707-5f23-4f5a-a171-f5e56c73a5a6';
