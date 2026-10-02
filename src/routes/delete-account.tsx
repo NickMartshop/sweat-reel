@@ -7,14 +7,14 @@ export const Route = createFileRoute("/delete-account")({
       {
         name: "description",
         content:
-          "Permanently delete your SweatReel account and personal data. Step-by-step instructions and support contact.",
+          "How to permanently delete your SweatReel account and associated user data.",
       },
       { name: "robots", content: "index, follow" },
       { property: "og:title", content: "Delete Your SweatReel Account" },
       {
         property: "og:description",
         content:
-          "How to permanently delete your SweatReel account and associated personal data.",
+          "How to permanently delete your SweatReel account and associated user data.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://sweatreel.com/delete-account" },
@@ -23,12 +23,10 @@ export const Route = createFileRoute("/delete-account")({
       {
         name: "twitter:description",
         content:
-          "How to permanently delete your SweatReel account and associated personal data.",
+          "How to permanently delete your SweatReel account and associated user data.",
       },
     ],
-    links: [
-      { rel: "canonical", href: "https://sweatreel.com/delete-account" },
-    ],
+    links: [{ rel: "canonical", href: "https://sweatreel.com/delete-account" }],
   }),
   component: DeleteAccountPage,
 });
@@ -44,76 +42,90 @@ function DeleteAccountPage() {
           <Link to="/" className="hover:text-white">
             Home
           </Link>{" "}
-          <span aria-hidden="true">/</span> <span className="text-white">Delete Account</span>
+          <span aria-hidden="true">/</span>{" "}
+          <span className="text-white">Delete Account</span>
         </nav>
 
         <h1 className="text-[28px] font-bold text-white mt-4">
           Delete Your SweatReel Account
         </h1>
-        <p className="mt-2 text-[14px] leading-[1.6] text-white/85">
-          Users can permanently delete their SweatReel account and associated
-          personal data. This page explains how to request deletion and what
-          data is removed.
+        <p className="text-[12px] text-text-secondary mt-1">
+          Effective date: September 30, 2026
+        </p>
+        <p className="mt-3 text-[14px] leading-[1.6] text-white/85">
+          You can permanently delete your SweatReel account and associated user data in the app
+          or request help by email.
         </p>
 
         <section className="mt-8">
-          <h2 className="text-[17px] font-semibold text-white">
-            How to delete your account
-          </h2>
+          <h2 className="text-[17px] font-semibold text-white">Delete in the app</h2>
           <ol className="mt-3 list-decimal pl-5 text-[14px] leading-[1.7] text-white/85 space-y-1.5">
-            <li>Open the SweatReel app.</li>
+            <li>Open SweatReel and sign in to the account you want to delete.</li>
             <li>
-              Go to <span className="text-white font-medium">Profile → Settings → Delete Account</span>.
+              Go to <span className="text-white font-medium">Profile → Delete Account</span>.
             </li>
-            <li>Confirm deletion.</li>
-            <li>
-              Your account and associated personal data will be permanently
-              deleted.
-            </li>
+            <li>Review the deletion notice and confirm your request.</li>
           </ol>
         </section>
 
         <section className="mt-8">
-          <h2 className="text-[17px] font-semibold text-white">
-            Can't access your account?
-          </h2>
+          <h2 className="text-[17px] font-semibold text-white">Request deletion by email</h2>
           <p className="mt-2 text-[14px] leading-[1.65] text-white/85">
-            If you're unable to sign in, email us and we'll process the deletion
-            on your behalf:
-          </p>
-          <p className="mt-2 text-[14px]">
+            If you cannot access the app, email{" "}
             <a
               href="mailto:support@sweatreel.com?subject=Account%20deletion%20request"
               className="text-primary underline underline-offset-4"
             >
               support@sweatreel.com
-            </a>
+            </a>{" "}
+            from the email address associated with your account. We may ask for information
+            needed to verify account ownership before processing the request. Do not send a
+            password.
           </p>
         </section>
 
         <section className="mt-8">
-          <h2 className="text-[17px] font-semibold text-white">What gets deleted</h2>
+          <h2 className="text-[17px] font-semibold text-white">What is deleted</h2>
           <ul className="mt-3 list-disc pl-5 text-[14px] leading-[1.7] text-white/85 space-y-1.5">
-            <li>Account information (email, authentication records).</li>
-            <li>Saved workout plans and weekly schedules.</li>
-            <li>Saved workout videos and links.</li>
-            <li>Profile information (name, goal, preferences, body stats).</li>
-            <li>All other user-generated data associated with your account.</li>
+            <li>Account data, including email, identity information, profile, and name.</li>
+            <li>Saved workouts and workout URLs.</li>
+            <li>Workout plans and completed workout history.</li>
+            <li>Body stats associated with the account.</li>
           </ul>
         </section>
 
         <section className="mt-8">
-          <h2 className="text-[17px] font-semibold text-white">Data retention</h2>
+          <h2 className="text-[17px] font-semibold text-white">Deletion and retention</h2>
           <p className="mt-2 text-[14px] leading-[1.65] text-white/85">
-            Any data that must legally be retained (for example, payment or tax
-            records required by law) will only be kept for the minimum period
-            required by applicable regulations. All other personal data is
-            permanently removed.
+            After ownership is verified and the request is processed, the account and associated
+            user data listed above are deleted. Information required to meet an applicable legal
+            obligation may be retained only as required by that obligation.
           </p>
         </section>
 
+        <section className="mt-8">
+          <h2 className="text-[17px] font-semibold text-white">Service disclosures</h2>
+          <div className="mt-2 text-[14px] leading-[1.65] text-white/85 space-y-2">
+            <p>
+              AI extraction processes workout input, output, and URLs through SweatReel's
+              existing AI gateway. Public YouTube metadata is obtained through server-side
+              YouTube oEmbed; SweatReel does not download or host YouTube videos.
+            </p>
+            <p>
+              The Gear Store contains Amazon affiliate links, and SweatReel may earn a commission
+              from eligible purchases. The Android app has no third-party advertising SDK and
+              shows no ads.
+            </p>
+            <p>
+              Razorpay is used only for the existing iOS and web payment flow. No payment is
+              collected through Razorpay in the Android app, and Google Play billing is not
+              enabled for Android.
+            </p>
+          </div>
+        </section>
+
         <section className="mt-10 pt-6 border-t border-white/10">
-          <h2 className="text-[15px] font-semibold text-white">Related</h2>
+          <h2 className="text-[15px] font-semibold text-white">Related policies</h2>
           <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[14px]">
             <li>
               <Link to="/privacy" className="text-primary hover:underline">
