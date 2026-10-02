@@ -104,11 +104,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
                 { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Free" },
                 { "@type": "Offer", price: "999", priceCurrency: "INR", name: "SweatReel Pro Annual" },
               ],
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.8",
-                ratingCount: "12",
-              },
               author: {
                 "@type": "Organization",
                 name: "SweatReel",
@@ -127,7 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         httpEquiv: "Content-Security-Policy",
         content:
-          "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://pagead2.googlesyndication.com https://www.googletagmanager.com; connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com https://api.razorpay.com https://noembed.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://api.razorpay.com https://checkout.razorpay.com;",
+          "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com; connect-src 'self' https://*.supabase.co https://api.razorpay.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://api.razorpay.com https://checkout.razorpay.com;",
       },
       { name: "theme-color", content: "#4361EE" },
       { name: "mobile-web-app-capable", content: "yes" },
@@ -208,10 +203,6 @@ function RootComponent() {
 
     // Load third-party scripts only after hydration to avoid SSR/client mismatch.
     loadClientScript("https://checkout.razorpay.com/v1/checkout.js");
-    loadClientScript(
-      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7298096903500162",
-      { crossorigin: "anonymous" },
-    );
   }, []);
 
 

@@ -1,8 +1,0 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.sweatreel.twa",
-    "sha256_cert_fingerprints": ["FC:2B:5E:F3:69:B4:EA:DF:F4:1A:3B:13:D8:86:64:F7:73:CB:D2:18:F7:73:23:98:B5:E0:CD:3B:FD:D1:C3:AE"]
-  }
-}]
