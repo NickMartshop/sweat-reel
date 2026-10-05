@@ -262,6 +262,27 @@ export type Database = {
         }
         Relationships: []
       }
+      verified_razorpay_payments: {
+        Row: {
+          applied_at: string
+          payment_id: string
+          plan: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string
+          payment_id: string
+          plan: string
+          user_id: string
+        }
+        Update: {
+          applied_at?: string
+          payment_id?: string
+          plan?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_plans: {
         Row: {
           created_at: string
@@ -347,6 +368,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_verified_premium: {
+        Args: {
+          _expires_at: string
+          _payment_id: string
+          _plan: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       complete_workout: {
         Args: { _duration_mins: number; _workout_id: string }
         Returns: number
