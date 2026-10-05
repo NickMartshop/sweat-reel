@@ -90,7 +90,7 @@ export const profileStore = {
     const user = authStore.get().user;
     if (!user) throw new Error("Not signed in");
     const { data: newStreak, error } = await supabase.rpc("complete_workout", {
-      _workout_id: workoutId,
+      _workout_id: workoutId ?? null,
       _duration_mins: durationMins,
     });
     if (error) throw error;
