@@ -347,7 +347,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      complete_workout: {
+        Args: { _duration_mins: number; _workout_id: string }
+        Returns: number
+      }
+      record_ai_extraction_success: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
+      release_ai_extraction: { Args: { _user_id: string }; Returns: undefined }
+      release_ai_extraction_v2: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
+      reserve_ai_extraction: { Args: { _user_id: string }; Returns: boolean }
+      reserve_ai_extraction_v2: { Args: { _user_id: string }; Returns: number }
+      sync_my_achievements: { Args: never; Returns: string[] }
     }
     Enums: {
       [_ in never]: never

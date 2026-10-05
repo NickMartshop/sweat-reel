@@ -89,50 +89,11 @@ export const profileStore = {
   logCompleted: async (workoutId: string | null, durationMins: number) => {
     const user = authStore.get().user;
     if (!user) throw new Error("Not signed in");
-    const today = todayDateString();
-    const { error: insErr } = await supabase.from("completed_workouts").insert({
-      user_id: user.id,
-      workout_id: workoutId,
-      duration_mins: durationMins,
+    const { data: newStreak, error } = await supabase.rpc("complete_workout", {
+      _workout_id: workoutId,
+      _duration_mins: durationMins,
     });
-    if (insErr) throw insErr;
-
-    const { data: prof } = await supabase
-      .from("profiles")
-      .select("streak_count, best_streak, last_workout_date, total_workouts")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    const last = prof?.last_workout_date ?? null;
-    const streak = prof?.streak_count ?? 0;
-    const best = prof?.best_streak ?? 0;
-    const total = prof?.total_workouts ?? 0;
-
-    let newStreak = 1;
-    if (last) {
-      const lastDate = new Date(last + "T00:00:00");
-      const todayDate = new Date(today + "T00:00:00");
-      const diff = Math.round(
-        (todayDate.getTime() - lastDate.getTime()) / 86400000,
-      );
-      if (diff === 0) newStreak = streak;
-      else if (diff === 1) newStreak = streak + 1;
-      else newStreak = 1;
-    }
-    const newBest = Math.max(best, newStreak);
-    const newTotal = total + 1;
-
-    const { error: upErr } = await supabase
-      .from("profiles")
-      .update({
-        streak_count: newStreak,
-        best_streak: newBest,
-        last_workout_date: today,
-        total_workouts: newTotal,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", user.id);
-    if (upErr) throw upErr;
+    if (error) throw error;
 
     await load();
     return newStreak;

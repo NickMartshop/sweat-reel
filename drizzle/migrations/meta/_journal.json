@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791211380807,
+      "tag": "0000_enforce_selected_security_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791211598631,
+      "tag": "0001_fix_achievement_sync_json",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791211666177,
+      "tag": "0002_distinguish_ai_quota_reservations",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,8 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 import { authStore } from "./auth-store";
-import { profileStore } from "./profile-store";
-import { plansStore } from "./plans-store";
-import { workoutsStore } from "./workouts-store";
 
 export interface Achievement {
   id: string;
@@ -95,53 +92,12 @@ export const achievementBus = {
   },
 };
 
-let lastCheckKey = "";
-
 export async function checkAchievements() {
   const user = authStore.get().user;
   if (!user) return;
-  const prof = profileStore.get().profile;
-  const plans = plansStore.get().entries;
-  const workouts = workoutsStore.get().workouts;
-  if (!prof) return;
-
-  // Fetch dynamic fields not in local Profile
-  const { data: extra } = await supabase
-    .from("profiles")
-    .select("unlocked_achievements, ai_extractions_count")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const already: string[] = Array.isArray(extra?.unlocked_achievements)
-    ? (extra!.unlocked_achievements as string[])
-    : [];
-  const aiCount = (extra as any)?.ai_extractions_count ?? 0;
-
-  const plannedDays = new Set(plans.map((p) => p.day_of_week)).size;
-
-  const shouldHave = evaluateAchievements({
-    totalWorkouts: prof.total_workouts,
-    streak: prof.streak_count,
-    bestStreak: prof.best_streak,
-    workoutsSaved: workouts.length,
-    plannedDaysThisWeek: plannedDays,
-    aiExtractions: aiCount,
-  });
-
-  const newlyUnlocked = shouldHave.filter((id) => !already.includes(id));
-  if (newlyUnlocked.length === 0) return;
-
-  const merged = Array.from(new Set([...already, ...shouldHave]));
-  const key = `${user.id}:${merged.sort().join(",")}`;
-  if (key === lastCheckKey) return;
-  lastCheckKey = key;
-
-  await supabase
-    .from("profiles")
-    .update({ unlocked_achievements: merged as any })
-    .eq("id", user.id);
-
-  for (const id of newlyUnlocked) {
+  const { data: newlyUnlocked, error } = await supabase.rpc("sync_my_achievements");
+  if (error) throw error;
+  for (const id of newlyUnlocked ?? []) {
     const a = ACHIEVEMENTS.find((x) => x.id === id);
     if (a) achievementBus.emit(a);
   }

@@ -45,7 +45,17 @@ function AuthPage() {
   // After login, redirect to `next` (must be a same-origin relative path) or home.
   useEffect(() => {
     if (auth.user && typeof window !== "undefined") {
-      const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      let target = "/";
+      if (next && next.startsWith("/") && !next.startsWith("//") && !next.includes("\\")) {
+        try {
+          const parsed = new URL(next, window.location.origin);
+          if (parsed.origin === window.location.origin) {
+            target = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+          }
+        } catch {
+          target = "/";
+        }
+      }
       window.location.replace(target);
     }
   }, [auth.user, next]);

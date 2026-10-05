@@ -13,19 +13,14 @@ export default defineTool({
   annotations: { readOnlyHint: false, idempotentHint: false },
   handler: async ({ workout_id, duration_mins }, ctx) => {
     if (!ctx.isAuthenticated()) return { content: [{ type: "text", text: "Not authenticated" }], isError: true };
-    const { data, error } = await supabaseForUser(ctx)
-      .from("completed_workouts")
-      .insert({
-        user_id: ctx.getUserId(),
-        workout_id: workout_id ?? null,
-        duration_mins,
-      })
-      .select()
-      .single();
+    const { data, error } = await supabaseForUser(ctx).rpc("complete_workout", {
+      _workout_id: workout_id ?? null,
+      _duration_mins: duration_mins,
+    });
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
-      content: [{ type: "text", text: `Logged ${duration_mins} min workout` }],
-      structuredContent: { completed: data },
+      content: [{ type: "text", text: `Logged ${duration_mins} min workout; current streak ${data} days` }],
+      structuredContent: { completed: { duration_mins, streak: data } },
     };
   },
 });

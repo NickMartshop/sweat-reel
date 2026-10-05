@@ -79,11 +79,33 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
       throw new Error("Invalid payment signature");
     }
 
-    // Confirm with Razorpay that the payment is actually captured/authorized
-    // and belongs to this order — prevents replay with a random signed payload.
+    // Confirm the order belongs to this signed-in user before accepting any
+    // payment attached to it. A valid payment from another account cannot grant access.
     const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
     if (!keyId) throw new Error("Payments not configured");
     const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+    const orderRes = await fetch(
+      `https://api.razorpay.com/v1/orders/${encodeURIComponent(data.razorpay_order_id)}`,
+      { headers: { Authorization: `Basic ${basicAuth}` } },
+    );
+    if (!orderRes.ok) throw new Error("Could not verify order with Razorpay");
+    const order = (await orderRes.json()) as {
+      id: string;
+      amount: number;
+      currency: string;
+      notes?: { user_id?: string; plan?: string };
+    };
+    if (
+      order.id !== data.razorpay_order_id ||
+      order.notes?.user_id !== context.userId ||
+      order.notes?.plan !== data.plan ||
+      order.amount !== PLANS[data.plan].amount ||
+      order.currency !== "INR"
+    ) {
+      throw new Error("Order does not belong to this account or plan");
+    }
+
+    // Confirm that the payment is captured and belongs to the verified order.
     const payRes = await fetch(
       `https://api.razorpay.com/v1/payments/${encodeURIComponent(data.razorpay_payment_id)}`,
       { headers: { Authorization: `Basic ${basicAuth}` } },
