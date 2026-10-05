@@ -129,33 +129,17 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Dedupe: prevent double application of the same payment id.
-    const { data: existing } = await supabaseAdmin
-      .from("profiles")
-      .select("razorpay_payment_id")
-      .eq("id", context.userId)
-      .maybeSingle();
-    if (
-      existing &&
-      (existing as any).razorpay_payment_id === data.razorpay_payment_id
-    ) {
-      return { alreadyApplied: true };
-    }
-
     const days = PLANS[plan].days;
     const expiresAt = new Date(Date.now() + days * 86_400_000).toISOString();
-    const { error } = await supabaseAdmin
-      .from("profiles")
-      .update({
-        is_premium: true,
-        premium_plan: plan,
-        premium_expires_at: expiresAt,
-        razorpay_payment_id: data.razorpay_payment_id,
-      } as any)
-      .eq("id", context.userId);
+    const { data: applied, error } = await supabaseAdmin.rpc("activate_verified_premium", {
+      _user_id: context.userId,
+      _payment_id: data.razorpay_payment_id,
+      _plan: plan,
+      _expires_at: expiresAt,
+    });
     if (error) {
       console.error("Premium activation write failed", error);
       throw new Error("Activation failed");
     }
-    return { alreadyApplied: false, expiresAt };
+    return { alreadyApplied: !applied, expiresAt: applied ? expiresAt : undefined };
   });
