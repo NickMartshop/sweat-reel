@@ -36,6 +36,13 @@
       "when": 1791212081052,
       "tag": "0004_prevent_razorpay_payment_replay",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791212155297,
+      "tag": "0005_repair_achievement_sync_array_merge",
+      "breakpoints": true
     }
   ]
 }
