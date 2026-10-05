@@ -89,6 +89,9 @@ export const plansStore = {
   add: async (dayOfWeek: number, workoutId: string) => {
     const user = authStore.get().user;
     if (!user) throw new Error("Not signed in");
+    if (!Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6) {
+      throw new Error("Invalid plan day");
+    }
     const monday = getCurrentMonday();
     const { error } = await supabase.from("weekly_plans").insert({
       user_id: user.id,
@@ -102,6 +105,14 @@ export const plansStore = {
   addRest: async (dayOfWeek: number, restType: RestType) => {
     const user = authStore.get().user;
     if (!user) throw new Error("Not signed in");
+    if (
+      !Number.isInteger(dayOfWeek) ||
+      dayOfWeek < 0 ||
+      dayOfWeek > 6 ||
+      !["active", "full", "ice", "cardio"].includes(restType)
+    ) {
+      throw new Error("Invalid rest day");
+    }
     const monday = getCurrentMonday();
     const { error } = await supabase.from("weekly_plans").insert({
       user_id: user.id,

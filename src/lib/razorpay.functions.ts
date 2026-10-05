@@ -79,11 +79,33 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
       throw new Error("Invalid payment signature");
     }
 
-    // Confirm with Razorpay that the payment is actually captured/authorized
-    // and belongs to this order — prevents replay with a random signed payload.
+    // Confirm the order belongs to this signed-in user before accepting any
+    // payment attached to it. A valid payment from another account cannot grant access.
     const keyId = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
     if (!keyId) throw new Error("Payments not configured");
     const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+    const orderRes = await fetch(
+      `https://api.razorpay.com/v1/orders/${encodeURIComponent(data.razorpay_order_id)}`,
+      { headers: { Authorization: `Basic ${basicAuth}` } },
+    );
+    if (!orderRes.ok) throw new Error("Could not verify order with Razorpay");
+    const order = (await orderRes.json()) as {
+      id: string;
+      amount: number;
+      currency: string;
+      notes?: { user_id?: string; plan?: string };
+    };
+    if (
+      order.id !== data.razorpay_order_id ||
+      order.notes?.user_id !== context.userId ||
+      order.notes?.plan !== data.plan ||
+      order.amount !== PLANS[data.plan].amount ||
+      order.currency !== "INR"
+    ) {
+      throw new Error("Order does not belong to this account or plan");
+    }
+
+    // Confirm that the payment is captured and belongs to the verified order.
     const payRes = await fetch(
       `https://api.razorpay.com/v1/payments/${encodeURIComponent(data.razorpay_payment_id)}`,
       { headers: { Authorization: `Basic ${basicAuth}` } },
@@ -97,7 +119,7 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
     if (payment.order_id !== data.razorpay_order_id) {
       throw new Error("Payment does not match order");
     }
-    if (payment.status !== "captured" && payment.status !== "authorized") {
+    if (payment.status !== "captured") {
       throw new Error(`Payment not completed (status: ${payment.status})`);
     }
     const plan = data.plan as Plan;
@@ -107,33 +129,17 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Dedupe: prevent double application of the same payment id.
-    const { data: existing } = await supabaseAdmin
-      .from("profiles")
-      .select("razorpay_payment_id")
-      .eq("id", context.userId)
-      .maybeSingle();
-    if (
-      existing &&
-      (existing as any).razorpay_payment_id === data.razorpay_payment_id
-    ) {
-      return { alreadyApplied: true };
-    }
-
     const days = PLANS[plan].days;
     const expiresAt = new Date(Date.now() + days * 86_400_000).toISOString();
-    const { error } = await supabaseAdmin
-      .from("profiles")
-      .update({
-        is_premium: true,
-        premium_plan: plan,
-        premium_expires_at: expiresAt,
-        razorpay_payment_id: data.razorpay_payment_id,
-      } as any)
-      .eq("id", context.userId);
+    const { data: applied, error } = await supabaseAdmin.rpc("activate_verified_premium", {
+      _user_id: context.userId,
+      _payment_id: data.razorpay_payment_id,
+      _plan: plan,
+      _expires_at: expiresAt,
+    });
     if (error) {
       console.error("Premium activation write failed", error);
       throw new Error("Activation failed");
     }
-    return { alreadyApplied: false, expiresAt };
+    return { alreadyApplied: !applied, expiresAt: applied ? expiresAt : undefined };
   });

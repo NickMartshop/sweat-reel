@@ -188,19 +188,8 @@ export function AddWorkoutSheet({
           reps: e.reps,
         })),
       );
-      // Increment free-tier counter.
       const user = authStore.get().user;
-      if (user && !isPremium) {
-        try {
-          await supabase
-            .from("profiles")
-            .update({ ai_extractions_used: aiExtractionsUsed + 1 } as any)
-            .eq("id", user.id);
-          await premiumStore.refreshPremium(user.id);
-        } catch {
-          /* non-fatal */
-        }
-      }
+      if (user) await premiumStore.refreshPremium(user.id);
       toast.info("Exercises extracted ✨");
     } catch (err: any) {
       console.error("Supabase error code:", err?.code);

@@ -1,0 +1,1 @@
+- Enforce paid-tier quotas, AI usage counters, workout completion statistics, and achievement awards at trusted database or server boundaries because client state is editable.
