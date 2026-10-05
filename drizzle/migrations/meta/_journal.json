@@ -43,6 +43,13 @@
       "when": 1791212155297,
       "tag": "0005_repair_achievement_sync_array_merge",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791212233822,
+      "tag": "0006_close_client_profile_insert_bypass",
+      "breakpoints": true
     }
   ]
 }
