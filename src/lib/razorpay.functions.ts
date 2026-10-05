@@ -119,7 +119,7 @@ export const verifyRazorpayPayment = createServerFn({ method: "POST" })
     if (payment.order_id !== data.razorpay_order_id) {
       throw new Error("Payment does not match order");
     }
-    if (payment.status !== "captured" && payment.status !== "authorized") {
+    if (payment.status !== "captured") {
       throw new Error(`Payment not completed (status: ${payment.status})`);
     }
     const plan = data.plan as Plan;
