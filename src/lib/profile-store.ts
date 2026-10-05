@@ -90,7 +90,8 @@ export const profileStore = {
     const user = authStore.get().user;
     if (!user) throw new Error("Not signed in");
     const { data: newStreak, error } = await supabase.rpc("complete_workout", {
-      _workout_id: workoutId ?? null,
+      // The SQL RPC accepts a nullable UUID, but generated RPC types currently say string.
+      _workout_id: workoutId as string,
       _duration_mins: durationMins,
     });
     if (error) throw error;
