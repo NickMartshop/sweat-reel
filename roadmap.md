@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Current request: AI provider disclosure update only
-- [ ] Update Privacy and Terms, and align the Delete Account AI disclosure.
-- [ ] Validate rendered disclosures and the automatic website build; do not publish as part of this request.
+- [x] Update Privacy and Terms, and align the Delete Account AI disclosure.
+- [x] Validate rendered disclosures and the automatic website build; do not publish as part of this request.
 
 ## Earlier deployment scope (not authorized by the current request)
 
