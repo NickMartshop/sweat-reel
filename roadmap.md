@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Current request: final no-cost AI disclosure and release
-- [ ] Update Privacy, Terms, Delete Account, and logged-out homepage claims for temporarily unavailable AI extraction.
-- [ ] Validate required disclosures, preserved compliance wording, rendered pages, and website build.
-- [ ] Publish the existing project and verify the published URL and custom-domain status.
+- [x] Update Privacy, Terms, Delete Account, and logged-out homepage claims for temporarily unavailable AI extraction.
+- [x] Validate required disclosures, preserved compliance wording, rendered pages, and website build.
+- [x] Publish the existing project and verify the published URL and custom-domain status.
 
 ## Earlier deployment scope (not authorized by the current request)
 
