@@ -95,9 +95,31 @@ function PrivacyPage() {
 
           <Section title="3. AI Extraction and YouTube Metadata">
             <p>
-              AI extraction processes workout input, output, and URLs through SweatReel's
-              existing AI gateway to produce workout information. Review AI-generated results
-              before relying on them.
+              SweatReel uses the OpenAI API as its third-party AI provider for workout
+              extraction. Through our Supabase Edge Function, we transmit the workout title,
+              source URL, platform string, and the text necessary to perform the requested
+              extraction to OpenAI.
+            </p>
+            <p>
+              The current AI feature processes the submitted title, URL, and platform context.
+              It does not itself watch or analyze the actual video stream, download the video,
+              or upload video or audio frames. Review AI-generated results before relying on them.
+            </p>
+            <p>
+              SweatReel does not send account passwords, session tokens, or provider API
+              credentials to OpenAI. The provider credential remains server-side in Supabase
+              secrets.
+            </p>
+            <p>
+              For OpenAI's current data practices and API terms, see its{" "}
+              <a href="https://openai.com/policies/privacy-policy/" className="text-primary underline underline-offset-4">
+                Privacy Policy
+              </a>{" "}
+              and{" "}
+              <a href="https://openai.com/policies/business-terms/" className="text-primary underline underline-offset-4">
+                API terms
+              </a>
+              .
             </p>
             <p>
               For YouTube links, SweatReel obtains public metadata through server-side YouTube
