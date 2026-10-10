@@ -107,9 +107,17 @@ function DeleteAccountPage() {
           <h2 className="text-[17px] font-semibold text-white">Service disclosures</h2>
           <div className="mt-2 text-[14px] leading-[1.65] text-white/85 space-y-2">
             <p>
-              AI extraction processes workout input, output, and URLs through SweatReel's
-              existing AI gateway. Public YouTube metadata is obtained through server-side
-              YouTube oEmbed; SweatReel does not download or host YouTube videos.
+              AI extraction uses the OpenAI API through our Supabase Edge Function, transmitting
+              the workout title, source URL, platform string, and text necessary for the requested
+              extraction. It processes the submitted text context, not the actual video stream,
+              and does not download the video or upload video or audio frames. Account passwords,
+              session tokens, and provider API credentials are not sent to OpenAI. See our{" "}
+              <Link to="/privacy" className="text-primary underline underline-offset-4">
+                Privacy Policy
+              </Link>{" "}
+              for the AI provider disclosure and links to OpenAI's current privacy and API terms.
+              Public YouTube metadata is obtained through server-side YouTube oEmbed;
+              SweatReel does not download or host YouTube videos.
             </p>
             <p>
               The Gear Store contains Amazon affiliate links, and SweatReel may earn a commission
