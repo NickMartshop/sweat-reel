@@ -107,11 +107,13 @@ function DeleteAccountPage() {
           <h2 className="text-[17px] font-semibold text-white">Service disclosures</h2>
           <div className="mt-2 text-[14px] leading-[1.65] text-white/85 space-y-2">
             <p>
-              AI extraction uses the OpenAI API through our Supabase Edge Function, transmitting
-              the workout title, source URL, platform string, and text necessary for the requested
-              extraction. It processes the submitted text context, not the actual video stream,
-              and does not download the video or upload video or audio frames. Account passwords,
-              session tokens, and provider API credentials are not sent to OpenAI. See our{" "}
+              AI extraction is temporarily unavailable. While the feature is disabled, the
+              extraction feature does not send workout information to an AI provider. If it is
+              re-enabled, the workout title, source URL, and platform context would be processed
+              through our Supabase Edge Function and the OpenAI API. The feature would not watch
+              or analyze the actual video stream, download the video, or upload video or audio
+              frames. Account passwords, session tokens, and provider API credentials would not
+              be sent to OpenAI. See our{" "}
               <Link to="/privacy" className="text-primary underline underline-offset-4">
                 Privacy Policy
               </Link>{" "}
