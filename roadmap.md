@@ -1,8 +1,9 @@
 # Roadmap
 
-## Current request: AI provider disclosure update only
-- [x] Update Privacy and Terms, and align the Delete Account AI disclosure.
-- [x] Validate rendered disclosures and the automatic website build; do not publish as part of this request.
+## Current request: final no-cost AI disclosure and release
+- [x] Update Privacy, Terms, Delete Account, and logged-out homepage claims for temporarily unavailable AI extraction.
+- [x] Validate required disclosures, preserved compliance wording, rendered pages, and website build.
+- [x] Publish the existing project and verify the published URL and custom-domain status.
 
 ## Earlier deployment scope (not authorized by the current request)
 

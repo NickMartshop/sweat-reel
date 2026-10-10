@@ -76,9 +76,9 @@ function TermsPage() {
         <Section n={2} title="The SweatReel Service">
           <p>
             SweatReel helps users save and organize workout links, create plans, track completed
-            workout history and body stats, and use AI-assisted workout extraction. Public
-            YouTube metadata is obtained through server-side YouTube oEmbed; SweatReel does not
-            download or host YouTube videos.
+            workout history and body stats. AI-assisted workout extraction is temporarily
+            unavailable. Public YouTube metadata is obtained through server-side YouTube oEmbed;
+            SweatReel does not download or host YouTube videos.
           </p>
         </Section>
 
@@ -111,19 +111,19 @@ function TermsPage() {
 
         <Section n={6} title="AI-Generated Content">
           <p>
-            SweatReel uses the OpenAI API as its third-party AI provider for workout extraction.
-            Through our Supabase Edge Function, we transmit the workout title, source URL,
-            platform string, and the text necessary to perform the requested extraction to OpenAI.
+            AI extraction is temporarily unavailable. While the feature is disabled, the
+            extraction feature does not send workout information to an AI provider.
           </p>
           <p>
-            The current AI feature processes the submitted title, URL, and platform context;
-            it does not itself watch or analyze the actual video stream, download the video,
-            or upload video or audio frames. AI-generated content may be incomplete or inaccurate.
-            You are responsible for reviewing it and deciding whether it is appropriate for your use.
+            If AI extraction is re-enabled, the workout title, source URL, and platform context
+            would be processed through our Supabase Edge Function and the OpenAI API. The feature
+            would not itself watch or analyze the actual video stream, download the video, or
+            upload video or audio frames. Any AI-generated content may be incomplete or inaccurate,
+            and you are responsible for reviewing it before use.
           </p>
           <p>
-            SweatReel does not send account passwords, session tokens, or provider API credentials
-            to OpenAI. The provider credential remains server-side in Supabase secrets.
+            Account passwords, session tokens, and provider API credentials would not be sent to
+            OpenAI. The provider credential would remain server-side in Supabase secrets.
           </p>
           <p>
             For OpenAI's current data practices and API terms, see its{" "}

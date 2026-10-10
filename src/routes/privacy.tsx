@@ -80,7 +80,8 @@ function PrivacyPage() {
                 and body stats.
               </li>
               <li>
-                Workout input, output, and URLs processed when you use AI extraction.
+                Workout title, source URL, and platform context that would be processed only if
+                AI extraction is re-enabled and you request it.
               </li>
             </ul>
           </Section>
@@ -95,20 +96,18 @@ function PrivacyPage() {
 
           <Section title="3. AI Extraction and YouTube Metadata">
             <p>
-              SweatReel uses the OpenAI API as its third-party AI provider for workout
-              extraction. Through our Supabase Edge Function, we transmit the workout title,
-              source URL, platform string, and the text necessary to perform the requested
-              extraction to OpenAI.
+              AI extraction is temporarily unavailable. While the feature is disabled, the
+              extraction feature does not send workout information to an AI provider.
             </p>
             <p>
-              The current AI feature processes the submitted title, URL, and platform context.
-              It does not itself watch or analyze the actual video stream, download the video,
-              or upload video or audio frames. Review AI-generated results before relying on them.
+              If AI extraction is re-enabled, the workout title, source URL, and platform context
+              would be processed through our Supabase Edge Function and the OpenAI API. The
+              feature would not itself watch or analyze the actual video stream, download the
+              video, or upload video or audio frames.
             </p>
             <p>
-              SweatReel does not send account passwords, session tokens, or provider API
-              credentials to OpenAI. The provider credential remains server-side in Supabase
-              secrets.
+              Account passwords, session tokens, and provider API credentials would not be sent
+              to OpenAI. The provider credential would remain server-side in Supabase secrets.
             </p>
             <p>
               For OpenAI's current data practices and API terms, see its{" "}

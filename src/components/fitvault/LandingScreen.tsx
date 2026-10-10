@@ -6,7 +6,7 @@ interface Props {
 
 const BENEFITS = [
   "Open one app before you lift — not eleven saved Reels tabs you can never find again",
-  "AI reads the video and writes your sets and reps before you even walk into the gym",
+  "AI extraction is temporarily unavailable — save and organize workouts manually for now",
   "Miss a day, lose your streak. That's the whole trick. It works.",
 ];
 
@@ -49,8 +49,8 @@ export function LandingScreen({ onGetStarted }: Props) {
           className="text-center"
           style={{ marginTop: 12, fontSize: 16, color: "#8888AA", lineHeight: 1.5 }}
         >
-          SweatReel turns every fitness reel you save into a real plan — AI builds the exercise
-          list, you build the streak. Free, no card.
+          SweatReel turns every fitness reel you save into an organized workout plan. AI
+          extraction is temporarily unavailable. Free, no card.
         </p>
 
         <h2
