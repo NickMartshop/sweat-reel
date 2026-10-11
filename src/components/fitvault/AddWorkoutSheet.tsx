@@ -493,40 +493,26 @@ export function AddWorkoutSheet({
               <p className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide">
                 Exercises
               </p>
+              {aiEnabled && (
               <button
                 onClick={aiExtract}
                 disabled={aiLoading}
                 aria-label="Extract exercises with AI"
                 className="text-[13px] font-semibold text-primary press-scale flex items-center gap-1 disabled:opacity-50"
               >
-                {aiLoading ? (
-                  <>
-                    <span className="w-3.5 h-3.5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  <>
-                    AI Extract <Sparkles size={14} />
-                  </>
-                )}
+                {aiLoading ? "Working..." : (<>AI Extract <Sparkles size={14} /></>)}
               </button>
+              )}
             </div>
-            {!isPremium && (
-              <p
-                className="mt-1 text-[11px]"
-                style={{ color: aiExtractionsUsed >= 2 ? "#EF476F" : "#8888AA" }}
-              >
-                ✨ {Math.max(0, 3 - aiExtractionsUsed)} AI uses left
+            {!aiEnabled && (
+              <p role="status" className="mt-1 text-[11px] text-text-secondary">
+                {AI_EXTRACTION_DISABLED_MESSAGE}
               </p>
             )}
-
-            {aiLoading && (
-              <div className="mt-2 p-3 rounded-xl bg-card border border-border flex items-center gap-2 animate-fade-in">
-                <span className="text-lg animate-pulse">✨</span>
-                <span className="text-[13px] text-white">
-                  AI is analyzing your workout...
-                </span>
-              </div>
+            {aiEnabled && !isPremium && (
+              <p className="mt-1 text-[11px] text-text-secondary">
+                {Math.max(0, 3 - aiExtractionsUsed)} AI extractions left
+              </p>
             )}
 
             <ul className="mt-2 space-y-2">
