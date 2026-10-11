@@ -6,7 +6,7 @@ interface Props {
 
 const VALUE_PILLS = [
   "📹 Save any video",
-  "🤖 AI exercise list",
+  "📝 Your exercise list",
   "📅 Plan your week",
   "🔥 Build streaks",
 ];

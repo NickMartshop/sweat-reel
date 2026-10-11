@@ -33,9 +33,7 @@ interface Props {
 
 const FEATURES: { label: string; free: string; pro: string }[] = [
   { label: "Workout saves", free: "15 max", pro: "Unlimited" },
-  { label: "AI extractions", free: "3 total", pro: "Unlimited" },
   { label: "Weekly planner", free: "3 days", pro: "Full 7 days" },
-  { label: "Ads", free: "Shown", pro: "Zero ads" },
   { label: "Progress stats", free: "Basic", pro: "Advanced" },
 ];
 

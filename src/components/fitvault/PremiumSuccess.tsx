@@ -80,7 +80,6 @@ function PremiumSuccessOverlay({ onClose }: { onClose: () => void }) {
           {[
             { v: "∞", l: "Workouts" },
             { v: "7", l: "Days" },
-            { v: "0", l: "Ads" },
           ].map((s) => (
             <div key={s.l} className="flex flex-col items-center">
               <span className="text-[28px] font-bold text-white leading-none">{s.v}</span>

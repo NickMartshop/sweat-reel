@@ -101,10 +101,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
               url: "https://sweatreel.com",
               applicationCategory: "HealthApplication",
               operatingSystem: "Android, iOS",
-              offers: [
-                { "@type": "Offer", price: "0", priceCurrency: "INR", name: "Free" },
-                { "@type": "Offer", price: "999", priceCurrency: "INR", name: "SweatReel Pro Annual" },
-              ],
               author: {
                 "@type": "Organization",
                 name: "SweatReel",

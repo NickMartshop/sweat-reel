@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Workout } from "@/lib/fitvault-data";
-import { muscleColors, difficultyColors } from "@/lib/fitvault-data";
+import { muscleColors, difficultyColors, formatDuration } from "@/lib/fitvault-data";
+import { WorkoutThumbnail } from "./WorkoutThumbnail";
 import { ActiveWorkoutMode } from "./ActiveWorkoutMode";
 
 export function TodayWorkoutCard({ workout }: { workout: Workout }) {
@@ -37,15 +38,19 @@ export function TodayWorkoutCard({ workout }: { workout: Workout }) {
               >
                 {workout.difficulty}
               </span>
-              <span className="text-[11px] text-text-secondary">
-                ⏱ {workout.duration_mins} min
-              </span>
+              {formatDuration(workout.duration_mins) && (
+                <span className="text-[11px] text-text-secondary">
+                  ⏱ {formatDuration(workout.duration_mins)}
+                </span>
+              )}
             </div>
           </div>
-          <img
+          <WorkoutThumbnail
             src={workout.thumbnail_url}
-            alt=""
-            className="w-[100px] h-[75px] rounded-xl object-cover shrink-0"
+            sourceUrl={workout.source_url}
+            alt={`${workout.title} workout thumbnail`}
+            iconSize={20}
+            className="w-[100px] h-[75px] rounded-xl shrink-0"
           />
         </div>
 

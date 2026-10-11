@@ -8,6 +8,12 @@ export const Route = createFileRoute("/api/public/ai-extract-exercises")({
         return preflight();
       },
       POST: async ({ request }) => {
+        const { isAiExtractionEnabledServer, AI_EXTRACTION_DISABLED_CODE, AI_EXTRACTION_DISABLED_MESSAGE } =
+          await import("@/lib/ai-feature");
+        if (!isAiExtractionEnabledServer()) {
+          const { jsonError } = await import("@/lib/native-api.server");
+          return jsonError(AI_EXTRACTION_DISABLED_CODE, 503, AI_EXTRACTION_DISABLED_MESSAGE);
+        }
         const {
           authenticateRequest,
           jsonError,

@@ -1,3 +1,5 @@
+import { WorkoutThumbnail } from "@/components/fitvault/WorkoutThumbnail";
+import { formatDuration } from "@/lib/fitvault-data";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Plus, Trash2, X, Share2, Loader2, Coffee } from "lucide-react";
@@ -337,10 +339,12 @@ function PlansPage() {
                     key={e.id}
                     className="flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
                   >
-                    <img
+                    <WorkoutThumbnail
                       src={e.workout.thumbnail_url}
+                      sourceUrl={e.workout.source_url}
                       alt={`${e.workout.title} workout video thumbnail`}
-                      className="w-[60px] h-[60px] rounded-xl object-cover"
+                      iconSize={18}
+                      className="w-[60px] h-[60px] rounded-xl shrink-0"
                     />
                     <div className="min-w-0 flex-1">
                       <p className="text-[14px] font-semibold text-white truncate">
@@ -427,17 +431,20 @@ function PlansPage() {
                       onClick={() => handleAddToPlan(w.id)}
                       className="press-scale cursor-pointer flex items-center gap-3 p-2 bg-card border border-border rounded-2xl"
                     >
-                      <img
+                      <WorkoutThumbnail
                         src={w.thumbnail_url}
+                        sourceUrl={w.source_url}
                         alt={`${w.title} workout video thumbnail`}
-                        className="w-[52px] h-[52px] rounded-xl object-cover"
+                        iconSize={18}
+                        className="w-[52px] h-[52px] rounded-xl shrink-0"
                       />
                       <div className="min-w-0 flex-1">
                         <p className="text-[14px] font-semibold text-white truncate">
                           {w.title}
                         </p>
                         <p className="text-[12px] text-text-secondary">
-                          {w.muscle_group} · {w.duration_mins} min
+                          {w.muscle_group}
+                          {formatDuration(w.duration_mins) ? ` · ${formatDuration(w.duration_mins)}` : ""}
                         </p>
                       </div>
                     </li>
