@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Trash2, ClipboardPaste, Sparkles, Minus, Plus, Play, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { muscleColors, type Difficulty, type MuscleGroup } from "@/lib/fitvault-data";
+import { muscleColors, isValidDuration, MAX_DURATION_MINS, type Difficulty, type MuscleGroup } from "@/lib/fitvault-data";
+import { isAiExtractionEnabledClient, AI_EXTRACTION_DISABLED_MESSAGE } from "@/lib/ai-feature";
 import { workoutsStore } from "@/lib/workouts-store";
 import { extractExercises } from "@/lib/ai-extract.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,6 +74,7 @@ export function AddWorkoutSheet({
   const [thumbBroken, setThumbBroken] = useState(false);
   const titleTouched = useRef(false);
   const runExtract = useServerFn(extractExercises);
+  const aiEnabled = isAiExtractionEnabledClient();
 
   useEffect(() => {
     setThumbBroken(false);
@@ -153,6 +155,10 @@ export function AddWorkoutSheet({
   }
 
   async function aiExtract() {
+    if (!aiEnabled) {
+      toast.info(AI_EXTRACTION_DISABLED_MESSAGE);
+      return;
+    }
     if (aiLoading) return;
     // Client-side cooldown: 5s between extractions.
     const now = Date.now();
@@ -221,15 +227,21 @@ export function AddWorkoutSheet({
         }
       }
     }
+    if (duration !== 0 && !isValidDuration(duration)) {
+      toast.error(`Duration must be between 1 and ${MAX_DURATION_MINS} minutes.`);
+      return;
+    }
     setSavedAnim(true);
     try {
       await workoutsStore.add({
         title: sanitize(title.trim() || "Untitled Workout"),
         url: url.trim() || null,
-        thumbnail_url:
-          thumbUrl && !thumbBroken
-            ? thumbUrl
-            : `https://picsum.photos/seed/${Date.now()}/400/225`,
+        // Real YouTube thumbnail only; otherwise null (neutral placeholder).
+        thumbnail_url: ytId
+          ? thumbBroken
+            ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+            : thumbUrl
+          : null,
         muscle_group: (muscle ?? "Full Body") as MuscleGroup,
         difficulty: (difficulty ?? "Medium") as Difficulty,
         duration_mins: duration,
@@ -460,13 +472,13 @@ export function AddWorkoutSheet({
                   type="number"
                   value={duration}
                   onChange={(e) =>
-                    setDuration(Math.max(0, Number(e.target.value) || 0))
+                    setDuration(Math.min(MAX_DURATION_MINS, Math.max(0, Math.round(Number(e.target.value)) || 0)))
                   }
                   aria-label="Duration in minutes"
                   className="flex-1 min-w-0 bg-transparent text-center text-white text-[14px] font-semibold outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                 />
                 <button
-                  onClick={() => setDuration((d) => d + 5)}
+                  onClick={() => setDuration((d) => Math.min(MAX_DURATION_MINS, d + 5))}
                   className="press-scale h-full w-10 flex items-center justify-center text-text-secondary"
                   aria-label="Increase duration"
                 >

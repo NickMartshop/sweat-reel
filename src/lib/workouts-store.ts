@@ -60,6 +60,14 @@ export interface NewWorkoutInput {
   exercises: { id: string; name: string; sets: number; reps: number }[];
 }
 
+export interface WorkoutUpdateInput {
+  title: string;
+  muscle_group: string;
+  difficulty: string;
+  duration_mins: number;
+  exercises: { id: string; name: string; sets: number; reps: number }[];
+}
+
 export const workoutsStore = {
   get: () => state,
   subscribe: (l: () => void) => {
@@ -93,15 +101,45 @@ export const workoutsStore = {
     emit();
     return wk;
   },
+  /** Owner-scoped update. Source URL is intentionally not editable here. */
+  update: async (id: string, patch: WorkoutUpdateInput): Promise<Workout> => {
+    const user = authStore.get().user;
+    if (!user) throw new Error("Not signed in");
+    const { data, error } = await supabase
+      .from("workouts")
+      .update({
+        title: patch.title,
+        muscle_group: patch.muscle_group,
+        difficulty: patch.difficulty,
+        duration_mins: patch.duration_mins,
+        exercises: patch.exercises as any,
+      })
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select("*")
+      .single();
+    if (error) throw error;
+    if (!data) throw new Error("Workout not found");
+    const wk = rowToWorkout(data);
+    state = { ...state, workouts: state.workouts.map((w) => (w.id === id ? wk : w)) };
+    emit();
+    return wk;
+  },
   remove: async (id: string) => {
+    const user = authStore.get().user;
+    if (!user) throw new Error("Not signed in");
     const prev = state.workouts;
     state = { ...state, workouts: prev.filter((w) => w.id !== id) };
     emit();
-    const { error } = await supabase.from("workouts").delete().eq("id", id);
-    if (error) {
+    const { error, count } = await supabase
+      .from("workouts")
+      .delete({ count: "exact" })
+      .eq("id", id)
+      .eq("user_id", user.id);
+    if (error || count === 0) {
       state = { ...state, workouts: prev };
       emit();
-      throw error;
+      throw error ?? new Error("Workout not found");
     }
   },
 };
