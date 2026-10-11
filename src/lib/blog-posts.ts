@@ -83,7 +83,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
       {
         type: "p",
-        text: "This is exactly what SweatReel does. You paste a link, AI pulls the exercises with sets and reps, and it lands on a day of your week. The video stops being a bookmark and becomes a plan.",
+        text: "This is exactly what SweatReel does. You paste a link, write down the exercises with sets and reps, and it lands on a day of your week. The video stops being a bookmark and becomes a plan.",
       },
       {
         type: "p",
@@ -101,9 +101,9 @@ export const BLOG_POSTS: BlogPost[] = [
     title: "How to Turn a Saved Reel Into a Real Workout Plan in Under 60 Seconds",
     metaTitle: "Turn a Saved Reel Into a Real Workout Plan in 60 Seconds — SweatReel",
     metaDescription:
-      "Paste the link, let AI pull the exercises, drop it on a day. Here's the full 60-second how-to for turning saved reels into a plan. Free.",
+      "Paste the link, list the exercises, drop it on a day. Here's the full 60-second how-to for turning saved reels into a plan. Free.",
     excerpt:
-      "Paste the link. AI pulls the exercises. Drop it on a day. That's the whole thing.",
+      "Paste the link. List the exercises. Drop it on a day. That's the whole thing.",
     date: "2026-02-03",
     readMinutes: 3,
     body: [
@@ -117,7 +117,7 @@ export const BLOG_POSTS: BlogPost[] = [
         items: [
           "Copy the link. YouTube, Instagram, TikTok — open the workout you saved and hit share, then copy link.",
           "Paste it into SweatReel. Tap the plus button, drop the link in, give it a name if you want. Takes about five seconds.",
-          "Let AI read the video. It pulls out the exercises and writes sets and reps for each one, so you get a text list instead of a thumbnail you have to rewatch.",
+          "Write the exercises down. Add each move with sets and reps, so you get a text list instead of a thumbnail you have to rewatch. (Automatic AI extraction is temporarily unavailable, so this step is manual for now.)",
           "Check the list. Swap anything that doesn't fit your gym or your body. It's your plan, not the influencer's.",
           "Drop it on a day. Assign the workout to Monday, Thursday, whatever. Rest days get marked as rest days.",
           "Show up. Open the app at the gym, follow the list, mark it done. The streak counts up.",
@@ -200,7 +200,7 @@ export const BLOG_POSTS: BlogPost[] = [
       { type: "h2", text: "Top pick for saved videos: SweatReel" },
       {
         type: "p",
-        text: "SweatReel is built for exactly this use case and nothing else. Paste a YouTube, Instagram or TikTok link. AI reads the video and writes out the exercises with sets and reps. Drop that workout onto a day. Keep the streak alive.",
+        text: "SweatReel is built for exactly this use case and nothing else. Paste a YouTube, Instagram or TikTok link. Add the exercises with sets and reps — automatic AI extraction is temporarily unavailable, so you enter them yourself for now, and you can always open the original video. Drop that workout onto a day. Keep the streak alive.",
       },
       {
         type: "ul",
