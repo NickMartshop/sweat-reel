@@ -3,6 +3,7 @@ import { generateText } from "ai";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { AiExtractionDisabledError, isAiExtractionEnabledServer } from "./ai-feature";
 
 
 const ExerciseSchema = z.object({
@@ -21,6 +22,12 @@ export const extractExercises = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    // Feature gate first: no profile read, quota reservation or provider call while disabled.
+    if (!isAiExtractionEnabledServer()) {
+      const { setResponseStatus } = await import("@tanstack/react-start/server");
+      setResponseStatus(503);
+      throw new AiExtractionDisabledError();
+    }
     // Server-side quota enforcement. Do NOT trust the client to gate this —
     // the free tier allows 3 AI extractions total; premium is unlimited.
     const { data: prof, error: profErr } = await context.supabase
