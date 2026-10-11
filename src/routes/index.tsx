@@ -8,7 +8,6 @@ import { WorkoutDetailSheet } from "@/components/fitvault/WorkoutDetailSheet";
 import { TodayWorkoutCard } from "@/components/fitvault/TodayWorkoutCard";
 import { DailyQuoteCard } from "@/components/fitvault/DailyQuoteCard";
 import { ToastHost } from "@/components/fitvault/Toast";
-import { AdBanner } from "@/components/fitvault/AdBanner";
 import { FirstTimeGoalPrompt } from "@/components/fitvault/FirstTimeGoalPrompt";
 import { UpgradeSheet, type UpgradeTrigger } from "@/components/fitvault/UpgradeSheet";
 import { greeting, type Workout } from "@/lib/fitvault-data";
@@ -274,8 +273,6 @@ function HomePage() {
         </div>
       )}
 
-      {/* Ads (free users only, rendered before Today's Plan) */}
-      {!isPremium && <AdBanner />}
 
       <div className="mt-4 relative">
         <Search

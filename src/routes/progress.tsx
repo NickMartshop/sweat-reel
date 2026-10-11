@@ -5,7 +5,6 @@ import { AppShell } from "@/components/fitvault/AppShell";
 import { AchievementsGrid } from "@/components/fitvault/AchievementsGrid";
 import { MonthSummaryCard } from "@/components/fitvault/MonthSummaryCard";
 import { BodyStatsSection } from "@/components/fitvault/BodyStatsSection";
-import { AdBanner } from "@/components/fitvault/AdBanner";
 import { toast } from "@/components/fitvault/Toast";
 import { DAYS, getMondayIndex } from "@/lib/fitvault-data";
 import { usePlans } from "@/lib/plans-store";
@@ -173,7 +172,6 @@ function ProgressPage() {
         </div>
       </section>
 
-      <AdBanner />
 
       <section className="mt-6">
         <h2 className="text-base font-semibold text-white">This Month</h2>

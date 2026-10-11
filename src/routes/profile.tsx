@@ -244,7 +244,7 @@ function ProfilePage() {
           <span className="text-2xl">⚡</span>
           <div className="flex-1 text-left">
             <p className="text-[14px] font-semibold text-white">Go Pro — ₹999/year</p>
-            <p className="text-[11px] text-text-secondary">Unlimited workouts + Zero ads</p>
+            <p className="text-[11px] text-text-secondary">Unlimited workouts + full weekly planner</p>
           </div>
           <span className="text-[12px] font-semibold text-primary">Upgrade →</span>
         </button>

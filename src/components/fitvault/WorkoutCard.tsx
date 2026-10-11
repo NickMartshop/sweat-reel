@@ -1,5 +1,6 @@
 import { MoreVertical } from "lucide-react";
-import { muscleColors, difficultyColors, type Workout } from "@/lib/fitvault-data";
+import { muscleColors, difficultyColors, formatDuration, type Workout } from "@/lib/fitvault-data";
+import { WorkoutThumbnail } from "./WorkoutThumbnail";
 
 export function WorkoutCard({
   workout,
@@ -16,12 +17,11 @@ export function WorkoutCard({
       className="press-scale rounded-2xl overflow-hidden bg-card border border-border cursor-pointer"
     >
       <div className="relative aspect-video bg-[#252535]">
-        <img
+        <WorkoutThumbnail
           src={workout.thumbnail_url}
+          sourceUrl={workout.source_url}
           alt={`${workout.title} workout thumbnail`}
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover"
+          className="w-full h-full"
         />
         <div
           className="absolute inset-0 pointer-events-none"
@@ -54,8 +54,12 @@ export function WorkoutCard({
             style={{ background: difficultyColors[workout.difficulty] }}
           />
           <span>{workout.difficulty}</span>
-          <span>·</span>
-          <span>{workout.duration_mins} min</span>
+          {formatDuration(workout.duration_mins) && (
+            <>
+              <span>·</span>
+              <span>{formatDuration(workout.duration_mins)}</span>
+            </>
+          )}
         </div>
       </div>
     </article>
