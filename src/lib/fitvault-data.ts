@@ -23,7 +23,7 @@ export interface Workout {
   muscle_group: MuscleGroup;
   difficulty: Difficulty;
   duration_mins: number;
-  thumbnail_url: string;
+  thumbnail_url: string | null;
   source_url?: string;
   platform?: Platform;
   exercises?: Exercise[];
@@ -103,11 +103,60 @@ export function rowToWorkout(row: any): Workout {
     muscle_group: (row.muscle_group ?? "Full Body") as MuscleGroup,
     difficulty: (row.difficulty ?? "Medium") as Difficulty,
     duration_mins: row.duration_mins ?? 0,
+    // Never substitute an unrelated stock photo; null renders a neutral placeholder.
     thumbnail_url:
-      row.thumbnail_url ||
-      `https://picsum.photos/seed/${row.id}/400/225`,
+      typeof row.thumbnail_url === "string" && row.thumbnail_url.trim()
+        ? row.thumbnail_url
+        : null,
     source_url: row.url ?? undefined,
     platform: (row.platform ?? null) as Platform,
     exercises: Array.isArray(row.exercises) ? row.exercises : [],
   };
+}
+
+export const MIN_DURATION_MINS = 1;
+export const MAX_DURATION_MINS = 600;
+
+/** A supported workout duration: integer minutes within 1–600. */
+export function isValidDuration(value: unknown): value is number {
+  return (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= MIN_DURATION_MINS &&
+    value <= MAX_DURATION_MINS
+  );
+}
+
+/** "30 min" for valid durations, null otherwise (hide absurd values). */
+export function formatDuration(value: unknown): string | null {
+  return isValidDuration(value) ? `${value} min` : null;
+}
+
+export function extractYouTubeId(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const m = url.match(
+    /(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/|youtube\.com\/shorts\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  );
+  return m ? m[1] : null;
+}
+
+/**
+ * Ordered list of thumbnail candidates to try: stored URL first, then a
+ * lower-resolution YouTube thumbnail derived from the source URL. Empty list
+ * means render the neutral placeholder.
+ */
+export function thumbnailCandidates(
+  thumbnailUrl: string | null | undefined,
+  sourceUrl?: string | null,
+): string[] {
+  const out: string[] = [];
+  if (thumbnailUrl && /^https?:\/\//i.test(thumbnailUrl) && !/picsum\.photos/i.test(thumbnailUrl)) {
+    out.push(thumbnailUrl);
+  }
+  const yt = extractYouTubeId(sourceUrl);
+  if (yt) {
+    const hq = `https://img.youtube.com/vi/${yt}/hqdefault.jpg`;
+    if (!out.includes(hq)) out.push(hq);
+  }
+  return out;
 }
