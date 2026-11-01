@@ -112,52 +112,59 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         }),
       },
     ];
-    return ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" },
-      {
-        httpEquiv: "Content-Security-Policy",
-        content:
-          "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com; connect-src 'self' https://*.supabase.co https://api.razorpay.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://api.razorpay.com https://checkout.razorpay.com;",
-      },
-      { name: "theme-color", content: "#4361EE" },
-      { name: "mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { name: "apple-mobile-web-app-title", content: "SweatReel" },
-      { name: "robots", content: "index, follow" },
-      { name: "google-site-verification", content: "Lq64VLNxL6soFbEzwSJzb1J1soGiEfZ1Gxq3uwI4E9E" },
-      { name: "author", content: "SweatReel" },
-      {
-        name: "keywords",
-        content:
-          "workout organizer, fitness app, save workout reels, workout planner, gym tracker, exercise library, SweatReel",
-      },
-      { property: "og:site_name", content: "SweatReel" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://sweatreel.com/icon-512.png" },
-      { name: "twitter:image", content: "https://sweatreel.com/icon-512.png" },
-      { name: "application-name", content: "SweatReel" },
-      { name: "msapplication-TileImage", content: "/icon-512.png" },
-      { name: "msapplication-TileColor", content: "#4361EE" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      // { rel: "manifest", href: "/manifest.json" }, // Replaced by Progressier manifest below
-      { rel: "manifest", href: "/manifest.json" },
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        {
+          name: "viewport",
+          content:
+            "width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content",
+        },
+        {
+          httpEquiv: "Content-Security-Policy",
+          content:
+            "default-src 'self' https:; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com; connect-src 'self' https://*.supabase.co https://api.razorpay.com https://noembed.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; frame-src https://api.razorpay.com https://checkout.razorpay.com;",
+        },
+        { name: "theme-color", content: "#4361EE" },
+        { name: "mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-capable", content: "yes" },
+        { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+        { name: "apple-mobile-web-app-title", content: "SweatReel" },
+        { name: "robots", content: "index, follow" },
+        {
+          name: "google-site-verification",
+          content: "Lq64VLNxL6soFbEzwSJzb1J1soGiEfZ1Gxq3uwI4E9E",
+        },
+        { name: "author", content: "SweatReel" },
+        {
+          name: "keywords",
+          content:
+            "workout organizer, fitness app, save workout reels, workout planner, gym tracker, exercise library, SweatReel",
+        },
+        { property: "og:site_name", content: "SweatReel" },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { property: "og:image", content: "https://sweatreel.com/icon-512.png" },
+        { name: "twitter:image", content: "https://sweatreel.com/icon-512.png" },
+        { name: "application-name", content: "SweatReel" },
+        { name: "msapplication-TileImage", content: "/icon-512.png" },
+        { name: "msapplication-TileColor", content: "#4361EE" },
+      ],
+      links: [
+        { rel: "stylesheet", href: appCss },
+        // { rel: "manifest", href: "/manifest.json" }, // Replaced by Progressier manifest below
+        { rel: "manifest", href: "/manifest.json" },
 
-
-
-      
-      { rel: "apple-touch-icon", href: "/icon-192.png" },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
-    ],
-    scripts: scripts as any,
-  });
+        { rel: "apple-touch-icon", href: "/icon-192.png" },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+        },
+      ],
+      scripts: scripts as unknown as Array<{ src: string; async?: boolean }>,
+    };
   },
   shellComponent: RootShell,
   component: RootComponent,
@@ -201,7 +208,6 @@ function RootComponent() {
     // Load third-party scripts only after hydration to avoid SSR/client mismatch.
     loadClientScript("https://checkout.razorpay.com/v1/checkout.js");
   }, []);
-
 
   return (
     <ErrorBoundary>
