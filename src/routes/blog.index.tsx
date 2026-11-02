@@ -17,7 +17,7 @@ export const Route = createFileRoute("/blog/")({
           "Short, direct guides on turning saved workout reels into a real plan — and finally doing the training you bookmarked.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://sweatreel.com/blog" },
+      { property: "og:url", content: "https://www.sweatreel.com/blog" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "The SweatReel Blog — Make Your Saved Workouts Count" },
       {
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/blog/")({
           "Short, direct guides on turning saved workout reels into a real plan — and finally doing the training you bookmarked.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sweatreel.com/blog" }],
+    links: [{ rel: "canonical", href: "https://www.sweatreel.com/blog" }],
   }),
   component: BlogIndex,
 });

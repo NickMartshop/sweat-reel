@@ -20,7 +20,7 @@ export const Route = createFileRoute("/auth")({
         content:
           "Access your saved workouts, weekly plan and progress tracking. Sign in or create your SweatReel account.",
       },
-      { property: "og:url", content: "https://sweatreel.com/auth" },
+      { property: "og:url", content: "https://www.sweatreel.com/auth" },
       { name: "twitter:title", content: "Sign in to SweatReel" },
       {
         name: "twitter:description",
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/auth")({
           "Access your saved workouts, weekly plan and progress tracking. Sign in or create your SweatReel account.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sweatreel.com/auth" }],
+    links: [{ rel: "canonical", href: "https://www.sweatreel.com/auth" }],
   }),
   validateSearch: (s: Record<string, unknown>) => ({
     next: typeof s.next === "string" ? s.next : undefined,

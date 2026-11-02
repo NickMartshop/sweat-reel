@@ -125,15 +125,30 @@ export const plansStore = {
     await load();
   },
   remove: async (id: string) => {
-    const prev = state.entries;
-    state = { ...state, entries: prev.filter((e) => e.id !== id) };
-    emit();
-    const { error } = await supabase.from("weekly_plans").delete().eq("id", id);
-    if (error) {
-      state = { ...state, entries: prev };
-      emit();
-      throw error;
+    const user = authStore.get().user;
+    if (!user) throw new Error("Not signed in");
+
+    const { data, error } = await supabase
+      .from("weekly_plans")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select("id");
+
+    if (error) throw error;
+
+    if (!data || data.length === 0) {
+      throw new Error("Plan not found or not owned by current user");
     }
+
+    const prev = state.entries;
+    const deletedId = data[0].id;
+    const remaining = prev.filter((e) => e.id !== deletedId);
+    if (remaining.length === prev.length) {
+      throw new Error("Plan not found in local state");
+    }
+    state = { ...state, entries: remaining };
+    emit();
   },
 };
 
