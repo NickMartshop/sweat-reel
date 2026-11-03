@@ -46,7 +46,7 @@ async function load() {
       .eq("user_id", user.id)
       .eq("week_start_date", monday);
     if (error) throw error;
-    const entries: PlanEntry[] = (data ?? []).map((r: PlanEntry) => {
+    const entries: PlanEntry[] = (data ?? []).map((r) => {
       if (r.workouts) {
         return {
           kind: "workout",
@@ -63,8 +63,8 @@ async function load() {
       };
     });
     state = { loading: false, entries, error: null };
-  } catch (e: Error) {
-    state = { loading: false, entries: [], error: e.message ?? "Error" };
+  } catch (e) {
+    state = { loading: false, entries: [], error: (e as Error).message ?? "Error" };
   }
   emit();
 }
@@ -109,7 +109,7 @@ export const plansStore = {
       !Number.isInteger(dayOfWeek) ||
       dayOfWeek < 0 ||
       dayOfWeek > 6 ||
-      !["active", "full", "ice", "cardio"].includes(restType)
+      ["active", "full", "ice", "cardio"].includes(restType)
     ) {
       throw new Error("Invalid rest day");
     }
@@ -137,17 +137,14 @@ export const plansStore = {
 
     if (error) throw error;
 
-    // Throw if no row was actually deleted
+    // Throw if zero rows were actually deleted from the database
     if (!data || data.length === 0) {
       throw new Error("Plan not found");
     }
 
-    // Filter deleted ID from local state and emit update
+    // Remove deleted ID from local state and emit update
     const prev = state.entries;
     const remaining = prev.filter((e) => e.id !== id);
-    if (remaining.length === prev.length) {
-      throw new Error("Plan not found in local state");
-    }
     state = { ...state, entries: remaining };
     emit();
   },
