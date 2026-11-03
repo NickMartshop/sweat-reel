@@ -60,18 +60,14 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
 
   const chunks: Uint8Array[] = [];
   let bytesRead = 0;
-  const cancelled = false;
 
   const reader = request.body.getReader();
   try {
     while (true) {
-      if (cancelled) {
-        return jsonError("request_entity_too_large", 413);
-      }
       const { done, value } = await reader.read();
       if (done) break;
       if (bytesRead + value.length > MAX_BODY_BYTES) {
-        reader.cancel();
+        await reader.cancel();
         return jsonError("request_entity_too_large", 413);
       }
       chunks.push(value);
@@ -79,8 +75,6 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
     }
   } catch (e) {
     return jsonError("invalid_request", 400);
-  } finally {
-    reader.cancel();
   }
 
   if (bytesRead === 0) {
@@ -159,24 +153,27 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
   }
 
   for (const r of reports) {
-    const violatedDirective = sanitizeDirective(
-      String(r["violated-directive"] ?? r["effective-directive"] ?? ""),
-    );
+    let violatedDirective: string;
+    let disposition: string;
+    let blockedUri: string;
 
-    // Allowlist disposition values: report, enforce; otherwise unknown
-    let disposition = String(r["disposition"] ?? "unknown");
-    if (disposition !== "report" && disposition !== "enforce") {
-      disposition = "unknown";
+    if (mediaType === "application/csp-report") {
+      // Legacy format fields
+      violatedDirective = String(r["violated-directive"] ?? r["effective-directive"] ?? "");
+      disposition = String(r["disposition"] ?? "unknown");
+      blockedUri = String(r["blocked-uri"] ?? "");
+    } else {
+      // Modern format: nested body object
+      const body = (r["body"] as Record<string, unknown>) ?? {};
+      violatedDirective = String(body["effectiveDirective"] ?? "");
+      disposition = String(body["disposition"] ?? "unknown");
+      blockedUri = String(body["blockedURL"] ?? "");
     }
 
-    // For blocked URLs, log only a validated HTTP(S) origin; never log paths, query strings, credentials, or fragments
-    const blockedUri = String(r["blocked-uri"] ?? "");
-    const blockedOrigin = sanitizeBlockedUri(blockedUri);
-
     // Prevent newline/control-character log injection
-    const safeDirective = violatedDirective.replace(/[\n\r\t]/g, " ");
+    const safeDirective = sanitizeDirective(violatedDirective).replace(/[\n\r\t]/g, " ");
     const safeDisposition = disposition.replace(/[\n\r\t]/g, " ");
-    const safeBlockedOrigin = blockedOrigin.replace(/[\n\r\t]/g, " ");
+    const safeBlockedOrigin = sanitizeBlockedUri(blockedUri).replace(/[\n\r\t]/g, " ");
 
     injectedLogger(safeDirective, safeDisposition, safeBlockedOrigin);
   }
