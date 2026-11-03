@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { handleCspReport } from "@/routes/api/public/csp-report";
+import { handleCspReport } from "../src/routes/api/public/csp-report";
 
 function makeRequest(
   body: string,
@@ -236,5 +236,4 @@ describe("CSP Report Handler", () => {
     const [directive] = logSpy.mock.calls[0];
     expect(directive).toBe("a".repeat(128));
   });
-});
 });

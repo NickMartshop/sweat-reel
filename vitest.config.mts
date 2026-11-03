@@ -1,11 +1,16 @@
 import { defineConfig } from "vitest/config";
-import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import tsconfigPaths from "vite-tsconfig-paths";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: { name: "CSP Report Tests", environment: "node" },
+  plugins: [tsconfigPaths],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.url, "../src"),
+      "@": resolve(__dirname, "src"),
     },
   },
 });

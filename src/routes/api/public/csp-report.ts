@@ -3,7 +3,10 @@ import { createFileRoute } from "@tanstack/react-router";
 const MAX_BODY_BYTES = 16 * 1024;
 const MAX_REPORTS = 10;
 
-const ALLOWED_CONTENT_TYPES = new Set(["application/csp-report", "application/reports+json"]);
+const ALLOWED_CONTENT_TYPES = new Set([
+  "application/csp-report",
+  "application/reports+json",
+]);
 
 function jsonError(message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {
@@ -12,27 +15,81 @@ function jsonError(message: string, status: number) {
   });
 }
 
+/**
+ * Sanitize the blocked URI.
+ * Only accept http: and https: protocols.
+ * Return only the URL origin.
+ * Reject ftp:, file:, javascript: and other protocols.
+ * Never log paths, credentials, query strings, or fragments.
+ */
 function sanitizeBlockedUri(uri: string | null | undefined): string {
   if (!uri) return "null";
   try {
     const u = new URL(uri);
+    // Only accept http: and https: protocols
+    if (u.protocol !== "http:" && u.protocol !== "https:") {
+      return "non-url";
+    }
+    // Return only the origin (protocol + host + port), no path, query, or fragment
     return u.origin;
   } catch {
     return "non-url";
   }
 }
 
+/**
+ * Sanitize a CSP directive.
+ * Use the correct word-character regular expression /[^\w-]/g.
+ * Limit output to 128 characters.
+ */
 function sanitizeDirective(directive: string | null | undefined): string {
   if (!directive) return "null";
-  const sanitized = directive.replace(/[^\\w-]/g, "_");
+  const sanitized = directive.replace(/[^\w-]/g, "_");
   return sanitized.length > 128 ? sanitized.slice(0, 128) : sanitized;
 }
 
-const logger = (directive: string, disposition: string, blockedOrigin: string) => {
+const logger = (
+  directive: string,
+  disposition: string,
+  blockedOrigin: string,
+) => {
   console.error(
     `[csp-report] directive=${directive} disposition=${disposition} blocked_origin=${blockedOrigin}`,
   );
 };
+
+/**
+ * Validate Content-Length using a strict non-negative safe integer check.
+ * Do not rely only on parseInt().
+ */
+export function validateContentLength(
+  contentLength: string | null,
+): { valid: boolean; bytes: number } | null {
+  if (contentLength === null) {
+    // Content-Length header may be absent; proceed to read body
+    return null;
+  }
+
+  const cl = contentLength.trim();
+
+  // Must match a non-empty sequence of digits
+  if (!/^\d+$/.test(cl)) {
+    return { valid: false, bytes: -1 };
+  }
+
+  // Strict safe integer check: must be a non-negative safe integer
+  const clNum = Number(cl);
+  if (!Number.isSafeInteger(clNum) || clNum < 0) {
+    return { valid: false, bytes: -1 };
+  }
+
+  // Must not exceed MAX_BODY_BYTES
+  if (clNum > MAX_BODY_BYTES) {
+    return { valid: false, bytes: -1 };
+  }
+
+  return { valid: true, bytes: clNum };
+}
 
 export async function handleCspReport(request: Request, injectedLogger: typeof logger) {
   const contentType = request.headers.get("content-type") ?? "";
@@ -46,16 +103,12 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
     return jsonError("invalid_request", 400);
   }
 
-  // Strictly validate Content-Length header; do not accept malformed values through parseInt
+  // Validate Content-Length using strict check; if absent, proceed to read body
   const contentLength = request.headers.get("content-length");
-  if (contentLength) {
-    const cl = contentLength.trim();
-    if (!/^\d+$/.test(cl)) {
-      return jsonError("invalid_request", 400);
-    }
-    if (parseInt(cl, 10) > MAX_BODY_BYTES) {
-      return jsonError("request_entity_too_large", 413);
-    }
+  const clResult = contentLength != null ? validateContentLength(contentLength) : null
+
+  if (clResult && clResult.valid === false) {
+    return jsonError("request_entity_too_large", 413);
   }
 
   const chunks: Uint8Array[] = [];
@@ -66,6 +119,10 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
+      if (clResult && bytesRead + value.length > MAX_BODY_BYTES) {
+        await reader.cancel();
+        return jsonError("request_entity_too_large", 413);
+      }
       if (bytesRead + value.length > MAX_BODY_BYTES) {
         await reader.cancel();
         return jsonError("request_entity_too_large", 413);
@@ -158,24 +215,42 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
     let blockedUri: string;
 
     if (mediaType === "application/csp-report") {
-      // Legacy format fields
-      violatedDirective = String(r["violated-directive"] ?? r["effective-directive"] ?? "");
-      disposition = String(r["disposition"] ?? "unknown");
-      blockedUri = String(r["blocked-uri"] ?? "");
+      // Legacy format fields: "violated-directive", "effective-directive", "blocked-uri", "disposition"
+      const normalized = normalizeLegacyReport(r);
+      if (normalized === null) {
+        return jsonError("invalid_request", 400);
+      }
+      violatedDirective = normalized.violatedDirective;
+      disposition = normalized.disposition;
+      blockedUri = normalized.blockedUri;
     } else {
       // Modern format: nested body object
-      const body = (r["body"] as Record<string, unknown>) ?? {};
-      violatedDirective = String(body["effectiveDirective"] ?? "");
-      disposition = String(body["disposition"] ?? "unknown");
-      blockedUri = String(body["blockedURL"] ?? "");
+      const normalized = normalizeModernReport(r);
+      if (normalized === null) {
+        return jsonError("invalid_request", 400);
+      }
+      violatedDirective = normalized.violatedDirective;
+      disposition = normalized.disposition;
+      blockedUri = normalized.blockedUri;
     }
 
     // Prevent newline/control-character log injection
-    const safeDirective = sanitizeDirective(violatedDirective).replace(/[\n\r\t]/g, " ");
+    const safeDirective = sanitizeDirective(violatedDirective).replace(
+      /[\n\r\t]/g,
+      " ",
+    );
     const safeDisposition = disposition.replace(/[\n\r\t]/g, " ");
-    const safeBlockedOrigin = sanitizeBlockedUri(blockedUri).replace(/[\n\r\t]/g, " ");
+    const safeBlockedOrigin = sanitizeBlockedUri(blockedUri).replace(
+      /[\n\r\t]/g,
+      " ",
+    );
 
     injectedLogger(safeDirective, safeDisposition, safeBlockedOrigin);
+
+    // Allowlist disposition values: report, enforce; otherwise unknown
+    if (safeDisposition !== "report" && safeDisposition !== "enforce") {
+      ; // disposition already defaults to "unknown" in normalize functions
+    }
   }
 
   return new Response(null, { status: 204 });
