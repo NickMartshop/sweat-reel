@@ -27,25 +27,9 @@ function sanitizeDirective(directive: string | null | undefined): string {
   return directive.replace(/[^\w-]/g, "_");
 }
 
-  if (!uri) return "null";
-  try {
-    const u = new URL(uri);
-    return u.origin;
-  } catch {
-    return "non-url";
-  }
-}
+let loggerCalls: Array<{ directive: string; disposition: string; blockedOrigin: string }> = [];
 
-  function sanitizeDirective(directive: string | null | undefined): string {
-  if (!directive) return "null";
-  return directive.replace(/[^\\w-]/g, "_");
-}
-
-let logger = (
-  directive: string,
-  disposition: string,
-  blockedOrigin: string,
-) => {
+const logger = (directive: string, disposition: string, blockedOrigin: string) => {
   console.error(
     `[csp-report] directive=${directive} disposition=${disposition} blocked_origin=${blockedOrigin}`,
   );
@@ -53,6 +37,10 @@ let logger = (
 
 function resetLogger() {
   loggerCalls = [];
+}
+
+export function handleCspReport(request: Request, injectedLogger: typeof logger) {
+  return injectedLogger;
 }
 
 export const Route = createFileRoute("/api/public/csp-report")({
@@ -72,7 +60,7 @@ export const Route = createFileRoute("/api/public/csp-report")({
 
         const chunks = [];
         let bytesRead = 0;
-        let cancelled = false;
+        const cancelled = false;
 
         const reader = request.body.getReader();
         try {
@@ -99,8 +87,16 @@ export const Route = createFileRoute("/api/public/csp-report")({
           return jsonError("invalid_request", 400);
         }
 
-        const raw = new TextDecoder().decode(
-          bytesRead > 0 ? new Uint8Array(chunks) : new Uint8Array(0),
+        const raw = new TextDecoder("utf-8", { fatal: true }).decode(
+          (() => {
+            const u8 = new Uint8Array(bytesRead);
+            let offset = 0;
+            for (const chunk of chunks) {
+              u8.set(chunk, offset);
+              offset += chunk.length;
+            }
+            return u8;
+          })(),
         );
 
         let parsed;
@@ -115,8 +111,11 @@ export const Route = createFileRoute("/api/public/csp-report")({
         if (mediaType === "application/csp-report") {
           // Legacy CSP format: { "csp-report": {...} }
           if (
-            !parsed || typeof parsed !== "object" || !("csp-report" in parsed) ||
-            parsed["csp-report"] === null || typeof parsed["csp-report"] !== "object"
+            !parsed ||
+            typeof parsed !== "object" ||
+            !("csp-report" in parsed) ||
+            parsed["csp-report"] === null ||
+            typeof parsed["csp-report"] !== "object"
           ) {
             return jsonError("invalid_request", 400);
           }
@@ -139,7 +138,9 @@ export const Route = createFileRoute("/api/public/csp-report")({
           // Validate each report has type: "csp-violation"
           for (const r of parsed) {
             if (
-              !r || typeof r !== "object" || (r as Record<string, unknown>)["type"] !== "csp-violation"
+              !r ||
+              typeof r !== "object" ||
+              (r as Record<string, unknown>)["type"] !== "csp-violation"
             ) {
               return jsonError("invalid_request", 400);
             }

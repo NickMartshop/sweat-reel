@@ -46,7 +46,7 @@ async function load() {
       .eq("user_id", user.id)
       .eq("week_start_date", monday);
     if (error) throw error;
-    const entries: PlanEntry[] = (data ?? []).map((r: any): PlanEntry => {
+    const entries: PlanEntry[] = (data ?? []).map((r: PlanEntry) => {
       if (r.workouts) {
         return {
           kind: "workout",
@@ -63,7 +63,7 @@ async function load() {
       };
     });
     state = { loading: false, entries, error: null };
-  } catch (e: any) {
+  } catch (e: Error) {
     state = { loading: false, entries: [], error: e.message ?? "Error" };
   }
   emit();
@@ -116,11 +116,11 @@ export const plansStore = {
     const monday = getCurrentMonday();
     const { error } = await supabase.from("weekly_plans").insert({
       user_id: user.id,
-      workout_id: null as any,
+      workout_id: null,
       rest_type: restType,
       day_of_week: dayOfWeek,
       week_start_date: monday,
-    } as any);
+    });
     if (error) throw error;
     await load();
   },
@@ -137,29 +137,14 @@ export const plansStore = {
 
     if (error) throw error;
 
-    // If no rows deleted from DB, that's a legitimate case (stale state or already deleted)
-    // Don't throw - just reconcile and return
+    // Throw if no row was actually deleted
     if (!data || data.length === 0) {
-      // Reconcile local state and emit update even if row wasn't in local state
-      const prev = state.entries;
-      // Try to remove from local state if present
-      const remaining = prev.filter((e) => e.id !== id);
-      if (remaining.length !== prev.length) {
-        state = { ...state, entries: remaining };
-        emit();
-      }
-      return;
+      throw new Error("Plan not found");
     }
 
-    const deletedId = data[0].id;
+    // Filter deleted ID from local state and emit update
     const prev = state.entries;
-    const remaining = prev.filter((e) => e.id !== deletedId);
-    if (remaining.length === prev.length && !data[0].id) {
-      // Row wasn't in local state - still emit to reconcile
-      state = { ...state, entries: remaining };
-      emit();
-      return;
-    }
+    const remaining = prev.filter((e) => e.id !== id);
     if (remaining.length === prev.length) {
       throw new Error("Plan not found in local state");
     }
