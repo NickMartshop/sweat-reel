@@ -137,13 +137,29 @@ export const plansStore = {
 
     if (error) throw error;
 
+    // If no rows deleted from DB, that's a legitimate case (stale state or already deleted)
+    // Don't throw - just reconcile and return
     if (!data || data.length === 0) {
-      throw new Error("Plan not found or not owned by current user");
+      // Reconcile local state and emit update even if row wasn't in local state
+      const prev = state.entries;
+      // Try to remove from local state if present
+      const remaining = prev.filter((e) => e.id !== id);
+      if (remaining.length !== prev.length) {
+        state = { ...state, entries: remaining };
+        emit();
+      }
+      return;
     }
 
-    const prev = state.entries;
     const deletedId = data[0].id;
+    const prev = state.entries;
     const remaining = prev.filter((e) => e.id !== deletedId);
+    if (remaining.length === prev.length && !data[0].id) {
+      // Row wasn't in local state - still emit to reconcile
+      state = { ...state, entries: remaining };
+      emit();
+      return;
+    }
     if (remaining.length === prev.length) {
       throw new Error("Plan not found in local state");
     }
