@@ -24,7 +24,8 @@ function sanitizeBlockedUri(uri: string | null | undefined): string {
 
 function sanitizeDirective(directive: string | null | undefined): string {
   if (!directive) return "null";
-  return directive.replace(/[^\w-]/g, "_");
+  const sanitized = directive.replace(/[^\\w-]/g, "_");
+  return sanitized.length > 128 ? sanitized.slice(0, 128) : sanitized;
 }
 
 const logger = (directive: string, disposition: string, blockedOrigin: string) => {
@@ -45,11 +46,14 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
     return jsonError("invalid_request", 400);
   }
 
-  // Check Content-Length header upfront
+  // Strictly validate Content-Length header; do not accept malformed values through parseInt
   const contentLength = request.headers.get("content-length");
   if (contentLength) {
-    const cl = parseInt(contentLength, 10);
-    if (cl > MAX_BODY_BYTES) {
+    const cl = contentLength.trim();
+    if (!/^\d+$/.test(cl)) {
+      return jsonError("invalid_request", 400);
+    }
+    if (parseInt(cl, 10) > MAX_BODY_BYTES) {
       return jsonError("request_entity_too_large", 413);
     }
   }
@@ -83,17 +87,22 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
     return jsonError("invalid_request", 400);
   }
 
-  const raw = new TextDecoder("utf-8", { fatal: true }).decode(
-    (() => {
-      const u8 = new Uint8Array(bytesRead);
-      let offset = 0;
-      for (const chunk of chunks) {
-        u8.set(chunk, offset);
-        offset += chunk.length;
-      }
-      return u8;
-    })(),
-  );
+  let raw;
+  try {
+    raw = new TextDecoder("utf-8", { fatal: true }).decode(
+      (() => {
+        const u8 = new Uint8Array(bytesRead);
+        let offset = 0;
+        for (const chunk of chunks) {
+          u8.set(chunk, offset);
+          offset += chunk.length;
+        }
+        return u8;
+      })(),
+    );
+  } catch (e) {
+    return jsonError("invalid_request", 400);
+  }
 
   let parsed;
   try {

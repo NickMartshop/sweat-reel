@@ -109,7 +109,7 @@ export const plansStore = {
       !Number.isInteger(dayOfWeek) ||
       dayOfWeek < 0 ||
       dayOfWeek > 6 ||
-      ["active", "full", "ice", "cardio"].includes(restType)
+      !["active", "full", "ice", "cardio"].includes(restType)
     ) {
       throw new Error("Invalid rest day");
     }
