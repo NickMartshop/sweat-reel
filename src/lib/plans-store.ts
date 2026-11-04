@@ -46,7 +46,7 @@ async function load() {
       .eq("user_id", user.id)
       .eq("week_start_date", monday);
     if (error) throw error;
-    const entries: PlanEntry[] = (data ?? []).map((r: any): PlanEntry => {
+    const entries: PlanEntry[] = (data ?? []).map((r) => {
       if (r.workouts) {
         return {
           kind: "workout",
@@ -63,8 +63,8 @@ async function load() {
       };
     });
     state = { loading: false, entries, error: null };
-  } catch (e: any) {
-    state = { loading: false, entries: [], error: e.message ?? "Error" };
+  } catch (e) {
+    state = { loading: false, entries: [], error: (e as Error).message ?? "Error" };
   }
   emit();
 }
@@ -116,24 +116,37 @@ export const plansStore = {
     const monday = getCurrentMonday();
     const { error } = await supabase.from("weekly_plans").insert({
       user_id: user.id,
-      workout_id: null as any,
+      workout_id: null,
       rest_type: restType,
       day_of_week: dayOfWeek,
       week_start_date: monday,
-    } as any);
+    });
     if (error) throw error;
     await load();
   },
   remove: async (id: string) => {
-    const prev = state.entries;
-    state = { ...state, entries: prev.filter((e) => e.id !== id) };
-    emit();
-    const { error } = await supabase.from("weekly_plans").delete().eq("id", id);
-    if (error) {
-      state = { ...state, entries: prev };
-      emit();
-      throw error;
+    const user = authStore.get().user;
+    if (!user) throw new Error("Not signed in");
+
+    const { data, error } = await supabase
+      .from("weekly_plans")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select("id");
+
+    if (error) throw error;
+
+    // Throw if zero rows were actually deleted from the database
+    if (!data || data.length === 0) {
+      throw new Error("Plan not found");
     }
+
+    // Remove deleted ID from local state and emit update
+    const prev = state.entries;
+    const remaining = prev.filter((e) => e.id !== id);
+    state = { ...state, entries: remaining };
+    emit();
   },
 };
 

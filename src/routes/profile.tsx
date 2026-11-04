@@ -36,11 +36,11 @@ export const Route = createFileRoute("/profile")({
       },
       { property: "og:title", content: "My Profile — SweatReel" },
       { property: "og:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
-      { property: "og:url", content: "https://sweatreel.com/profile" },
+      { property: "og:url", content: "https://www.sweatreel.com/profile" },
       { name: "twitter:title", content: "My Profile — SweatReel" },
       { name: "twitter:description", content: "Manage your account, notification preferences and app settings on SweatReel." },
     ],
-    links: [{ rel: "canonical", href: "https://sweatreel.com/profile" }],
+    links: [{ rel: "canonical", href: "https://www.sweatreel.com/profile" }],
   }),
 
   component: ProfilePage,

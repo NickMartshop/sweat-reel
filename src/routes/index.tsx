@@ -56,17 +56,17 @@ export const Route = createFileRoute("/")({
         content:
           "You have 40 saved workout reels and you've done zero of them. SweatReel turns saved videos into an actual plan. Free.",
       },
-      { property: "og:url", content: "https://sweatreel.com/" },
-      { property: "og:image", content: "https://sweatreel.com/icon-512.png" },
+      { property: "og:url", content: "https://www.sweatreel.com/" },
+      { property: "og:image", content: "https://www.sweatreel.com/icon-512.png" },
       { name: "twitter:title", content: "Stop Losing Your Saved Workout Reels — SweatReel" },
       {
         name: "twitter:description",
         content:
           "You have 40 saved workout reels and you've done zero of them. SweatReel turns saved videos into an actual plan. Free.",
       },
-      { name: "twitter:image", content: "https://sweatreel.com/icon-512.png" },
+      { name: "twitter:image", content: "https://www.sweatreel.com/icon-512.png" },
     ],
-    links: [{ rel: "canonical", href: "https://sweatreel.com/" }],
+    links: [{ rel: "canonical", href: "https://www.sweatreel.com/" }],
 
   }),
 

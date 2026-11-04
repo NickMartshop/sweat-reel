@@ -38,7 +38,7 @@ export const Route = createFileRoute("/plans")({
         content:
           "Plan your week, schedule workouts by day, and keep your training organized.",
       },
-      { property: "og:url", content: "https://sweatreel.com/plans" },
+      { property: "og:url", content: "https://www.sweatreel.com/plans" },
       { name: "twitter:title", content: "My Workout Plans — SweatReel" },
       {
         name: "twitter:description",
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/plans")({
           "Plan your week, schedule workouts by day, and keep your training organized.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sweatreel.com/plans" }],
+    links: [{ rel: "canonical", href: "https://www.sweatreel.com/plans" }],
   }),
 
   component: PlansPage,
