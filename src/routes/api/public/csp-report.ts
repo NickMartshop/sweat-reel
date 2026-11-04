@@ -48,15 +48,100 @@ function sanitizeDirective(directive: string | null | undefined): string {
   return sanitized.length > 128 ? sanitized.slice(0, 128) : sanitized;
 }
 
-const logger = (
-  directive: string,
-  disposition: string,
-  blockedOrigin: string,
-) => {
+const logger = (directive: string, disposition: string, blockedOrigin: string) => {
   console.error(
     `[csp-report] directive=${directive} disposition=${disposition} blocked_origin=${blockedOrigin}`,
   );
 };
+
+/** Normalized report shape */
+interface NormalizedReport {
+  violatedDirective: string;
+  disposition: string;
+  blockedUri: string;
+}
+
+/**
+ * Normalize a legacy CSP report object ({ violated-directive, effective-directive,
+ * blocked-uri, disposition }).
+ * - Require an object under "csp-report".
+ * - Reject null and arrays.
+ * - Read "violated-directive", "effective-directive", "blocked-uri", and "disposition".
+ * - Normalize to common internal report structure.
+ * - Disposition allows only "report" and "enforce"; all other values become "unknown".
+ * Return null if the report is invalid.
+ */
+function normalizeLegacyReport(r: Record<string, unknown>): NormalizedReport | null {
+  // Reject null and arrays
+  if (!r || typeof r !== "object" || Array.isArray(r)) return null;
+
+  // r is already the csp-report object from the parsed payload
+  // Read fields with validation - never access before validating
+  const violatedDirective = r["violated-directive"] as string | undefined;
+  const effectiveDirective = r["effective-directive"] as string | undefined;
+  const blockedUri = r["blocked-uri"] as string | undefined;
+  const disposition = r["disposition"] as string | undefined;
+
+  // All required fields must be present non-empty strings
+  if (
+    typeof violatedDirective !== "string" ||
+    typeof effectiveDirective !== "string" ||
+    typeof blockedUri !== "string" ||
+    typeof disposition !== "string"
+  )
+    return null;
+
+  // Disposition allows only "report" and "enforce"; all other values become "unknown"
+  const normalizedDisposition =
+    disposition === "report" || disposition === "enforce" ? disposition : "unknown";
+
+  return {
+    violatedDirective,
+    disposition: normalizedDisposition,
+    blockedUri,
+  };
+}
+
+/**
+ * Normalize a modern Reporting API report object.
+ * - Require "type === "csp-violation"".
+ * - Require "body" to be a non-null, non-array object.
+ * - Read "body.effectiveDirective", "body.blockedURL", and "body.disposition".
+ * - Normalize to common internal report structure.
+ * Return null if the report is invalid.
+ */
+function normalizeModernReport(r: Record<string, unknown>): NormalizedReport | null {
+  // Require type === "csp-violation"
+  if (r["type"] !== "csp-violation" || typeof r["type"] !== "string") return null;
+
+  const body = r["body"];
+  // Require "body" to be a non-null, non-array object
+  if (body === null || typeof body !== "object" || Array.isArray(body)) return null;
+
+  const bodyObj = body as Record<string, unknown>;
+
+  // Read fields with validation - never access before validating
+  const effectiveDirective = bodyObj["effectiveDirective"] as string | undefined;
+  const blockedURL = bodyObj["blockedURL"] as string | undefined;
+  const disposition = bodyObj["disposition"] as string | undefined;
+
+  // All required fields must be present non-empty strings
+  if (
+    typeof effectiveDirective !== "string" ||
+    typeof blockedURL !== "string" ||
+    typeof disposition !== "string"
+  )
+    return null;
+
+  const normalizedDisposition =
+    disposition === "report" || disposition === "enforce" ? disposition : "unknown";
+
+  return {
+    violatedDirective: effectiveDirective,
+    disposition: normalizedDisposition,
+    blockedUri: blockedURL,
+  };
+}
 
 /**
  * Validate Content-Length using a strict non-negative safe integer check.
@@ -105,7 +190,7 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
 
   // Validate Content-Length using strict check; if absent, proceed to read body
   const contentLength = request.headers.get("content-length");
-  const clResult = contentLength != null ? validateContentLength(contentLength) : null
+  const clResult = contentLength != null ? validateContentLength(contentLength) : null;
 
   if (clResult && clResult.valid === false) {
     return jsonError("request_entity_too_large", 413);
@@ -235,21 +320,15 @@ export async function handleCspReport(request: Request, injectedLogger: typeof l
     }
 
     // Prevent newline/control-character log injection
-    const safeDirective = sanitizeDirective(violatedDirective).replace(
-      /[\n\r\t]/g,
-      " ",
-    );
+    const safeDirective = sanitizeDirective(violatedDirective).replace(/[\n\r\t]/g, " ");
     const safeDisposition = disposition.replace(/[\n\r\t]/g, " ");
-    const safeBlockedOrigin = sanitizeBlockedUri(blockedUri).replace(
-      /[\n\r\t]/g,
-      " ",
-    );
+    const safeBlockedOrigin = sanitizeBlockedUri(blockedUri).replace(/[\n\r\t]/g, " ");
 
     injectedLogger(safeDirective, safeDisposition, safeBlockedOrigin);
 
     // Allowlist disposition values: report, enforce; otherwise unknown
     if (safeDisposition !== "report" && safeDisposition !== "enforce") {
-      ; // disposition already defaults to "unknown" in normalize functions
+      // disposition already defaults to "unknown" in normalize functions
     }
   }
 
