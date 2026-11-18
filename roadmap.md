@@ -18,3 +18,7 @@
 - [ ] Validate source, rendered pages, and build output for required and obsolete language.
 - [ ] Run the security scan and resolve any publishing decision required by its result.
 - [ ] Publish the existing SweatReel project and verify all three custom-domain legal pages.
+
+## Current request: get more visitors
+- [x] Review the live offer, traffic, SEO findings, domain status, and relevant audience/competitor evidence.
+- [x] Save dated marketing research and a ranked visitor-growth plan; recommend only, with no app, domain, or campaign changes.
