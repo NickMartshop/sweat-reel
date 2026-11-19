@@ -17,7 +17,7 @@ export const Route = createFileRoute("/delete-account")({
           "How to permanently delete your SweatReel account and associated user data.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://sweatreel.com/delete-account" },
+      { property: "og:url", content: "https://www.sweatreel.com/delete-account" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Delete Your SweatReel Account" },
       {
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/delete-account")({
           "How to permanently delete your SweatReel account and associated user data.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sweatreel.com/delete-account" }],
+    links: [{ rel: "canonical", href: "https://www.sweatreel.com/delete-account" }],
   }),
   component: DeleteAccountPage,
 });

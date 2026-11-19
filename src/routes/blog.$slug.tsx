@@ -8,7 +8,7 @@ export const Route = createFileRoute("/blog/$slug")({
     return { post };
   },
   head: ({ params, loaderData }) => {
-    const url = `https://sweatreel.com/blog/${params.slug}`;
+    const url = `https://www.sweatreel.com/blog/${params.slug}`;
     if (!loaderData) {
       return { meta: [{ title: "Unavailable — SweatReel" }, { name: "robots", content: "noindex" }] };
     }
@@ -36,8 +36,8 @@ export const Route = createFileRoute("/blog/$slug")({
             description: post.metaDescription,
             datePublished: post.date,
             mainEntityOfPage: url,
-            author: { "@type": "Organization", name: "SweatReel", url: "https://sweatreel.com" },
-            publisher: { "@type": "Organization", name: "SweatReel", url: "https://sweatreel.com" },
+            author: { "@type": "Organization", name: "SweatReel", url: "https://www.sweatreel.com" },
+            publisher: { "@type": "Organization", name: "SweatReel", url: "https://www.sweatreel.com" },
           }),
         },
       ],

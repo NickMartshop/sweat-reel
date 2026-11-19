@@ -3,7 +3,7 @@ import type {} from "@tanstack/react-start";
 import { BLOG_POSTS } from "@/lib/blog-posts";
 
 
-const BASE_URL = "https://sweat-reel.lovable.app";
+const BASE_URL = "https://www.sweatreel.com";
 
 interface SitemapEntry {
   path: string;
@@ -17,20 +17,15 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const entries: SitemapEntry[] = [
           { path: "/", changefreq: "weekly", priority: "1.0" },
-          { path: "/auth", changefreq: "monthly", priority: "0.6" },
-          { path: "/gear", changefreq: "weekly", priority: "0.7" },
-          { path: "/plans", changefreq: "weekly", priority: "0.7" },
-          { path: "/privacy", changefreq: "yearly", priority: "0.3" },
-          { path: "/profile", changefreq: "monthly", priority: "0.5" },
-          { path: "/progress", changefreq: "weekly", priority: "0.6" },
-          { path: "/terms", changefreq: "yearly", priority: "0.3" },
-          { path: "/delete-account", changefreq: "yearly", priority: "0.5" },
           { path: "/blog", changefreq: "weekly", priority: "0.8" },
           ...BLOG_POSTS.map((p) => ({
             path: `/blog/${p.slug}`,
             changefreq: "monthly" as const,
             priority: "0.7",
           })),
+          { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+          { path: "/terms", changefreq: "yearly", priority: "0.3" },
+          { path: "/delete-account", changefreq: "yearly", priority: "0.5" },
         ];
 
 

@@ -85,20 +85,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
             {
               "@type": "Organization",
               name: "SweatReel",
-              url: "https://sweatreel.com",
-              logo: "https://sweatreel.com/favicon.ico",
+              url: "https://www.sweatreel.com",
+              logo: "https://www.sweatreel.com/favicon.ico",
             },
             {
               "@type": "WebSite",
               name: "SweatReel",
-              url: "https://sweatreel.com",
+              url: "https://www.sweatreel.com",
             },
             {
               "@type": "MobileApplication",
               name: "SweatReel",
               description:
                 "Save workout videos from YouTube, Instagram & TikTok. Organize your fitness library. Plan your week. Track your streak.",
-              url: "https://sweatreel.com",
+              url: "https://www.sweatreel.com",
               applicationCategory: "HealthApplication",
               operatingSystem: "Android, iOS",
               author: {
@@ -137,8 +137,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:site_name", content: "SweatReel" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: "https://sweatreel.com/icon-512.png" },
-      { name: "twitter:image", content: "https://sweatreel.com/icon-512.png" },
+      { property: "og:image", content: "https://www.sweatreel.com/icon-512.png" },
+      { name: "twitter:image", content: "https://www.sweatreel.com/icon-512.png" },
       { name: "application-name", content: "SweatReel" },
       { name: "msapplication-TileImage", content: "/icon-512.png" },
       { name: "msapplication-TileColor", content: "#4361EE" },

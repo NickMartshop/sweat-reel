@@ -27,37 +27,12 @@ function parseReviews(reviews: string) {
 
 export const Route = createFileRoute("/gear")({
   head: () => {
-    const productItems = GEAR_PRODUCTS.map((p) => {
-      const { price, currency } = parsePrice(p.price);
-      return {
-        "@type": "Product" as const,
-        name: p.name,
-        description: p.subtitle,
-        offers: {
-          "@type": "Offer" as const,
-          price,
-          priceCurrency: currency,
-          availability: "https://schema.org/InStock",
-          url: p.affiliateUrl,
-        },
-        aggregateRating: {
-          "@type": "AggregateRating" as const,
-          ratingValue: String(p.rating),
-          reviewCount: String(parseReviews(p.reviews)),
-        },
-      };
-    });
-
     const structuredData = {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
       name: "Fitness Gear — SweatReel",
-      url: "https://sweatreel.com/gear",
+      url: "https://www.sweatreel.com/gear",
       description: "Handpicked fitness gear our community trains with.",
-      mainEntity: {
-        "@type": "ItemList",
-        itemListElement: productItems,
-      },
     };
 
     return {
@@ -73,14 +48,15 @@ export const Route = createFileRoute("/gear")({
           property: "og:description",
           content: "Handpicked fitness gear our community trains with.",
         },
-        { property: "og:url", content: "https://sweatreel.com/gear" },
+        { property: "og:url", content: "https://www.sweatreel.com/gear" },
+        { name: "robots", content: "noindex,follow" },
         { name: "twitter:title", content: "Fitness Gear — SweatReel" },
         {
           name: "twitter:description",
           content: "Handpicked fitness gear our community trains with.",
         },
       ],
-      links: [{ rel: "canonical", href: "https://sweatreel.com/gear" }],
+      links: [{ rel: "canonical", href: "https://www.sweatreel.com/gear" }],
       scripts: [
         {
           type: "application/ld+json",

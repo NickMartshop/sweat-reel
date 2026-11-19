@@ -17,7 +17,7 @@ export const Route = createFileRoute("/terms")({
           "Terms governing SweatReel accounts, workout tools, AI-generated content, payments, and affiliate links.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://sweatreel.com/terms" },
+      { property: "og:url", content: "https://www.sweatreel.com/terms" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Terms of Service — SweatReel" },
       {
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/terms")({
           "Terms governing SweatReel accounts, workout tools, AI-generated content, payments, and affiliate links.",
       },
     ],
-    links: [{ rel: "canonical", href: "https://sweatreel.com/terms" }],
+    links: [{ rel: "canonical", href: "https://www.sweatreel.com/terms" }],
   }),
   component: TermsPage,
 });
